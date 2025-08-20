@@ -19,7 +19,7 @@ import LoadingLoader from "@/CustomComponent/LoadingLoader";
 import DescriptionTablist from "@/CustomComponent/Student/Course/DescriptionTablist";
 import FileTablist from "@/CustomComponent/Student/Course/FileTablist";
 import PagesTablist from "@/CustomComponent/Student/Course/PagesTablist";
-import AssessmentTablistStdPre from "@/CustomComponent/teacher/AssessmentTabliststdpre";
+import AssessmentTablistStdPre from "@/CustomComponent/teacher/AssessmentTablistStdPre";
 
 export default function ChapterDetailStdPre() {
   const [isLessonVisible, setIsLessonVisible] = useState(false);
