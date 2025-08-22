@@ -12,6 +12,7 @@ import {
   Wallet,
   MessagesSquare,
   NotepadText,
+  MessagesSquareIcon,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import { Button } from "../../components/ui/button";
@@ -68,6 +69,11 @@ const sideBarTabs = [
     icon: <MessageCircleDashed />,
     path: "/teacher/messages",
   },
+    {
+      name: "Discussion Rooms",
+      icon: <MessagesSquareIcon />,
+      path: "/teacher/discussions?type=all",
+    },
   {
     id: 13,
     name: "Students",

@@ -4,6 +4,7 @@ import { GlobalContext } from "@/Context/GlobalProvider";
 import ChatBox from "@/CustomComponent/Discussion/ChatBox";
 import { axiosInstance } from "@/lib/AxiosInstance";
 import { Files } from "lucide-react";
+import BackButton from "@/CustomComponent/BackButton";
 
 const TeacherDiscussionChat = () => {
   const { id } = useParams();
@@ -15,7 +16,6 @@ const TeacherDiscussionChat = () => {
   // New state for modal
   const [modalOpen, setModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState(null);
-
 
   useEffect(() => {
     const fetchdiscussion = async () => {
@@ -46,13 +46,9 @@ const TeacherDiscussionChat = () => {
 
   return (
     <div className="flex flex-col gap-2">
-      {/* Back button */}
-      <button
-        onClick={() => navigate(-1)}
-        className="mb-4 px-4 py-1 rounded bg-gray-200 hover:bg-gray-300 transition w-fit"
-      >
-        ← Back
-      </button>
+      <section className="flex justify-between items-center">
+        <BackButton />
+      </section>
 
       <section className="w-full p-6 bg-white rounded-xl shadow-md">
         <div className="py-4 mb-6 pl-6 rounded-lg bg-green-600 text-white">
@@ -152,4 +148,3 @@ const TeacherDiscussionChat = () => {
 };
 
 export default TeacherDiscussionChat;
-  

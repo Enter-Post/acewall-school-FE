@@ -280,7 +280,7 @@ function App() {
               element={<CourseGradebookPage />}
             />
 
-            <Route path="discussions/:semesterId/:quarterId">
+            <Route path="discussions">
               <Route index element={<TeacherDiscussion />} />
               <Route path=":id" element={<TeacherDiscussionChat />} />
             </Route>

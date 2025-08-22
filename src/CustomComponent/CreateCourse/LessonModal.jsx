@@ -199,7 +199,7 @@ const LessonModal = ({ chapterID, fetchQuarterDetail }) => {
           Add Lesson
         </div>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[600px] h-[80dvh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[80%] h-[80dvh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Add Lesson</DialogTitle>
           <DialogDescription>

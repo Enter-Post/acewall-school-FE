@@ -64,7 +64,6 @@ export default function CourseOverview() {
           setQuarters(res.data.enrolledCourse.courseDetails.quarter);
           setLoading(false);
           console.log(res.data.enrolledCourse.courseDetails, "course");
-
         })
         .catch((err) => {
           console.log(err);
@@ -137,25 +136,27 @@ export default function CourseOverview() {
           </p>
 
           <div className="flex items-center gap-10 mt-4">
-            <div className="flex items-center gap-2">
-              <h3 className="text-gray-900 text-sm font-semibold mb-1">
-                Category
-              </h3>
-              <Badge className="bg-green-100 text-green-800 text-sm border-none">
-                {course?.category?.title}
-              </Badge>
-            </div>
+            {course.category && (
+              <div className="flex items-center gap-2">
+                <h3 className="text-gray-900 text-sm font-semibold mb-1">
+                  Category
+                </h3>
+                <Badge className="bg-green-100 text-green-800 text-sm border-none">
+                  {course?.category?.title}
+                </Badge>
+              </div>
+            )}
 
-            <div className="flex items-center gap-2">
-              <h3 className="text-gray-900 text-sm font-semibold mb-1">
-                Subcategory
-              </h3>
-              <Badge className="bg-green-100 text-green-800 text-sm border-none">
-                {course?.subcategory?.title}
-              </Badge>
-            </div>
-
-           
+            {course?.subcategory && (
+              <div className="flex items-center gap-2">
+                <h3 className="text-gray-900 text-sm font-semibold mb-1">
+                  Subcategory
+                </h3>
+                <Badge className="bg-green-100 text-green-800 text-sm border-none">
+                  {course?.subcategory?.title}
+                </Badge>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -232,7 +233,6 @@ export default function CourseOverview() {
             </TabsTrigger>
           ))}
         </TabsList>
-
 
         {/* Overview */}
         <TabsContent value="overview" className="py-8 space-y-10">
@@ -313,54 +313,58 @@ export default function CourseOverview() {
         <TabsContent value="reviews" className="py-8 space-y-8">
           <RatingSection id={id} course={course} />
           <CommentSection id={course._id} />
-        </TabsContent >  
-      <TabsContent value="syllabus" className="py-8 space-y-6">
-  <h2 className="text-2xl font-semibold">Course Syllabus</h2>
+        </TabsContent>
+        <TabsContent value="syllabus" className="py-8 space-y-6">
+          <h2 className="text-2xl font-semibold">Course Syllabus</h2>
 
-  {course?.syllabus?.url ? (
-    <div className="border border-gray-200 rounded-lg p-4">
-      <div className="mb-4">
-        <p className="text-md font-medium">{course?.syllabus?.name}</p>
+          {course?.syllabus?.url ? (
+            <div className="border border-gray-200 rounded-lg p-4">
+              <div className="mb-4">
+                <p className="text-md font-medium">{course?.syllabus?.name}</p>
 
-        {/* Upload date (if available) */}
-        {course?.syllabus?.uploadedAt && (
-          <p className="text-sm text-gray-500 mt-1">
-            Uploaded:{" "}
-            {new Date(course.syllabus.uploadedAt).toLocaleString("en-US", {
-              month: "2-digit",
-              day: "2-digit",
-              year: "numeric",
-              hour: "2-digit",
-              minute: "2-digit",
-              hour12: true,
-            })}
-          </p>
-        )}
-      </div>
+                {/* Upload date (if available) */}
+                {course?.syllabus?.uploadedAt && (
+                  <p className="text-sm text-gray-500 mt-1">
+                    Uploaded:{" "}
+                    {new Date(course.syllabus.uploadedAt).toLocaleString(
+                      "en-US",
+                      {
+                        month: "2-digit",
+                        day: "2-digit",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        hour12: true,
+                      }
+                    )}
+                  </p>
+                )}
+              </div>
 
-      <iframe
-        src={course.syllabus.url}
-        title="Syllabus PDF"
-        className="w-full h-[600px] rounded-md border"
-      ></iframe>
+              <iframe
+                src={course.syllabus.url}
+                title="Syllabus PDF"
+                className="w-full h-[600px] rounded-md border"
+              ></iframe>
 
-      <div className="mt-4">
-        <a
-          href={course.syllabus.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-green-600 underline font-medium"
-        >
-          Download Syllabus
-        </a>
-      </div>
-    </div>
-  ) : (
-    <p className="text-gray-500 italic">No syllabus uploaded for this course.</p>
-  )}
-</TabsContent>
+              <div className="mt-4">
+                <a
+                  href={course.syllabus.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-green-600 underline font-medium"
+                >
+                  Download Syllabus
+                </a>
+              </div>
+            </div>
+          ) : (
+            <p className="text-gray-500 italic">
+              No syllabus uploaded for this course.
+            </p>
+          )}
+        </TabsContent>
       </Tabs>
-
     </div>
   );
 }
