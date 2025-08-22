@@ -24,7 +24,6 @@ const CommentSection = ({ id }) => {
         setComments(res.data.comments || []);
       } catch (error) {
         console.error(error);
-        toast.error("Failed to load comments");
       } finally {
         setLoading(false);
       }

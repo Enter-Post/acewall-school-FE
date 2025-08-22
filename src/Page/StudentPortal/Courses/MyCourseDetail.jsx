@@ -20,6 +20,7 @@ import DescriptionTablist from "@/CustomComponent/Student/Course/DescriptionTabl
 import FileTablist from "@/CustomComponent/Student/Course/FileTablist";
 import AssessmentTablist from "@/CustomComponent/Student/Course/AssessmentTablist";
 import PagesTablist from "@/CustomComponent/Student/Course/PagesTablist";
+import DiscussionTablist from "@/CustomComponent/Student/Course/DiscussionTablist";
 
 export default function ChapterDetail() {
   const [isLessonVisible, setIsLessonVisible] = useState(false);
@@ -136,7 +137,13 @@ export default function ChapterDetail() {
         {/* Tabs */}
         <Tabs defaultValue="description" className="w-full p-5">
           <TabsList className="flex flex-wrap justify-center gap-4 w-full  sm:gap-10  bg-white p-1 shadow-inner">
-            {["description", "files", "Assessments", "Pages"].map((tab) => (
+            {[
+              "description",
+              "files",
+              "Assessments",
+              "Discussions",
+              "Pages",
+            ].map((tab) => (
               <TabsTrigger
                 key={tab}
                 value={tab}
@@ -165,9 +172,11 @@ export default function ChapterDetail() {
             chapter={chapter}
             lessonAssessments={activeLesson?.lessonAssessments}
           />
+
+          <DiscussionTablist chapter={chapter} lesson={activeLesson} />
+
           
           <PagesTablist chapter={chapter} lesson={activeLesson} />
-
         </Tabs>
       </div>
 

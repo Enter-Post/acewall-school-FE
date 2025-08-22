@@ -40,9 +40,8 @@ const Assessment = () => {
       await axiosInstance
         .get("assessment/getAllassessmentforStudent")
         .then((res) => {
+          console.log(res, "response");
           setAssessments(res.data);
-          console.log("data assess",res);
-          
           setLoading(false);
         })
         .catch(() => {
@@ -220,7 +219,13 @@ const Assessment = () => {
                               </div>
                             </div>
                             <Link
-                              to={`/student/assessment/submission/${assessment._id}`}
+                              to={
+                                assessment.source === "assessment"
+                                  ? `/student/assessment/submission/${assessment._id}`
+                                  : assessment.source === "discussion"
+                                  ? `/student/discussions/${assessment._id}`
+                                  : "#"
+                              }
                               className="pt-2"
                             >
                               <Button
