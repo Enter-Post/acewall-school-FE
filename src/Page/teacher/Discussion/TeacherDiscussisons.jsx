@@ -19,16 +19,19 @@ const TeacherDiscussion = () => {
   const type = searchParams.get("type");
   const typeId = searchParams.get("typeId");
   const courseId = searchParams.get("course");
+  const semesterId = searchParams.get("semester");
+  const quarterId = searchParams.get("quarter");
 
-  const { semesterId, quarterId } = useParams();
-
-  console.log(discussion, "discussion");
+  console.log(semesterId, "semesterId");
+  console.log(quarterId, "quarterId");
 
   useEffect(() => {
     const fetchDiscussions = async () => {
       setloading(true);
+      const url =
+        type === "all" ? `/discussion/all` : `/discussion/${type}/${typeId}`;
       try {
-        const res = await axiosInstance.get(`/discussion/${type}/${typeId}`); 
+        const res = await axiosInstance.get(url);
         console.log(res, "Teacher Discussion Data");
         setDiscussion(res.data.discussion);
       } catch (err) {
@@ -48,21 +51,23 @@ const TeacherDiscussion = () => {
 
       <div className="flex flex-col pb-2 gap-5">
         <p className="text-xl py-4 mb-8 pl-6 font-semibold bg-acewall-main text-white rounded-lg">
-          Discussions
+          {type?.slice(0, 1).toUpperCase() + type?.slice(1)} Discussions
         </p>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <section className="flex justify-between">
-          <div className="flex justify-end pb-5">
-            <CreateDiscussionDialog
-              setRefresh={setRefresh}
-              refresh={refresh}
-              semester={semesterId}
-              quarter={quarterId}
-            />
-          </div>
-        </section>
+        {type !== "all" && (
+          <section className="flex justify-end">
+            <div className="flex justify-end pb-5">
+              <CreateDiscussionDialog
+                setRefresh={setRefresh}
+                refresh={refresh}
+                semester={semesterId}
+                quarter={quarterId}
+              />
+            </div>
+          </section>
+        )}
 
         <div className="w-full flex justify-center">
           {loading ? (
@@ -78,46 +83,8 @@ const TeacherDiscussion = () => {
               <DiscussionCard
                 key={item._id}
                 discussion={item}
-                link={`/teacher/discussions/${semesterId}/${quarterId}/${item._id}`}
+                link={`/teacher/discussions/${item._id}?type=${type}&typeId=${typeId}&course=${courseId}&semester=${semesterId}&quarter=${quarterId}`}
               />
-
-              // <Link
-              //   key={item._id}
-              //   to={`/teacher/discussions/${semesterId}/${quarterId}/${item._id}`}
-              //   className="border border-gray-300 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition duration-300 p-4 bg-white group"
-              // >
-              //   {item?.course?.thumbnail?.url && (
-              //     <div className="overflow-hidden rounded-md">
-              //       <img
-              //         src={item.course.thumbnail.url}
-              //         alt={item.topic || "Course Thumbnail"}
-              //         className="w-full h-40 object-cover transform group-hover:scale-105 transition duration-300 ease-in-out"
-              //       />
-              //     </div>
-              //   )}
-              //   <div
-              //     className={`border w-fit px-2 py-1 rounded-full border-gray-200 m-2 bg-indigo-600`}
-              //   >
-              //     <p className={`text-xs text-white`}>{item?.type}</p>
-              //   </div>
-
-              //   <div className="flex justify-between items-center mt-3">
-              //     <h2 className="font-semibold text-lg text-gray-800 truncate">
-              //       {item?.topic}
-              //     </h2>
-              //     <span className="text-xs text-gray-500">
-              //       {new Date(item?.createdAt).toLocaleDateString()}
-              //     </span>
-              //   </div>
-
-              //   <p className="text-sm text-indigo-700 font-medium">
-              //     {item?.course?.courseTitle}
-              //   </p>
-
-              //   <p className="text-sm text-gray-700 line-clamp-2">
-              //     {item?.description}
-              //   </p>
-              // </Link>
             ))}
         </div>
       </Tabs>
