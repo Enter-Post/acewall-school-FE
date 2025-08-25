@@ -17,6 +17,14 @@ export default function ContactUs() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
 
+  const socialLinks = [
+    {name: "Mail", icon: <Mail/>, url: "contact@acewallscholars.org"},
+    {name: "Facebook", icon: <Facebook/>, url: "https://www.facebook.com/acewallscholars"},
+    // {name: "Twitter", icon: <Twitter/>, url: "#"},
+    {name: "Instagram", icon: <Instagram/>, url: "https://www.instagram.com/acewallscholarsonline/"},
+    {name: "Youtube", icon: <Youtube/>, url: "https://www.youtube.com/channel/UCR7GG6Dvnuf6ckhTo3wqSIQ"},
+  ]
+
   const handleChange = (e) => {
     setFormData((prev) => ({
       ...prev,
@@ -72,14 +80,15 @@ export default function ContactUs() {
         <div>
           <p className="font-semibold mb-3">Follow Us</p>
           <div className="flex space-x-2">
-            {[Mail, Facebook, Twitter, Instagram, Youtube].map((Icon, index) => (
+            {socialLinks.map((social, index) => (
               <a
                 key={index}
-                href="#"
+                href={social.url}
+                target="#"
                 className="bg-green-600 p-2 rounded-full hover:bg-green-500 transition-colors"
               >
-                <Icon size={20} />
-                <span className="sr-only">{Icon.name}</span>
+                {social.icon}
+                <span className="sr-only">{social.name}</span>
               </a>
             ))}
           </div>
