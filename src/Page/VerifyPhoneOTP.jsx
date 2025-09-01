@@ -7,14 +7,14 @@ import { axiosInstance } from "@/lib/AxiosInstance";
 import { useNavigate, useParams } from "react-router-dom";
 import { GlobalContext } from "@/Context/GlobalProvider";
 
-const VerifyOTP = () => {
+const VerifyPhoneOTP = () => {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const inputsRef = useRef([]);
   const { email } = useParams();
   const [loading, setLoading] = useState(false);
   const [resendLoading, setResendLoading] = useState(false);
-  const [otpExpiresAt, setOtpExpiresAt] = useState(Date.now() + 10 * 60 * 1000); // 10 mins expiry
-  const [timeLeft, setTimeLeft] = useState(10 * 60 * 1000); // Initial timeLeft
+  const [otpExpiresAt, setOtpExpiresAt] = useState(Date.now() + 10 * 60 * 1000); // OTP expiry set to 10 minutes
+  const [timeLeft, setTimeLeft] = useState(10 * 60 * 1000); // Initialize the timer (10 minutes)
   const [cooldown, setCooldown] = useState(0); // Cooldown for resend button
   const { setUser, checkAuth } = useContext(GlobalContext);
   const navigate = useNavigate();
@@ -51,7 +51,6 @@ const VerifyOTP = () => {
     return () => clearInterval(interval);
   }, [cooldown]);
 
-  // Handle OTP input change
   const handleChange = (index, value) => {
     if (/^\d?$/.test(value)) {
       const newOtp = [...otp];
@@ -63,7 +62,6 @@ const VerifyOTP = () => {
     }
   };
 
-  // Handle backspace key press
   const handleKeyDown = (e, index) => {
     if (e.key === "Backspace" && !otp[index] && index > 0) {
       const newOtp = [...otp];
@@ -73,10 +71,8 @@ const VerifyOTP = () => {
     }
   };
 
-  // Handle form submission for OTP verification
   const handleSubmit = async () => {
     const enteredOtp = otp.join("");
-
     if (enteredOtp.length !== 6) {
       toast.error("Please enter all 6 digits.");
       return;
@@ -90,11 +86,11 @@ const VerifyOTP = () => {
     setLoading(true);
 
     try {
-      const res = await axiosInstance.post("auth/verifyOTP", { email, otp: enteredOtp });
+      const res = await axiosInstance.post("auth/verifyPhoneOTP", { email, otp: enteredOtp });
       setUser(res.data.user);
       setLoading(false);
       toast.success(res.data.message);
-      navigate(`/verifyPhoneOTP/${email}`);
+      checkAuth();
     } catch (err) {
       console.log(err);
       setLoading(false);
@@ -102,15 +98,14 @@ const VerifyOTP = () => {
     }
   };
 
-  // Handle OTP resend
   const handleResend = async () => {
-    if (cooldown > 0) return;
+    if (cooldown > 0) return; // Prevent resend if in cooldown
 
     setResendLoading(true);
     setCooldown(60); // 60 seconds cooldown for resend
 
     try {
-      const res = await axiosInstance.post("auth/resendOTP", { email });
+      const res = await axiosInstance.post("auth/resendPhoneOTP", { email });
       toast.success(res.data.message);
 
       // Reset OTP expiry and set new timer
@@ -134,7 +129,7 @@ const VerifyOTP = () => {
             <h1 className="text-3xl font-bold text-gray-800 mb-2">Verify OTP</h1>
           </div>
           <p className="text-gray-600">
-            We have sent a 6-digit OTP to your email.
+            We have sent a 6-digit OTP to your phone number.
           </p>
         </div>
 
@@ -167,7 +162,7 @@ const VerifyOTP = () => {
         </div>
 
         <p className="text-sm text-gray-500">
-          Didn’t receive an OTP? Please check your email address.
+          Didn’t receive an OTP? Please check your phone number.
         </p>
 
         {/* Submit Button */}
@@ -208,4 +203,4 @@ const VerifyOTP = () => {
   );
 };
 
-export default VerifyOTP;
+export default VerifyPhoneOTP;

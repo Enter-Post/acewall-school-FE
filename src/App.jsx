@@ -52,6 +52,7 @@ import SubmittedAssessment from "./Page/teacher/Assessment/submittedAssessment";
 import AssessmentReview from "./Page/teacher/Assessment/submittedAssessment";
 import AllSubmission from "./Page/teacher/Assessment/allSubmission";
 import VerifyOTP from "./Page/VerifyOTP";
+import VerifyPhoneOTP from "./Page/VerifyPhoneOTP";
 import ForgetPassword from "./Page/forgetPassword";
 import VerifyForgetPasswordOTP from "./Page/VerifyForgetPasswordOTP";
 import NewPassword from "./Page/NewPassword";
@@ -144,7 +145,8 @@ function App() {
           <Route path="/TeacherLogin" element={<TeacherLogin />}></Route>
           <Route path="/signup" element={<SignupPage />}></Route>
           <Route path="/verifyOTP/:email" element={<VerifyOTP />} />
-
+          <Route path="/verifyPhoneOTP/:email" element={<VerifyPhoneOTP />} />
+          
           <Route path="/" element={<MainLayout />}>
             <Route index element={<LandingPage />} />
             <Route path="/Courses">
