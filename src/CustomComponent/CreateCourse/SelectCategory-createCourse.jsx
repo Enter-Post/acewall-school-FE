@@ -47,8 +47,8 @@ const SelectCategory_createCourse = ({ register, errors, onCategoryChange }) => 
 
   return (
     <div>
-      <Label htmlFor="category" className="block mb-2">
-        Category
+      <Label htmlFor="Categories" className="block mb-2">
+       Categories 
       </Label>
       <Select
         onValueChange={(value) => {
