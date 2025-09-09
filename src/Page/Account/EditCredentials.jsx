@@ -19,6 +19,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import VerifyOTPDialog from "@/CustomComponent/VerfyOTP-Dialog";
 import { axiosInstance } from "@/lib/AxiosInstance";
 import { toast } from "sonner";
+import PhoneInput from "react-phone-input-2";
 
 const emailSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -41,6 +42,10 @@ const passwordSchema = z
     message: "Passwords do not match",
     path: ["confirmPassword"],
   });
+
+const phoneNumberSchema = z.object({
+  phone: z.string(),
+});
 
 export function EditCredentials() {
   const { user } = useContext(GlobalContext);
@@ -66,6 +71,13 @@ export function EditCredentials() {
     },
   });
 
+  const phoneNumberForm = useForm({
+    resolver: zodResolver(phoneNumberSchema),
+    defaultValues: {
+      phoneNumber: "",
+    },
+  });
+
   //   console.log(sendingOTP, "sendingOTP");
 
   const newPassword = passwordForm.watch("newPassword") || "";
@@ -77,7 +89,8 @@ export function EditCredentials() {
   const oldPassword = passwordForm.watch("oldPassword");
   const newPasswordValue = passwordForm.watch("newPassword");
   const confirmPassword = passwordForm.watch("confirmPassword");
-  const isSameAsOld = oldPassword && newPasswordValue && oldPassword === newPasswordValue;
+  const isSameAsOld =
+    oldPassword && newPasswordValue && oldPassword === newPasswordValue;
 
   const handleEmailSubmit = async (data) => {
     setSendingOTP(true);
@@ -114,6 +127,23 @@ export function EditCredentials() {
     }
   };
 
+  const handlePhoneSubmit = async (data) => {
+    setSendingOTP(true);
+    await axiosInstance
+      .post("auth/updatePhoneOTP", { newPhone: data.phone})
+      .then((res) => {
+        toast.success(res.data.message);
+        setIsOTPDialogOpen(true);
+        setSendingOTP(false);
+      })
+      .catch((err) => {
+        console.log(err);
+        toast.error(err.response?.data?.message);
+        setSendingOTP(false);
+      });
+  };
+
+  const phoneWatch = phoneNumberForm.watch("phone") || "";
 
   const getClass = (condition) =>
     `text-xs font-medium ${condition ? "text-green-600" : "text-red-500"}`;
@@ -125,6 +155,7 @@ export function EditCredentials() {
           <TabsList>
             <TabsTrigger value="account">Email</TabsTrigger>
             <TabsTrigger value="password">Password</TabsTrigger>
+            <TabsTrigger value="phone">Phone Number</TabsTrigger>
           </TabsList>
 
           {/* Email Tab */}
@@ -167,8 +198,8 @@ export function EditCredentials() {
                 <CardHeader>
                   <CardTitle>Password</CardTitle>
                   <CardDescription>
-                    Choose a password that you can remember,
-                    and make sure its strong.
+                    Choose a password that you can remember, and make sure its
+                    strong.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="grid gap-6">
@@ -188,7 +219,11 @@ export function EditCredentials() {
                         onClick={() => setShowPassword((prev) => !prev)}
                         tabIndex={-1}
                       >
-                        {showPassword ? <Eye size={18} /> : <EyeClosed size={18} />}
+                        {showPassword ? (
+                          <Eye size={18} />
+                        ) : (
+                          <EyeClosed size={18} />
+                        )}
                       </button>
                     )}
 
@@ -221,7 +256,11 @@ export function EditCredentials() {
                         onClick={() => setShowNewPassword((prev) => !prev)}
                         tabIndex={-1}
                       >
-                        {showNewPassword ? <Eye size={18} /> : <EyeClosed size={18} />}
+                        {showNewPassword ? (
+                          <Eye size={18} />
+                        ) : (
+                          <EyeClosed size={18} />
+                        )}
                       </button>
                     )}
 
@@ -253,7 +292,11 @@ export function EditCredentials() {
                         onClick={() => setShowConfirmPassword((prev) => !prev)}
                         tabIndex={-1}
                       >
-                        {showConfirmPassword ? <Eye size={18} /> : <EyeClosed size={18} />}
+                        {showConfirmPassword ? (
+                          <Eye size={18} />
+                        ) : (
+                          <EyeClosed size={18} />
+                        )}
                       </button>
                     )}
 
@@ -287,6 +330,47 @@ export function EditCredentials() {
                     setOpen={setIsOTPDialogOpen}
                     type="password"
                     sendingOTP={sendingOTP}
+                  />
+                </CardFooter>
+              </Card>
+            </TabsContent>
+          </form>
+
+          <form onSubmit={phoneNumberForm.handleSubmit(handlePhoneSubmit)}>
+            <TabsContent value="phone">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Phone Number</CardTitle>
+                  <CardDescription>
+                    Make changes to your phone number here. Click save when
+                    you're done.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="grid gap-6">
+                  <div className="mb-6">
+                    <Label htmlFor="phone">
+                      Phone Number <span className="text-red-600">*</span>
+                    </Label>
+                    <PhoneInput
+                      country={"us"}
+                      value={phoneWatch}
+                      onChange={(value) => {
+                        phoneNumberForm.setValue("phone", value);
+                      }}
+                      // {...phoneNumberForm.register("phone")}
+                      inputClass="w-full rounded-lg pl-12 py-2 bg-gray-50"
+                      disableDropdown={false}
+                    />
+                    <p className="text-xs text-red-600 mt-1">
+                      {phoneNumberForm.formState.errors?.phone?.message}
+                    </p>
+                  </div>
+                </CardContent>
+                <CardFooter>
+                  <VerifyOTPDialog
+                    open={isOTPDialogOpen}
+                    setOpen={setIsOTPDialogOpen}
+                    type="phoneNumber"
                   />
                 </CardFooter>
               </Card>

@@ -305,7 +305,7 @@ export default function TeacherCourseDetails() {
           <StatCard
             icon={<ChartBarStacked className="h-5 w-5 text-orange-500" />}
             value={course.category?.title?.toUpperCase()}
-            label="Category"
+            label="Topic "
             bgColor="bg-slate-100 hover:bg-slate-200"
           />
 
@@ -348,15 +348,6 @@ export default function TeacherCourseDetails() {
             </div>
           </Link>
         ))}
-        {/* <div className="flex gap-4">
-          <Pages />
-          <button
-            onClick={() => navigate(`/teacher/courses/${id}/posts`)} // dynamic course ID
-            className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700"
-          >
-            View Course Posts
-          </button>
-        </div> */}
         {/* Final Assessment Cards */}
         {Array.isArray(course.Assessments) &&
           course.CourseAssessments.map((assessment) => (

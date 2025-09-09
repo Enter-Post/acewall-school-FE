@@ -23,6 +23,8 @@ const VerifyOTPDialog = ({
   type,
   sendingOTP,
 }) => {
+  console.log(type, "type");
+
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const inputsRef = useRef([]);
   const [loading, setLoading] = useState(false);
@@ -105,7 +107,11 @@ const VerifyOTPDialog = ({
     setLoading(true);
 
     const endpoint =
-      type === "password" ? "auth/updatePassword" : "auth/updateEmail";
+      type === "password"
+        ? "auth/updatePassword"
+        : type === "phoneNumber"
+        ? "auth/updatePhone"
+        : "auth/updateEmail";
 
     const payload = {
       email: user.email,
@@ -134,8 +140,15 @@ const VerifyOTPDialog = ({
     setResendLoading(true);
     setCooldown(60);
 
+    const endpoint =
+      type === "password"
+        ? "auth/resendOTP"
+        : type === "phoneNumber"
+        ? "auth/resendPhoneOTP"
+        : "auth/resendOTP";
+
     try {
-      const res = await axiosInstance.post("auth/resendOTP", {
+      const res = await axiosInstance.post(endpoint, {
         email: user.email,
       });
       toast.success(res.data.message);
@@ -164,7 +177,11 @@ const VerifyOTPDialog = ({
           disabled={sendingOTP}
           className="bg-green-500 hover:bg-green-600"
         >
-          {sendingOTP ? <Loader className="mr-2 animate-spin" /> : "Save Changes"}
+          {sendingOTP ? (
+            <Loader className="mr-2 animate-spin" />
+          ) : (
+            "Save Changes"
+          )}
         </Button>
       </DialogTrigger>
 
@@ -180,13 +197,18 @@ const VerifyOTPDialog = ({
                 We have sent a 6-digit OTP to your email.
               </p>
             </section>
-            <XIcon onClick={() => setOpen(false)} size={15} className="cursor-pointer" />
+            <XIcon
+              onClick={() => setOpen(false)}
+              size={15}
+              className="cursor-pointer"
+            />
           </div>
         </DialogHeader>
 
         {timeLeft > 0 && (
           <div className="text-center text-sm font-medium text-gray-600">
-            OTP expires in <span className="font-bold">{formatTime(timeLeft)}</span>
+            OTP expires in{" "}
+            <span className="font-bold">{formatTime(timeLeft)}</span>
           </div>
         )}
 

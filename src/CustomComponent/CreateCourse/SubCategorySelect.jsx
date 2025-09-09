@@ -32,7 +32,7 @@ const SubCategorySelect = ({
 
   return (
     <div>
-      <Label className="block mb-2">Sub Category *</Label>
+      <Label className="block mb-2">SubTopic *</Label>
       <Controller
         name="subcategory"
         control={control}

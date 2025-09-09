@@ -32,7 +32,7 @@ const AssessmentTable = ({ assessments = [] }) => {
         <TableHeader>
           <TableRow className="bg-gray-50">
             <TableHead className="text-xs">Assessment</TableHead>
-            <TableHead className="text-xs">Category</TableHead>
+            <TableHead className="text-xs">Topics </TableHead>
             <TableHead className="text-xs">Score</TableHead>
             <TableHead className="text-xs">Max Points</TableHead>
             <TableHead className="text-xs">Percentage</TableHead>

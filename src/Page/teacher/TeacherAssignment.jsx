@@ -85,7 +85,7 @@ export default function TeacherAssessment() {
               {selectedCategory === "all" ? "All Categories" : selectedCategory || "Select Category"}
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Categories</SelectItem>
+              <SelectItem value="all">All Topic</SelectItem>
               {allCategories.map((cat) => (
                 <SelectItem key={cat} value={cat}>
                   {cat}

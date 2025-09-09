@@ -15,7 +15,6 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Plus, Trash } from "lucide-react";
 import { axiosInstance } from "@/lib/AxiosInstance";
@@ -31,7 +30,7 @@ const pdfFileSchema = z
 
 const lessonSchema = z.object({
   title: z.string().min(5).max(100),
-  description: z.string().min(5).max(200),
+  description: z.string().min(5).max(2500),
   youtubeLinks: z
     .string()
     .trim()
@@ -57,10 +56,10 @@ const lessonSchema = z.object({
     }),
   pdfFiles: z
     .array(pdfFileSchema)
-    .min(1, { message: "At least one PDF is required" })
+    .optional()  // Make pdfFiles optional
     .refine(
       (files) =>
-        files.reduce((acc, file) => acc + (file?.size || 0), 0) <=
+        !files || files.reduce((acc, file) => acc + (file?.size || 0), 0) <=
         5 * 1024 * 1024,
       {
         message: "Total file size must not exceed 5MB",
@@ -68,7 +67,7 @@ const lessonSchema = z.object({
     ),
 });
 
-const LessonModal = ({ chapterID, fetchQuarterDetail }) => {
+const LessonModal = ({ type, chapterID, fetchQuarterDetail }) => {
   const [open, setOpen] = useState(false);
   const [pdfInputs, setPdfInputs] = useState([{ id: Date.now(), file: null }]);
   const [totalSize, setTotalSize] = useState(0);
@@ -77,9 +76,10 @@ const LessonModal = ({ chapterID, fetchQuarterDetail }) => {
   const MAX_TITLE_LENGTH = 100;
   const MAX_DESCRIPTION_LENGTH = 200;
 
+  console.log(chapterID, "chapter Id");
+
   const [titleValue, setTitleValue] = useState("");
   const [descValue, setDescValue] = useState("");
-
   const [editorConfig] = useState({
     readonly: false,
     height: 200,
@@ -194,12 +194,12 @@ const LessonModal = ({ chapterID, fetchQuarterDetail }) => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <div className="text-green-600 bg-transparent flex p-2 text-sm">
-          <Plus className="h-4 w-4 mr-2" />
+        <div className="flex item-center gap-2 border-blue-200 text-sm text-blue-700 ml-auto w-full bg-white p-2 cursor-pointer">
+          <Plus className="h-4 w-4" size={16} />
           Add Lesson
         </div>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[80%] h-[80dvh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[90%] h-[80dvh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Add Lesson</DialogTitle>
           <DialogDescription>
@@ -230,7 +230,7 @@ const LessonModal = ({ chapterID, fetchQuarterDetail }) => {
             )}
           </div>
 
-          <div>
+          <div className="w-[80%] flex justify-center item-center gap-2 flex-col">
             <Label htmlFor="description">Lesson Description</Label>
             <JoditEditor
               config={editorConfig}
@@ -240,6 +240,9 @@ const LessonModal = ({ chapterID, fetchQuarterDetail }) => {
                 setValue("description", newContent);
               }}
             />
+            {errors.description && (
+              <p className="text-red-500 text-sm">{errors.desciption}</p>
+            )}
           </div>
 
           <div>
@@ -261,7 +264,7 @@ const LessonModal = ({ chapterID, fetchQuarterDetail }) => {
           </div>
 
           <div>
-            <Label>Lesson PDF Files</Label>
+            <Label>Lesson PDF Files <span className="text-xs text-muted-foreground">(optional)</span></Label>
             {pdfInputs.map((input) => (
               <div key={input.id} className="flex items-center gap-2 mt-2">
                 <Input
