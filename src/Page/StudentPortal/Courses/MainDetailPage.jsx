@@ -139,7 +139,7 @@ export default function CourseOverview() {
             {course.category && (
               <div className="flex items-center gap-2">
                 <h3 className="text-gray-900 text-sm font-semibold mb-1">
-                  Categories
+                  Topics
                 </h3>
                 <Badge className="bg-green-100 text-green-800 text-sm border-none">
                   {course?.category?.title}
@@ -150,7 +150,7 @@ export default function CourseOverview() {
             {course?.subcategory && (
               <div className="flex items-center gap-2">
                 <h3 className="text-gray-900 text-sm font-semibold mb-1">
-                  SubCategories
+                  SubTopics
                 </h3>
                 <Badge className="bg-green-100 text-green-800 text-sm border-none">
                   {course?.subcategory?.title}

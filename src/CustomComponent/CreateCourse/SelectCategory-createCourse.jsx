@@ -48,7 +48,7 @@ const SelectCategory_createCourse = ({ register, errors, onCategoryChange }) => 
   return (
     <div>
       <Label htmlFor="Categories" className="block mb-2">
-       Categories 
+       Topics 
       </Label>
       <Select
         onValueChange={(value) => {
@@ -58,7 +58,7 @@ const SelectCategory_createCourse = ({ register, errors, onCategoryChange }) => 
         }}
       >
         <SelectTrigger className="bg-gray-50">
-          <SelectValue placeholder="Select category" />
+          <SelectValue placeholder="Select Topic" />
         </SelectTrigger>
         <SelectContent>
           {categories.length > 0 ? (
@@ -68,7 +68,7 @@ const SelectCategory_createCourse = ({ register, errors, onCategoryChange }) => 
               </SelectItem>
             ))
           ) : (
-            <div className="p-2 text-sm text-gray-500">No categories with subcategories</div>
+            <div className="p-2 text-sm text-gray-500">No Topic with SubTopics</div>
           )}
         </SelectContent>
       </Select>

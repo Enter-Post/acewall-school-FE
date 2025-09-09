@@ -145,14 +145,14 @@ export default function CategoryDropdown({
         <SelectTrigger className={error ? "border-red-500" : ""}>
           <SelectValue
             placeholder={
-              isLoading ? "Loading categories..." : "Select a category"
+              isLoading ? "Loading Topics..." : "Select a Topics"
             }
           />
         </SelectTrigger>
         <SelectContent>
           {categories.length === 0 && !isLoading ? (
             <div className="p-2 text-sm text-muted-foreground text-center">
-              No categories found
+              No Topics found
             </div>
           ) : (
             categories.map((category) => (
@@ -180,12 +180,12 @@ export default function CategoryDropdown({
                   type="button"
                 >
                   <Plus className="h-4 w-4 mr-2" />
-                  Add New Category
+                  Add New Topic
                 </Button>
               </DialogTrigger>
               <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                  <DialogTitle>Add New Category</DialogTitle>
+                  <DialogTitle>Add New Topic</DialogTitle>
                   <DialogDescription>
                     Create a new assessment category for this course.
                   </DialogDescription>
@@ -201,7 +201,7 @@ export default function CategoryDropdown({
                       name="name"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Category Name</FormLabel>
+                          <FormLabel>Topic Name</FormLabel>
                           <FormControl>
                             <Input
                               {...field}

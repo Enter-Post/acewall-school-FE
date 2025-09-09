@@ -305,7 +305,7 @@ export default function TeacherCourseDetails() {
           <StatCard
             icon={<ChartBarStacked className="h-5 w-5 text-orange-500" />}
             value={course.category?.title?.toUpperCase()}
-            label="Categories "
+            label="Topic "
             bgColor="bg-slate-100 hover:bg-slate-200"
           />
 

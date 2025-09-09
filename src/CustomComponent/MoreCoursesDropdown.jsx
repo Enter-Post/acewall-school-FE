@@ -93,7 +93,7 @@ const MoreCoursesDropdown = () => {
             </DropdownMenuSub>
           ))
         ) : (
-          <DropdownMenuItem disabled>No categories available</DropdownMenuItem>
+          <DropdownMenuItem disabled>No Topics available</DropdownMenuItem>
         )}
       </DropdownMenuContent>
     </DropdownMenu>
