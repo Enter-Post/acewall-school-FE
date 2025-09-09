@@ -348,15 +348,6 @@ export default function TeacherCourseDetails() {
             </div>
           </Link>
         ))}
-        {/* <div className="flex gap-4">
-          <Pages />
-          <button
-            onClick={() => navigate(`/teacher/courses/${id}/posts`)} // dynamic course ID
-            className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700"
-          >
-            View Course Posts
-          </button>
-        </div> */}
         {/* Final Assessment Cards */}
         {Array.isArray(course.Assessments) &&
           course.CourseAssessments.map((assessment) => (
