@@ -212,7 +212,7 @@ export default function Layout() {
                       }}
                     >
                       <Link
-                        to={`/student/mycourses/${enrollment.course._id}`}
+                        to={`/student/mycourses/${enrollment._id}`}
                         className="w-full text-sm text-gray-800 hover:bg-gray-100 px-2 py-1 block"
                         onClick={() => setOpenDropdown(false)}
                       >
