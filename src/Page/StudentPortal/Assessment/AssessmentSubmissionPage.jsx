@@ -41,7 +41,7 @@ const AssessmentSubmissionPage = () => {
   const [error, setError] = useState(null);
   const [submitted, setSubmitted] = useState(false);
   const [result, setResult] = useState(null);
-  const [submitting, setSubmitting] = useState(false);
+  const [ submitting, setSubmitting] = useState(false);
   const [files, setFiles] = useState([]);
   const [totalFileSize, setTotalFileSize] = useState(0);
   const navigate = useNavigate();
@@ -126,63 +126,66 @@ const AssessmentSubmissionPage = () => {
     defaultValues: { studentId: "" },
   });
 
-  const onSubmit = async (data) => {
-    if (submitting) return;
+const onSubmit = async (data) => {
+  if (submitting) return;
+  setSubmitting(true); // ✅ Disable the button right away
 
-    let answers;
+  let answers;
+  const formData = new FormData();
 
-    const formData = new FormData();
+  if (assessment.assessmentType === "file") {
+    if (files.length === 0) {
+      toast.error("Please upload at least one file");
+      setSubmitting(false); // Reset on error
+      return;
+    }
 
-    if (assessment.assessmentType === "file") {
-      if (files.length === 0) {
-        toast.error("Please upload at least one file");
-        return;
+    files.forEach((file) => {
+      formData.append("files", file);
+    });
+
+    const questionIds = assessment.questions.map((question) => question._id);
+    formData.append("questionId", questionIds);
+  } else {
+    answers = assessment.questions.map((question) => ({
+      questionId: question._id,
+      selectedAnswer: data[`question-${question._id}`],
+    }));
+  }
+
+  try {
+    const res = await axiosInstance.post(
+      `/assessmentSubmission/submission/${assessment._id}`,
+      assessment.assessmentType === "file" ? formData : { answers },
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       }
+    );
 
-      files.forEach((file) => {
-        formData.append("files", file);
-      });
+    const submission = res.data.submission;
+    const isGraded = submission.graded;
 
-      // Collect question IDs as an array
-      const questionIds = assessment.questions.map((question) => question._id);
-      formData.append("questionId", questionIds);
+    setSubmitted(true);
+    setResult(submission);
+
+    if (isGraded) {
+      toast.success("Assessment graded and submitted successfully!");
     } else {
-      answers = assessment.questions.map((question) => ({
-        questionId: question._id,
-        selectedAnswer: data[`question-${question._id}`],
-      }));
+      toast.success("Submission recorded. Awaiting manual review.");
     }
 
-    try {
-      const res = await axiosInstance.post(
-        `/assessmentSubmission/submission/${assessment._id}`,
-        assessment.assessmentType === "file" ? formData : { answers },
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+    navigate(`/student/assessment`);
+  } catch (err) {
+    toast.error(err.response?.data?.message || "Submission failed");
+    setSubmitting(false); // Reset on failure
+  }
+};
 
-      // Check if the submission was auto-graded
-      const submission = res.data.submission;
-      const isGraded = submission.graded;
 
-      setSubmitted(true);
-      setResult(submission);
 
-      if (isGraded) {
-        toast.success("Assessment graded and submitted successfully!");
-      } else {
-        toast.success("Submission recorded. Awaiting manual review.");
-      }
 
-      navigate(`/student/assessment`);
-    } catch (err) {
-      toast.error(err.response?.data?.message || "Submission failed");
-      setSubmitting(false);
-    }
-  };
 
   // Show loading state
   if (loading) {
