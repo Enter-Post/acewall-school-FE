@@ -78,6 +78,7 @@ import StdPreview2 from "./Page/teacher/Courses/StdPreview2";
 import StudentSemesterDetailStdPre from "./Page/teacher/Courses/StudentSemesterDetailStdPre";
 import AllChapterStdPre from "./Page/teacher/Courses/AllChapterStdPre";
 import ChapterDetailStdPre from "./Page/teacher/Courses/MyCourseDetailStdPre";
+import FeaturedPage from "./Page/FeaturedPage";
 
 function App() {
   const { checkAuth, user, Authloading, socket, setSocket, setOnlineUser } =
@@ -124,7 +125,8 @@ function App() {
       <Routes>
         {/* Public-only accessible pages */}
         <Route path="/" element={<MainLayout />}>
-          <Route index element={<LandingPage />} /> {/* This makes / public */}
+          <Route index element={<FeaturedPage />} /> {/* This makes / public */}
+          <Route path="home" element={<LandingPage />} /> {/* This makes / public */}
           <Route path="about" element={<About />} />
           <Route path="AdditionalServices" element={<AdditionalServices />} />
           <Route path="*" element={<NotFoundPage />} />

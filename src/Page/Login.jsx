@@ -61,7 +61,7 @@ const Login = () => {
           <Link to={"/"} className="text-sm md:text-base">
             Return to Home
           </Link>
-          <Link to={"/"} className="text-sm md:text-base">
+          <Link to={"/home"} className="text-sm md:text-base">
             Create Account
           </Link>
         </div>
@@ -147,7 +147,7 @@ const Login = () => {
                         Login as a Teacher
                       </Link>
                       <Link
-                        to="/"
+                        to="/home"
                         className="text-sm text-green-600 hover:underline"
                       >
                         Create an Account 
