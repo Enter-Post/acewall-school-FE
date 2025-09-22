@@ -80,6 +80,8 @@ export default function Footer() {
     { name: "Home", url: "/home" },
     { name: "About Us", url: "/about" },
     { name: "Additional Services", url: "/AdditionalServices" },
+    { name: "Terms", url: "/terms" },
+    { name: "Privacy Policy", url: "/privacyPolicy" },
   ];
 
   const socialLinks = [
@@ -141,12 +143,12 @@ export default function Footer() {
                     </Link>
                   </li>
                 )}
-                <li className="flex items-center cursor-pointer">
+                {/* <li className="flex items-center cursor-pointer">
                   <span className="text-green-500 mr-2">›</span> <TermsModal />
                 </li>
                 <li className="flex items-center cursor-pointer">
                   <span className="text-green-500 mr-2">›</span> <PrivacyPolicy />
-                </li>
+                </li> */}
               </ul>
             </nav>
 

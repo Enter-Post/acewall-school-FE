@@ -79,6 +79,8 @@ import StudentSemesterDetailStdPre from "./Page/teacher/Courses/StudentSemesterD
 import AllChapterStdPre from "./Page/teacher/Courses/AllChapterStdPre";
 import ChapterDetailStdPre from "./Page/teacher/Courses/MyCourseDetailStdPre";
 import FeaturedPage from "./Page/FeaturedPage";
+import TermsPage from "./Page/TermAndConditionPage";
+import PrivacyPolicyPage from "./Page/privacyPolicyPage";
 
 function App() {
   const { checkAuth, user, Authloading, socket, setSocket, setOnlineUser } =
@@ -128,6 +130,8 @@ function App() {
           <Route index element={<FeaturedPage />} /> {/* This makes / public */}
           <Route path="home" element={<LandingPage />} /> {/* This makes / public */}
           <Route path="about" element={<About />} />
+          <Route path="terms" element={<TermsPage />} />
+          <Route path="privacyPolicy" element={<PrivacyPolicyPage />} />
           <Route path="AdditionalServices" element={<AdditionalServices />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
