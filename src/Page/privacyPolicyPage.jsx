@@ -78,12 +78,13 @@ export default function PrivacyPolicyPage({ style }) {
           collected from other sources .
           <br />
           <br />
-          How do we process your information? We process your information to
-          provide, improve, and administer our Services, communicate with you,
-          for security and fraud prevention, and to comply with law. We may also
-          process your information for other purposes with your consent. We
-          process your information only when we have a valid legal reason to do
-          so. Learn more about how we process your information .
+          We process your information to provide, improve, and administer our
+          Services, communicate with you (including by sending SMS messages when
+          you provide a mobile number), for security and fraud prevention, and
+          to comply with law. We may also process your information for other
+          purposes with your consent. We process your information only when we
+          have a valid legal reason to do so. Learn more about how we process
+          your information.
           <br />
           <br />
           In what situations and with which parties do we share personal
@@ -213,14 +214,18 @@ export default function PrivacyPolicyPage({ style }) {
           <br />
           <i>
             In Short: We process your information to provide, improve, and
-            administer our Services, communicate with you, for security and
-            fraud prevention, and to comply with law. We may also process your
+            administer our Services, communicate with you (including through SMS
+            when you provide a mobile number), for security and fraud
+            prevention, and to comply with law. We may also process your
             information for other purposes with your consent.
           </i>
           <br />
           <br />
-          We process your personal information for a variety of reasons,
-          depending on how you interact with our Services, including:
+          In Short: We process your information to provide, improve, and
+          administer our Services, communicate with you (including through SMS
+          when you provide a mobile number), for security and fraud prevention,
+          and to comply with law. We may also process your information for other
+          purposes with your consent.
           <br />
           <br />
           <ul>
@@ -231,7 +236,17 @@ export default function PrivacyPolicyPage({ style }) {
               working order.
             </li>
             <li>
-              To save or protect an individual's vital interest. We may process
+              To communicate with you via SMS. If you provide us with your
+              mobile phone number, we may use it to send you transactional
+              messages related to account verification (such as one-time
+              passwords) and academic notifications (such as announcements,
+              grades, and schedule updates). Message and data rates may apply.
+              You may opt out of receiving SMS messages at any time by replying
+              STOP to a message or by contacting us at
+              support@acewallscholars.org .
+            </li>
+            <li>
+              To save or protect an individual’s vital interest. We may process
               your information when necessary to save or protect an individual’s
               vital interest, such as to prevent harm.
             </li>

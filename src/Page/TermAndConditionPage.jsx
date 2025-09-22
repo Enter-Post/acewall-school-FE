@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 export default function TermsPage({ style }) {
   return (
     <section className="bg-white text-gray-800 py-8 px-4" style={style}>
@@ -809,12 +811,33 @@ export default function TermsPage({ style }) {
         <strong>25. SMS TEXT MESSAGING</strong>
         <br />
         <br />
+        <b>Message Types and Frequency</b>
+        <br />
+        <br />
+        By providing your mobile phone number, you consent to receive SMS text
+        messages from Acewall Scholars. Messages may include account
+        verification codes (one-time passwords) and academic notifications such
+        as announcements, grades, and schedule updates. Message frequency will
+        vary based on your use of our Services.
+        <br />
+        <br />
         <b>Opting Out</b>
         <br />
         <br />
         If at any time you wish to stop receiving SMS messages from us, simply
-        reply to the text with "STOP.” You may receive an SMS message confirming
+        reply to the text with "STOP." You may receive an SMS message confirming
         your opt out.
+        <br />
+        <br />
+        <b>Help</b>
+        <br />
+        <br />
+        For assistance, reply "HELP" to any message. You may also contact our
+        support team at{" "}
+        <a href="mailto:support@acewallscholars.org">
+          support@acewallscholars.org
+        </a>{" "}
+        or call (804) 818-5382.
         <br />
         <br />
         <b>Message and Data Rates</b>
@@ -825,7 +848,15 @@ export default function TermsPage({ style }) {
         the specifics of your mobile plan.
         <br />
         <br />
-        <b>Support</b>
+        <b>Privacy</b>
+        <br />
+        <br />
+        For more information on how we collect, use, and protect your
+        information, please review our
+        <Link to="/privacyPolicy" >
+          Privacy Policy
+        </Link>
+        .
         <br />
         <br />
         If you have any questions or need assistance regarding our SMS
