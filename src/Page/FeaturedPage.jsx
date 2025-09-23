@@ -2,6 +2,7 @@ import React from "react";
 import bannerLogo from "../assets/featuredpage2.png";
 import { StackedCard } from "@/CustomComponent/FeatureContent";
 import { Link } from "react-router-dom";
+import FeaturedContantCard from "@/CustomComponent/FeaturedContantCard";
 
 const PowerSchoolSolutions = () => {
   const cardsData = [
@@ -117,6 +118,10 @@ const PowerSchoolSolutions = () => {
         </div>
 
         <StackedCard cardsData={cardsData} />
+      </section>
+
+      <section>
+        <FeaturedContantCard/>
       </section>
     </div>
   );
