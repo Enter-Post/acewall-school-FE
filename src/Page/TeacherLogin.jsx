@@ -59,7 +59,7 @@ const TeacherLogin = () => {
           <Link to={"/"} className="text-sm md:text-base">
             Return to Home
           </Link>
-          <Link to={"/"} className="text-sm md:text-base">
+          <Link to={"/home"} className="text-sm md:text-base">
             Create Account
           </Link>
         </div>
@@ -142,7 +142,7 @@ const TeacherLogin = () => {
                         Login as a Student
                       </Link>
                       <Link
-                        to="/"
+                        to="/home"
                         className="text-sm text-green-600 hover:underline"
                       >
                         Create an Account
