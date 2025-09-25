@@ -20,7 +20,8 @@ const formSchema = z
     middleName: z.string().optional(),
     lastName: z.string().min(1, "Last name is required"),
     phone: z.string().min(10, "Phone number is required"),
-    homeAddress: z.string().min(1, "Home address "),
+    smsConsent: z.any(),
+    homeAddress: z.string().optional(),
     mailingAddress: z.string().optional(),
     password: z
       .string()
@@ -72,7 +73,11 @@ const SignupForm = () => {
 
   const formData = watch(); // Get current form data
 
+  console.log(watch("smsConsent"), "smsConsent");
+
   const onSubmit = async (formdata) => {
+    console.log(formdata, "formdata");
+    return;
     const completeData = { ...signUpdata, ...formdata };
 
     setAuthLoading(true);
@@ -101,16 +106,12 @@ const SignupForm = () => {
     }
   };
 
-  // const handlePrevious = () => {
-  //   setCurrentStep((prev) => {
-  //     const previousStep = prev - 1;
-  //     if (previousStep === 0) {
-  //       setValue("pronouns", formData.pronouns || "");
-  //       setValue("gender", formData.gender || "");
-  //     }
-  //     return previousStep;
-  //   });
-  // };
+  const handlePrevious = () => {
+    setCurrentStep((prev) => {
+      const previousStep = prev - 1;
+      return previousStep;
+    });
+  };
 
   const renderStep = () => {
     switch (currentStep) {
@@ -145,6 +146,7 @@ const SignupForm = () => {
                   {renderStep()}
                   <div className="flex justify-between">
                     <button
+                      onClick={handlePrevious}
                       type="button"
                       className={`text-white bg-green-600 hover:bg-green-700 font-medium rounded-lg text-sm px-3 py-3 md:px-5 md:py-2.5 ${
                         currentStep === 0 ? "invisible" : ""
@@ -167,9 +169,14 @@ const SignupForm = () => {
                       </button>
                     ) : (
                       <button
+                        disabled={!watch("smsConsent")}
+                        className={`text-white font-medium rounded-lg text-sm px-3 py-3 md:px-5 md:py-2.5 ${
+                          watch("smsConsent")
+                            ? "bg-green-600 hover:bg-green-700"
+                            : "bg-gray-400 cursor-not-allowed"
+                        }`}
                         type="button"
                         onClick={handleNext}
-                        className="text-white bg-green-600 hover:bg-green-700 font-medium rounded-lg text-sm px-5 py-2.5"
                       >
                         Next
                       </button>

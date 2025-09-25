@@ -26,10 +26,10 @@ export default function PrivacyPolicyPage({ style }) {
             <li>
               Visit our website at{" "}
               <a
-                href="https://www.acewallscholars.org"
+                href="https://www.acewallscholars.com"
                 className="text-blue-500"
               >
-                acewallscholars.org
+                acewallscholars.com
               </a>
               .
             </li>
@@ -251,6 +251,16 @@ export default function PrivacyPolicyPage({ style }) {
               vital interest, such as to prevent harm.
             </li>
           </ul>
+          <b>SMS Privacy</b>
+          <br />
+          <br />
+          If you provide us with your mobile phone number, we will use it solely
+          for the purposes of sending you account-related and service-related
+          SMS messages (such as one-time passwords, enrollment confirmations,
+          announcements, and schedule updates). We do not share your mobile
+          number with third parties for marketing purposes. You may opt out of
+          SMS at any time by replying STOP to a message or by contacting us at
+          support@acewallscholars.org.
           <br />
           <br />
           <strong>
@@ -320,22 +330,54 @@ export default function PrivacyPolicyPage({ style }) {
           <strong>
             4. WHEN AND WITH WHOM DO WE SHARE YOUR PERSONAL INFORMATION?
           </strong>
-          <br />
-          <br />
-          In Short: We may share information in specific situations described in
-          this section and/or with the following third parties. We may need to
-          share your personal information in the following situations: Business
-          Transfers. We may share or transfer your information in connection
-          with, or during negotiations of, any merger, sale of company assets,
-          financing, or acquisition of all or a portion of our business to
-          another company. Affiliates. We may share your information with our
-          affiliates, in which case we will require those affiliates to honor
-          this Privacy Notice. Affiliates include our parent company and any
-          subsidiaries, joint venture partners, or other companies that we
-          control or that are under common control with us. Business Partners.
-          We may share your information with our business partners to offer you
-          certain products, services, or promotions.
-          <br />
+          <p class="">
+            <strong>In Short:</strong> We may share information in specific
+            situations described in this section and/or with the following third
+            parties.
+          </p>
+          <p >
+            We may need to share your personal information in the following
+            situations:
+          </p>
+          <ul class="list-disc list-inside space-y-3 mb-6">
+            <li>
+              <strong>Business Transfers.</strong>
+              <span class="block mt-1">
+                We may share or transfer your information in connection with, or
+                during negotiations of, any merger, sale of company assets,
+                financing, or acquisition of all or a portion of our business to
+                another company.
+              </span>
+            </li>
+
+            <li>
+              <strong>Affiliates.</strong>
+              <span class="block mt-1">
+                We may share your information with our affiliates, in which case
+                we will require those affiliates to honor this Privacy Notice.
+                Affiliates include our parent company and any subsidiaries,
+                joint venture partners, or other companies that we control or
+                that are under common control with us.
+              </span>
+            </li>
+
+            <li>
+              <strong>Business Partners.</strong>
+              <span class="block mt-1">
+                We may share your information with our business partners to
+                offer you certain products, services, or promotions.
+              </span>
+            </li>
+          </ul>
+          <b>SMS Privacy Notice</b>
+          <p class="text-sm">
+            We do not share mobile information with third parties or affiliates
+            for marketing or promotional purposes. Information may be shared
+            with subcontractors solely for the purpose of providing customer
+            support services. All other categories exclude text messaging
+            originator opt-in data and consent; this information will not be
+            shared with any third parties.
+          </p>
           <br />
           <strong>5. DO WE USE COOKIES AND OTHER TRACKING TECHNOLOGIES?</strong>
           <br />
@@ -423,6 +465,17 @@ export default function PrivacyPolicyPage({ style }) {
           further processing until deletion is possible.
           <br />
           <br />
+          <b>HOW DO WE KEEP YOUR INFORMATION SAFE?</b>
+          <br />
+          <br />
+          We implement appropriate technical and organizational security
+          measures designed to protect your personal information. However, no
+          electronic transmission over the Internet or information storage
+          technology can be guaranteed 100% secure, so we cannot promise or
+          guarantee that unauthorized third parties will not be able to defeat
+          our security measures.
+          <br />
+          <br />
           <strong>9. DO WE COLLECT INFORMATION FROM MINORS?</strong>
           <br />
           <br />
@@ -436,7 +489,8 @@ export default function PrivacyPolicyPage({ style }) {
           18 years of age has been collected, we will deactivate the account and
           take reasonable measures to promptly delete such data from our
           records. If you become aware of any data we may have collected from
-          children under age 18, please contact us at __________ .
+          children under age 18, please contact us at
+          support@acewallscholars.org .
           <br />
           <br />
           <strong>10. WHAT ARE YOUR PRIVACY RIGHTS?</strong>
@@ -689,13 +743,13 @@ export default function PrivacyPolicyPage({ style }) {
           <br />
           <br />
           To exercise these rights, you can contact us by submitting a data
-          subject access request , by emailing us at __________ , or by
-          referring to the contact details at the bottom of this document. Under
-          certain US state data protection laws, you can designate an authorized
-          agent to make a request on your behalf. We may deny a request from an
-          authorized agent that does not submit proof that they have been
-          validly authorized to act on your behalf in accordance with applicable
-          laws.
+          subject access request , by emailing us at support@acewallscholars.org
+          , or by referring to the contact details at the bottom of this
+          document. Under certain US state data protection laws, you can
+          designate an authorized agent to make a request on your behalf. We may
+          deny a request from an authorized agent that does not submit proof
+          that they have been validly authorized to act on your behalf in
+          accordance with applicable laws.
           <br />
           <br />
           <b>Request Verification</b>

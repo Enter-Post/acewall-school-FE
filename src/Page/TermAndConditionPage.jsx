@@ -19,10 +19,10 @@ export default function TermsPage({ style }) {
           We are Acewall Scholars ("Company," "we," "us," "our"). We operate the
           website{" "}
           <a
-            href="https://www.acewallscholars.org"
+            href="https://www.acewallscholars.com"
             className="text-blue-600 underline"
           >
-            https://www.acewallscholars.org
+            https://www.acewallscholars.com
           </a>{" "}
           (the "Site"), as well as any other related products and services that
           refer or link to these legal terms (the "Legal Terms") (collectively,
@@ -528,15 +528,16 @@ export default function TermsPage({ style }) {
         <br />
         <br />
         We care about data privacy and security. Please review our Privacy
-        Policy: __________ . By using the Services, you agree to be bound by our
-        Privacy Policy, which is incorporated into these Legal Terms. Please be
-        advised the Services are hosted in the United States . If you access the
-        Services from any other region of the world with laws or other
-        requirements governing personal data collection, use, or disclosure that
-        differ from applicable laws in the United States , then through your
-        continued use of the Services, you are transferring your data to the
-        United States , and you expressly consent to have your data transferred
-        to and processed in the United States .
+        Policy: https://www.acewallscholarslearningonline.com/privacyPolicy . By
+        using the Services, you agree to be bound by our Privacy Policy, which
+        is incorporated into these Legal Terms. Please be advised the Services
+        are hosted in the United States . If you access the Services from any
+        other region of the world with laws or other requirements governing
+        personal data collection, use, or disclosure that differ from applicable
+        laws in the United States , then through your continued use of the
+        Services, you are transferring your data to the United States , and you
+        expressly consent to have your data transferred to and processed in the
+        United States .
         <br />
         <br />
         <strong>15. TERM AND TERMINATION</strong>
@@ -811,50 +812,36 @@ export default function TermsPage({ style }) {
         <strong>25. SMS TEXT MESSAGING</strong>
         <br />
         <br />
-        <b>Message Types and Frequency</b>
+        By providing your mobile phone number and opting in, you consent to
+        receive SMS messages from Acewall Scholars related to your account,
+        services, or updates. Message frequency may vary. Message and data rates
+        may apply.
+        <br />
+        You may opt out at any time by replying STOP to any message. For help,
+        reply HELP or contact us at contact@acewallscholars.org or (855)
+        522-3925.
+        <br />
+        Consent to receive SMS messages is not a condition of purchase.
         <br />
         <br />
-        By providing your mobile phone number, you consent to receive SMS text
-        messages from Acewall Scholars. Messages may include account
-        verification codes (one-time passwords) and academic notifications such
-        as announcements, grades, and schedule updates. Message frequency will
-        vary based on your use of our Services.
+        We do not share mobile information with third parties or affiliates for
+        marketing or promotional purposes. Information may be shared with
+        subcontractors solely for the purpose of providing customer support
+        services. All other categories exclude text messaging originator opt-in
+        data and consent; this information will not be shared with any third
+        parties.
         <br />
         <br />
-        <b>Opting Out</b>
+        <b>Additional Terms</b>
         <br />
         <br />
-        If at any time you wish to stop receiving SMS messages from us, simply
-        reply to the text with "STOP." You may receive an SMS message confirming
-        your opt out.
-        <br />
-        <br />
-        <b>Help</b>
-        <br />
-        <br />
-        For assistance, reply "HELP" to any message. You may also contact our
-        support team at{" "}
-        <a href="mailto:support@acewallscholars.org">
-          support@acewallscholars.org
-        </a>{" "}
-        or call (804) 818-5382.
-        <br />
-        <br />
-        <b>Message and Data Rates</b>
-        <br />
-        <br />
-        Please be aware that message and data rates may apply to any SMS
-        messages sent or received. The rates are determined by your carrier and
-        the specifics of your mobile plan.
-        <br />
-        <br />
-        <b>Privacy</b>
-        <br />
-        <br />
-        For more information on how we collect, use, and protect your
-        information, please review our
-        <Link to="/privacyPolicy" >
-          Privacy Policy
+        For more information, please review our Terms of Service at{" "}
+        <Link to="/terms">
+          https://acewallscholarslearningonline.com/terms
+        </Link>{" "}
+        and our Privacy Policy at{" "}
+        <Link to="/privacyPolicy">
+          https://acewallscholarslearningonline.com/privacypolicy
         </Link>
         .
         <br />
