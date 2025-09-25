@@ -76,8 +76,6 @@ const SignupForm = () => {
   console.log(watch("smsConsent"), "smsConsent");
 
   const onSubmit = async (formdata) => {
-    console.log(formdata, "formdata");
-    return;
     const completeData = { ...signUpdata, ...formdata };
 
     setAuthLoading(true);
