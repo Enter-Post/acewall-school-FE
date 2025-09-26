@@ -48,7 +48,10 @@ const PasswordInfo = () => {
     <div>
       {/* Password Input */}
       <div className="relative">
-        <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+        <label
+          htmlFor="password"
+          className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+        >
           Password<span className="text-red-600"> *</span>
         </label>
         <input
@@ -74,7 +77,10 @@ const PasswordInfo = () => {
 
       {/* Confirm Password Input */}
       <div className="mt-4 relative">
-        <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+        <label
+          htmlFor="confirmPassword"
+          className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+        >
           Confirm Password<span className="text-red-600"> *</span>
         </label>
         <input
@@ -98,17 +104,25 @@ const PasswordInfo = () => {
           </button>
         )}
         {errors?.confirmPassword?.message && (
-          <p className="text-xs text-red-600 mt-1">{errors.confirmPassword.message}</p>
+          <p className="text-xs text-red-600 mt-1">
+            {errors.confirmPassword.message}
+          </p>
         )}
       </div>
 
       {/* Password Validation Checklist */}
       <ol className="list-decimal pl-6 space-y-2 text-gray-700 mt-5 dark:text-gray-300">
         <li className={getClass(password.length >= 8)}>Minimum 8 characters</li>
-        <li className={getClass(/[A-Z]/.test(password))}>At least one uppercase letter</li>
-        <li className={getClass(/[a-z]/.test(password))}>At least one lowercase letter</li>
+        <li className={getClass(/[A-Z]/.test(password))}>
+          At least one uppercase letter
+        </li>
+        <li className={getClass(/[a-z]/.test(password))}>
+          At least one lowercase letter
+        </li>
         <li className={getClass(/\d/.test(password))}>At least one digit</li>
-        <li className={getClass(/[#?!@$%^&*-]/.test(password))}>At least one special character</li>
+        <li className={getClass(/[#?!@$%^&*-]/.test(password))}>
+          At least one special character
+        </li>
         <li className={getClass(!/\s/.test(password))}>No spaces allowed</li>
       </ol>
 
@@ -124,14 +138,29 @@ const PasswordInfo = () => {
           />
           <div className="text-sm text-gray-700 dark:text-gray-300 flex flex-wrap items-center gap-x-1">
             I agree to the
-            <span className="text-blue-600 underline cursor-pointer"><TermsModal /></span>
+               <a
+              className="text-blue-600 underline cursor-pointer"
+              target="_blank"
+              href="https://acewallscholarslearningonline.com/terms"
+            >
+              Terms
+            </a>
+            {/* <span className="text-blue-600 underline cursor-pointer"><TermsModal /></span> */}
             and
-            <span className="text-blue-600 underline cursor-pointer"><PrivacyPolicy /></span>
+            <a
+              className="text-blue-600 underline cursor-pointer"
+              target="_blank"
+              href="https://acewallscholarslearningonline.com/privacyPolicy"
+            >
+              Privacy Policy
+            </a>
+            {/* <span className="text-blue-600 underline cursor-pointer"><PrivacyPolicy /></span> */}
           </div>
-
         </label>
         {errors?.agreeToTerms && (
-          <p className="text-xs text-red-600 mt-1">{errors.agreeToTerms.message}</p>
+          <p className="text-xs text-red-600 mt-1">
+            {errors.agreeToTerms.message}
+          </p>
         )}
       </div>
     </div>

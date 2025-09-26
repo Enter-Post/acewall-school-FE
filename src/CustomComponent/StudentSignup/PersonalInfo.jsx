@@ -111,72 +111,30 @@ const PersonalInfo = () => {
           <p className="text-xs text-red-600 mt-1">{errors?.phone?.message}</p>
         </div>
       </div>
-
-      <div className="space-y-4 sm:flex sm:space-y-0 sm:space-x-4">
-        {/* Pronouns */}
-        {/* <div className="w-full sm:w-1/2">
-          <Label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-            Preferred Pronouns <span className="text-red-600">*</span>
+      <section>
+        <div>
+          <Label className="flex flex-col space-x-2">
+            <Input
+              type="checkbox"
+              id="smsConsent"
+              {...register("smsConsent")}
+              className="w-4 h-4"
+            />
+            <span className="text-xs text-gray-700 dark:text-gray-300">
+          I agree to receive SMS notifications from Acewall Scholars, including account verification codes, academic announcements, grades, and schedule updates. Message frequency may vary. Message and data rates may apply. Reply STOP to unsubscribe or HELP for help. Consent to receive SMS messages is not a condition of purchase.
+            </span>
           </Label>
-          <RadioGroup
-            name="pronouns"
-            className="grid grid-cols-1 gap-2"
-            value={formData?.pronouns}
-            onValueChange={(value) => setValue("pronouns", value)}
-            required
-          >
-            {errors?.pronouns && (
-              <p className="text-xs text-red-600">{errors.pronouns.message}</p>
+          <div className="h-4 mt-1">
+            {errors?.smsConsent && (
+              <p className="text-xs text-red-600">
+                {errors.smsConsent.message}
+              </p>
             )}
-            {["He/Him", "She/Her", "They/Them","Prefer not to say"].map((pronoun) => (
-              <div key={pronoun} className="flex items-center space-x-2">
-                <RadioGroupItem
-                  value={pronoun.toLowerCase()}
-                  id={pronoun.toLowerCase()}
-                />
-                <Label
-                  htmlFor={pronoun.toLowerCase()}
-                  className="text-sm text-gray-900 dark:text-white"
-                >
-                  {pronoun}
-                </Label>
-              </div>
-            ))}
-          </RadioGroup>
-        </div> */}
+          </div>
+        </div>
+      </section>
 
-        {/* Gender */}
-        {/* <div className="w-full sm:w-1/2">
-          <Label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-            Gender Identification <span className="text-red-600">*</span>
-          </Label>
-          <RadioGroup
-            name="gender"
-            className="grid grid-cols-1 gap-2"
-            value={formData?.gender}
-            onValueChange={(value) => setValue("gender", value)}
-            required
-          >
-            {errors?.gender && (
-              <p className="text-xs text-red-600">{errors.gender.message}</p>
-            )}
-            {["Male", "Female", "Non-binary", "Other","Prefer not to say"].map((gender) => (
-              <div key={gender} className="flex items-center space-x-2">
-                <RadioGroupItem
-                  value={gender.toLowerCase()}
-                  id={gender.toLowerCase()}
-                />
-                <Label
-                  htmlFor={gender.toLowerCase()}
-                  className="text-sm text-gray-900 dark:text-white"
-                >
-                  {gender}
-                </Label>
-              </div>
-            ))}
-          </RadioGroup>
-        </div> */}
-      </div>
+      <div className="space-y-4 sm:flex sm:space-y-0 sm:space-x-4"></div>
     </>
   );
 };
