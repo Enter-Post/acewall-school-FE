@@ -81,6 +81,7 @@ import ChapterDetailStdPre from "./Page/teacher/Courses/MyCourseDetailStdPre";
 import FeaturedPage from "./Page/FeaturedPage";
 import TermsPage from "./Page/TermAndConditionPage";
 import PrivacyPolicyPage from "./Page/privacyPolicyPage";
+import FeaturedContantCard from "./CustomComponent/FeaturedContantCard";
 
 function App() {
   const { checkAuth, user, Authloading, socket, setSocket, setOnlineUser } =
@@ -133,6 +134,8 @@ function App() {
           <Route path="terms" element={<TermsPage />} />
           <Route path="privacyPolicy" element={<PrivacyPolicyPage />} />
           <Route path="AdditionalServices" element={<AdditionalServices />} />
+          <Route path="Contact" element={<FeaturedContantCard />} />
+
           <Route path="*" element={<NotFoundPage />} />
         </Route>
 
@@ -152,7 +155,7 @@ function App() {
           <Route path="/signup" element={<SignupPage />}></Route>
           <Route path="/verifyOTP/:email" element={<VerifyOTP />} />
           <Route path="/verifyPhoneOTP/:email" element={<VerifyPhoneOTP />} />
-          
+
           <Route path="/" element={<MainLayout />}>
             <Route index element={<LandingPage />} />
             <Route path="/Courses">
