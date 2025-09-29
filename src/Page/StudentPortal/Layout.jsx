@@ -130,29 +130,29 @@ export default function Layout() {
       {/* Top header */}
       <header className="sticky top-0 z-10 bg-white">
         <div className="h-8 bg-green-600 flex justify-end items-center px-5">
-          <section className="flex items-center justify-between space-x-4 w-full">
-            <div>
-              <p className="text-white text-sm">
-                {`Viewing as Student - ${user.firstName} ${user.lastName}`}
-              </p>
-            </div>
             {user && user.role === "teacherAsStudent" ? (
-              <Button
-                variant="outline"
-                size="xs"
-                className="px-3 text-xs"
-                onClick={async () => {
-                  await axiosInstance.post("auth/previewSignOut").then(() => {
-                    checkAuth();
-                  });
-                }}
-              >
-                Switch to Teacher
-              </Button>
+              <div className="flex items-center justify-between space-x-4 w-full">
+                <div>
+                  <p className="text-white text-sm">
+                    {`Viewing as Student - ${user.firstName} ${user.lastName}`}
+                  </p>
+                </div>
+                <Button
+                  variant="outline"
+                  size="xs"
+                  className="px-3 text-xs"
+                  onClick={async () => {
+                    await axiosInstance.post("auth/previewSignOut").then(() => {
+                      checkAuth();
+                    });
+                  }}
+                >
+                  Switch to Teacher
+                </Button>
+              </div>
             ) : (
               <TopNavbarDropDown />
             )}
-          </section>
         </div>
         {/* <div>
           <div className="h-6 bg-yellow-200 flex justify-end items-end px-5">
