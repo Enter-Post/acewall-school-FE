@@ -19,7 +19,7 @@ const MainLayout = () => {
       return navigate("/login");
     }
 
-    if (user.role === "student") {
+    if (user.role === "student" || user.role === "teacherAsStudent") {
       navigate("/student/mycourses");
     } else if (user.role === "teacher") {
       navigate("/teacher/");
