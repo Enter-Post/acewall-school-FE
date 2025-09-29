@@ -1,11 +1,17 @@
-import React from "react";
-import bannerLogo from "../assets/featuredpage2.png";
+import React, { useState } from "react";
+import bannerLogo from "../assets/featuredpage3.png";
+// import bannerLogo from "../assets/featuredpage2.png";
 import teacherpic from "../assets/TeacherPic.png";
-import { Link } from "react-router-dom";
-import FeaturedContantCard from "@/CustomComponent/FeaturedContantCard";
+import stppic from "../assets/std.png";
+import { Link, useNavigate } from "react-router-dom";
+// import FeaturedContantCard from "@/CustomComponent/FeaturedContantCard";
 import { StackedCard } from "@/CustomComponent/FeatureContent";
+import Popup from "@/CustomComponent/Popup";
 
 const FeaturedPage = () => {
+  const [showPopup, setShowPopup] = useState(true);
+  const navigate = useNavigate();
+
   const cardsData = [
     {
       id: "card1",
@@ -67,16 +73,21 @@ const FeaturedPage = () => {
 
   return (
     <div>
+      <div>
+        {showPopup && <Popup onClose={() => setShowPopup(false)} />}
+
+     
+      </div>
       {/* Hero Section */}
-      <section className="bg-[#eafdf2]">
-        <div className="container mx-auto">
-          <div className="flex flex-col py-12 px-4 sm:px-6 lg:px-12 lg:flex-row items-center justify-between gap-10">
+      <section className="">
+        <div className="container mx-auto ">
+          <div className="flex flex-col py-2 px-4 sm:px-6 lg:px-12 lg:flex-row items-center justify-between gap-10">
             {/* Left Content */}
             <div className="lg:w-1/2 text-center lg:text-left space-y-6">
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-green-800 leading-tight">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-green-800 leading-tight">
                 Best online platform for education.
               </h1>
-              <p className="text-base sm:text-lg text-gray-700 leading-relaxed max-w-xl mx-auto lg:mx-0">
+              <p className="text-base sm:text-base text-gray-700 leading-relaxed max-w-xl mx-auto lg:mx-0">
                 Since 2006,{" "}
                 <span className="font-semibold text-green-800">
                   Acewall Scholars
@@ -85,39 +96,34 @@ const FeaturedPage = () => {
               </p>
 
               {/* CTA Buttons */}
-              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+              <div className="flex flex-col sm:flex-row gap-4  justify-center lg:justify-start">
                 <button
-                  onClick={() => {
-                    const contactSection = document.getElementById("contact");
-                    if (contactSection) {
-                      contactSection.scrollIntoView({ behavior: "smooth" });
-                    }
-                  }}
+                  onClick={() => navigate("/contact")}
                   className="bg-green-600 text-white font-semibold py-3 px-6 sm:px-8 rounded-md shadow-md hover:bg-green-700 transition text-sm sm:text-base"
                 >
                   Get Started Today
                 </button>
 
-                <Link to="/login">
-                  <button className="border border-green-600 text-green-600 bg-white font-semibold py-3 px-6 sm:px-8 rounded-md shadow-md hover:bg-green-50 transition text-sm sm:text-base">
-                    Login
+                <Link to="/home">
+                  <button className="border border-green-600 text-green-600  font-semibold py-3 px-6 sm:px-8 rounded-md shadow-md hover:bg-green-600 hover:text-white transition text-sm sm:text-base">
+                   Existing user? Log in
                   </button>
                 </Link>
               </div>
             </div>
 
             {/* Right Illustration */}
-            <div className="lg:w-1/2 flex justify-center lg:justify-end">
+            <div className="lg:w-1/2 flex justify-center lg:justify-end rounded-full">
               <img
                 src={bannerLogo}
                 alt="Educational Platform Banner"
-                className="w-full h-full sm:w-full sm:h-full lg:w-full lg:h-full object-cover "
+                className="w-full h-full sm:w-full sm:h-full lg:w-full lg:h-full object-cover rounded-full "
               />
             </div>
           </div>
 
           {/* Bottom Row */}
-          <div className="relative mt-16 mb-32 sm:mb-40">
+          <div className="relative mt-16 mb-20 sm:mb-20">
             {/* Card Wrapper */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-20 sm:gap-6 px-4 sm:px-0">
 
@@ -169,9 +175,9 @@ const FeaturedPage = () => {
                   Students K-12 / College Level
                 </h3>
                 <img
-                  src="https://imgs.search.brave.com/a-KUWna3VD1pkg_ROq62sv2ReqUI0muRKlvD_RFjd1c/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly93d3cu/cG5nYXJ0cy5jb20v/ZmlsZXMvNy9Hcm91/cC1Db2xsZWdlLVN0/dWRlbnQtUE5HLUZy/ZWUtRG93bmxvYWQu/cG5n"
+                  src={stppic}
                   alt="Students"
-                  className="absolute left-1/2 transform -translate-x-1/2 top-20 sm:top-20 w-50 sm:w-38 lg:w-55 object-contain"
+                  className="absolute left-1/2 transform -translate-x-1/2 top-20 sm:top-20 w-50 sm:w-38 lg:w-75 object-contain"
                 />
               </div>
             </div>
@@ -190,7 +196,7 @@ const FeaturedPage = () => {
       <section>
         <div className="container mx-auto px-4 sm:px-6 lg:px-12 py-12">
           <div className="flex flex-col items-center justify-center text-center max-w-4xl mx-auto px-4">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-[4vw] font-bold mb-4">
+            <h1 className="text-3xl sm:text-4xl md:text-3xl lg:text-[3vw] font-bold mb-4">
               Who We Serve
             </h1>
             <p className="text-sm sm:text-base md:text-lg font-semibold leading-relaxed">
@@ -203,9 +209,9 @@ const FeaturedPage = () => {
 
         <StackedCard cardsData={cardsData} />
       </section>
-      <section id="contact">
+      {/* <section id="contact">
         <FeaturedContantCard />
-      </section>
+      </section> */}
 
     </div>
   );
