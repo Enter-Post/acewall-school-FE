@@ -190,7 +190,7 @@ function App() {
           element={
             <PrivateRoute
               user={user}
-              allowedRole="student"
+              allowedRole={["student", "teacherAsStudent"]}
               loading={Authloading}
             />
           }

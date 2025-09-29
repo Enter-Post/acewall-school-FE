@@ -41,52 +41,60 @@ const sideBarTabs = [
     name: "Dashboard",
     icon: <DashboardCircleAddIcon />,
     path: "/student",
+    allowedAsPreview: true,
   },
   {
     id: 2,
     name: "My Courses",
     icon: <Book02Icon />,
     path: "/student/mycourses",
+    allowedAsPreview: true,
   },
   {
     id: 3,
     name: "My Assessment",
     icon: <AssessmentIcon />,
     path: "/student/assessment",
+    allowedAsPreview: true,
   },
   {
     id: 4,
     name: "Gradebook",
     icon: <Target02Icon />,
     path: "/student/gradebook",
+    allowedAsPreview: true,
   },
   {
     id: 5,
     name: "Announcements",
     icon: <Megaphone02Icon />,
     path: "/student/announcements",
+    allowedAsPreview: true,
   },
   {
     name: "Discussion Rooms",
     icon: <MessagesSquareIcon />,
     path: "/student/discussions",
+    allowedAsPreview: true,
   },
   {
     id: 6,
     name: "Messages",
     icon: <MessageCircleDashed />,
     path: "/student/messages",
+    allowedAsPreview: false,
   },
   {
     id: 7,
     name: "Pages",
     icon: <StickyNote />,
     path: "/student/stdPages",
+    allowedAsPreview: true,
   },
 ];
 
 export default function Layout() {
-  const { user } = React.useContext(GlobalContext);
+  const { user, checkAuth } = React.useContext(GlobalContext);
   const location = useLocation().pathname;
 
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
@@ -108,7 +116,6 @@ export default function Layout() {
 
       // Use enrolledCourses array from response
       setDropdownCourses(res.data.enrolledCourses || []);
-      console.log("res", res);
     } catch (error) {
       console.error("Search error:", error);
       setDropdownCourses([]);
@@ -123,8 +130,34 @@ export default function Layout() {
       {/* Top header */}
       <header className="sticky top-0 z-10 bg-white">
         <div className="h-8 bg-green-600 flex justify-end items-center px-5">
-          <TopNavbarDropDown />
+          <section className="flex items-center justify-between space-x-4 w-full">
+            <div>
+              <p className="text-white text-sm">
+                {`Viewing as Student - ${user.firstName} ${user.lastName}`}
+              </p>
+            </div>
+            {user && user.role === "teacherAsStudent" ? (
+              <Button
+                variant="outline"
+                size="xs"
+                className="px-3 text-xs"
+                onClick={async () => {
+                  await axiosInstance.post("auth/previewSignOut").then(() => {
+                    checkAuth();
+                  });
+                }}
+              >
+                Switch to Teacher
+              </Button>
+            ) : (
+              <TopNavbarDropDown />
+            )}
+          </section>
         </div>
+        {/* <div>
+          <div className="h-6 bg-yellow-200 flex justify-end items-end px-5">
+          </div>
+        </div> */}
 
         <div className="flex h-16 items-center justify-between px-4 border">
           {/* Sidebar toggle (mobile) */}
@@ -274,25 +307,58 @@ export default function Layout() {
 
             {/* Sidebar navigation */}
             <nav className="space-y-2">
-              {sideBarTabs.map((tab) => (
-                <Link
-                  key={tab.id}
-                  to={tab.path}
-                  onClick={() => setIsSidebarOpen(false)}
-                  className={`flex items-center space-x-3 rounded-lg px-3 py-2 ${
-                    location === tab.path ? "bg-green-500" : "text-black"
-                  }`}
-                >
-                  <p>{tab.icon}</p>
-                  <span
+              {sideBarTabs.map((tab) => {
+                return user.role === "teacherAsStudent" ? (
+                  <div
+                    key={tab.id}
                     className={`${
-                      location === tab.path ? "text-white" : "text-green-600"
+                      tab.allowedAsPreview === false
+                        ? "pointer-events-none opacity-50"
+                        : ""
                     }`}
                   >
-                    {tab.name}
-                  </span>
-                </Link>
-              ))}
+                    <Link
+                      to={tab.path}
+                      onClick={() => setIsSidebarOpen(false)}
+                      className={`flex items-center space-x-3 rounded-lg px-3 py-2 ${
+                        location === tab.path ? "bg-green-500" : "text-black"
+                      }`}
+                    >
+                      <p>{tab.icon}</p>
+                      <span
+                        className={`${
+                          location === tab.path
+                            ? "text-white"
+                            : "text-green-600"
+                        }`}
+                      >
+                        {tab.name}
+                      </span>
+                    </Link>
+                  </div>
+                ) : (
+                  <div key={tab.id}>
+                    <Link
+                      to={tab.path}
+                      onClick={() => setIsSidebarOpen(false)}
+                      className={`flex items-center space-x-3 rounded-lg px-3 py-2 ${
+                        location === tab.path ? "bg-green-500" : "text-black"
+                      }`}
+                    >
+                      <p>{tab.icon}</p>
+                      <span
+                        className={`${
+                          location === tab.path
+                            ? "text-white"
+                            : "text-green-600"
+                        }`}
+                      >
+                        {tab.name}
+                      </span>
+                    </Link>
+                  </div>
+                );
+              })}
             </nav>
 
             {/* Promo image */}

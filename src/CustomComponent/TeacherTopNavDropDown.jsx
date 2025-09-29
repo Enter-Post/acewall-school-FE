@@ -27,20 +27,34 @@ export function TeacherTopNavbarDropDown({ selected, setselected }) {
 
   const navigate = useNavigate();
 
-const handleLogout = async () => {
-  await logout();
-  await checkAuth();
-  location.reload();
-};
+  const handleLogout = async () => {
+    await logout();
+    await checkAuth();
+    location.reload();
+  };
 
+  const handlePreview = async () => {
+    try {
+      await axiosInstance.post("auth/previewSignIn").then(async () => {
+        await checkAuth();
+      });
+    } catch (error) {
+      console.error("Preview signin failed:", error);
+    }
+  };
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <div className="flex items-center space-x-2 cursor-pointer">
           <Avatar className="w-5 h-5">
-            <AvatarImage src={user?.profileImg?.url || avatar} alt="User Avatar" />
-            <AvatarFallback><img src="../assets/avatar.png" alt="" /></AvatarFallback>
+            <AvatarImage
+              src={user?.profileImg?.url || avatar}
+              alt="User Avatar"
+            />
+            <AvatarFallback>
+              <img src="../assets/avatar.png" alt="" />
+            </AvatarFallback>
           </Avatar>
           <p className="text-white flex items-center">{user.firstName}</p>
         </div>
@@ -60,6 +74,9 @@ const handleLogout = async () => {
             </DropdownMenuItem>
           );
         })}
+        <DropdownMenuItem asChild>
+          <button onClick={() => handlePreview()}>Preview as student</button>
+        </DropdownMenuItem>
         <DropdownMenuItem asChild>
           <button onClick={() => handleLogout()}>Logout</button>
         </DropdownMenuItem>
