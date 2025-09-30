@@ -162,33 +162,53 @@ export default function CourseOverview() {
       </div>
 
       {/* Instructor Info */}
-      <section className="flex items-center justify-between">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mt-6">
+
+      {course.createdby && Object.keys(course.createdby).length === 0 ? (
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mt-2">
           <Avatar className="h-15 w-15 rounded-full bg-cover bg-center">
             <AvatarImage
               src={course?.createdby?.profileImg?.url || avatar}
-              alt={`${course.createdby.firstName} ${course.createdby.lastName}`}
+              alt={`N/A`}
               className="h-full w-full bg-cover bg-center rounded-full"
             />
-            <AvatarFallback>
-              {course.createdby.firstName.charAt(0)}
-              {course.createdby.lastName.charAt(0)}
-            </AvatarFallback>
+            <AvatarFallback>N/A</AvatarFallback>
           </Avatar>
-          <div>
-            <p className="font-semibold text-gray-800">
-              {course.createdby.firstName} {course.createdby.middleName}{" "}
-              {course.createdby.lastName}
-            </p>
-            <p className="text-sm text-gray-500">{course.createdby.email}</p>
+          <div className="text-center my-10">
+            Instructor information not available.
           </div>
         </div>
-        <div>
-          <Button className="bg-green-500" onClick={() => handleConversation()}>
-            Message
-          </Button>
-        </div>
-      </section>
+      ) : (
+        <section className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mt-6">
+            <Avatar className="h-15 w-15 rounded-full bg-cover bg-center">
+              <AvatarImage
+                src={course?.createdby?.profileImg?.url || avatar}
+                alt={`${course.createdby.firstName} ${course.createdby.lastName}`}
+                className="h-full w-full bg-cover bg-center rounded-full"
+              />
+              <AvatarFallback>
+                {course.createdby.firstName}
+                {course.createdby.lastName}
+              </AvatarFallback>
+            </Avatar>
+            <div>
+              <p className="font-semibold text-gray-800">
+                {course.createdby.firstName} {course.createdby.middleName}{" "}
+                {course.createdby.lastName}
+              </p>
+              <p className="text-sm text-gray-500">{course.createdby.email}</p>
+            </div>
+          </div>
+          <div>
+            <Button
+              className="bg-green-500"
+              onClick={() => handleConversation()}
+            >
+              Message
+            </Button>
+          </div>
+        </section>
+      )}
 
       {/* Course Semester */}
       <section className="mt-8">
