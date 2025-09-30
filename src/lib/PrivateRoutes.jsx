@@ -6,9 +6,15 @@ const PrivateRoute = ({
   redirectTo = "/login",
   loading,
 }) => {
-  if (loading) return null; // or return a spinner if you prefer
+  if (loading) return null; // or spinner
   if (!user) return <Navigate to={redirectTo} />;
-  return user.role === allowedRole ? <Outlet /> : <Navigate to="/" />;
+
+  const userRole = (user?.role || "").toLowerCase();
+  const roles = (Array.isArray(allowedRole) ? allowedRole : [allowedRole]).map(
+    (r) => r.toLowerCase()
+  );
+
+  return roles.includes(userRole) ? <Outlet /> : <Navigate to="/" />;
 };
 
 const PublicRoute = ({ user, redirectTo }) => {
