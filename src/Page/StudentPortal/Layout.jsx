@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Link, Outlet, useLocation } from "react-router-dom";
+import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 
 import acewallscholarslogo from "../../assets/acewallscholarslogo.webp";
 import acewallshort from "../../assets/acewallshort.png";
@@ -103,6 +103,8 @@ export default function Layout() {
   const [loading, setLoading] = React.useState(false);
   const [openDropdown, setOpenDropdown] = React.useState(false);
 
+  const navigate = useNavigate();
+
   const handleSearch = async () => {
     if (!searchQuery.trim() || loading) return;
 
@@ -144,6 +146,7 @@ export default function Layout() {
                   onClick={async () => {
                     await axiosInstance.post("auth/previewSignOut").then(() => {
                       checkAuth();
+                      navigate("/teacher");
                     });
                   }}
                 >

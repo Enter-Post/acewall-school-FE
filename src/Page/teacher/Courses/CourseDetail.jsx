@@ -44,13 +44,17 @@ import ArchiveDialog from "@/CustomComponent/teacher/ArchivedModal";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { set } from "lodash";
+import { Global } from "recharts";
+import { GlobalContext } from "@/Context/GlobalProvider";
 
 export default function TeacherCourseDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { quarters, setQuarters } = useContext(CourseContext);
+  const { checkAuth } = useContext(GlobalContext);
 
   const [course, setCourse] = useState(null);
+  const [enrollmentsId, setEnrollmentsId] = useState(null);
   const [loading, setLoading] = useState(false);
   const [Prevthumbnail, setPrevThumbnail] = useState(null);
   const [newthumbnail, setNewThumbnail] = useState(null);
@@ -77,12 +81,42 @@ export default function TeacherCourseDetails() {
         setCourse(res.data.course);
         setQuarters(res.data.course.quarter);
         console.log(res.data.course, "course");
-
       })
       .catch((err) => {
         console.log(err);
       });
     // Set the course data in state
+  };
+  const findEnrollment = async () => {
+    await axiosInstance
+      .post(`enrollment/enrollmentforTeacher`, {
+        teacherId: course.createdby,
+        courseId: course._id,
+      })
+      .then((res) => {
+        console.log(res.data.enrollment, "enrollment data");
+        setEnrollmentsId(res.data.enrollment._id);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  useEffect(() => {
+    if (course && course.createdby) {
+      findEnrollment();
+    }
+  }, [course]);
+
+  const handlePreview = async () => {
+    try {
+      await axiosInstance.post("auth/previewSignIn").then(async () => {
+        await checkAuth();
+        navigate(`/student/mycourses/${enrollmentsId}`);
+      });
+    } catch (error) {
+      console.error("Preview signin failed:", error);
+    }
   };
 
   useEffect(() => {
@@ -178,7 +212,7 @@ export default function TeacherCourseDetails() {
                 Prevthumbnail
                   ? Prevthumbnail
                   : course.thumbnail.url ||
-                  "https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80"
+                    "https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80"
               }
               alt="Course thumbnail"
               className="w-full rounded-md object-cover aspect-video"
@@ -231,20 +265,20 @@ export default function TeacherCourseDetails() {
                   Uploaded:{" "}
                   {course.createdAt
                     ? new Date(course.createdAt).toLocaleDateString("en-US", {
-                      year: "2-digit",
-                      month: "2-digit",
-                      day: "2-digit",
-                    })
+                        year: "2-digit",
+                        month: "2-digit",
+                        day: "2-digit",
+                      })
                     : "N/A"}
                 </span>
                 <span>
                   Last Updated:{" "}
                   {course.updatedAt
                     ? new Date(course.updatedAt).toLocaleDateString("en-US", {
-                      year: "2-digit",
-                      month: "2-digit",
-                      day: "2-digit",
-                    })
+                        year: "2-digit",
+                        month: "2-digit",
+                        day: "2-digit",
+                      })
                     : "N/A"}
                 </span>
               </div>
@@ -266,8 +300,8 @@ export default function TeacherCourseDetails() {
             <button
               variant="outline"
               className="bg-green-500 text-white py-2 px-4 rounded-lg shadow-md transition-all duration-150 text-sm cursor-pointer"
-              onClick={() => navigate(`/teacher/courses/stdPreview2/${id}`)}
-            // onClick={() => navigate(`/teacher/courses/stdPreview/${id}`)}
+              // onClick={() => navigate(`/teacher/courses/stdPreview2/${id}`)}
+              onClick={() => handlePreview()}
             >
               Preview as a student
             </button>
@@ -297,11 +331,9 @@ export default function TeacherCourseDetails() {
               Syllabus
             </a>
           </div>
-
         </div>
         {/* Stats */}
         <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          
           <StatCard
             icon={<ChartBarStacked className="h-5 w-5 text-orange-500" />}
             value={course.category?.title?.toUpperCase()}
