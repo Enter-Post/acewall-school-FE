@@ -14,6 +14,10 @@ const PrivateRoute = ({
     (r) => r.toLowerCase()
   );
 
+  if (!roles.includes(userRole)) {
+    return null; // render nothing while auth is refreshing
+  }
+
   return roles.includes(userRole) ? <Outlet /> : <Navigate to="/" />;
 };
 

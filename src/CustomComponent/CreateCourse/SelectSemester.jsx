@@ -10,6 +10,7 @@ import { ChevronDown } from "lucide-react";
 const SelectSemester = ({ register, errors, setSelectedSemester }) => {
   const [semesters, setSemesters] = useState([]);
   const [selectedSemesters, setSelectedSemesters] = useState([]);
+  const [tempSelectedSemesters, setTempSelectedSemesters] = useState([]);
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
@@ -24,21 +25,33 @@ const SelectSemester = ({ register, errors, setSelectedSemester }) => {
     fetchSemesters();
   }, []);
 
+  const handleOpenChange = (isOpen) => {
+    if (isOpen) {
+      // When opening, copy current selection to temp
+      setTempSelectedSemesters([...selectedSemesters]);
+    } else {
+      // When closing without confirmation, reset temp to current selection
+      setTempSelectedSemesters([...selectedSemesters]);
+    }
+    setOpen(isOpen);
+  };
+
   const toggleSemester = (id) => {
-    setSelectedSemesters((prev) => {
+    setTempSelectedSemesters((prev) => {
       if (prev.includes(id)) {
-        // Remove the id if already selected
         return prev.filter((semId) => semId !== id);
       } else {
-        // Add the id if not selected
         return [...prev, id];
       }
     });
   };
 
   const confirmSelection = () => {
-    setSelectedSemester(selectedSemesters);
-    register("semester").onChange({ target: { name: "semester", value: selectedSemesters } });
+    setSelectedSemesters(tempSelectedSemesters);
+    setSelectedSemester(tempSelectedSemesters);
+    register("semester").onChange({ 
+      target: { name: "semester", value: tempSelectedSemesters } 
+    });
     setOpen(false);
   };
 
@@ -53,7 +66,7 @@ const SelectSemester = ({ register, errors, setSelectedSemester }) => {
         Semester *
       </Label>
 
-      <Popover open={open} onOpenChange={setOpen} className="w-screen">
+      <Popover open={open} onOpenChange={handleOpenChange}>
         <PopoverTrigger asChild>
           <Button variant="outline" className="w-full justify-between">
             {selectedSemesters.length > 0 ? selectedTitles : "Select semester(s)"}
@@ -67,10 +80,10 @@ const SelectSemester = ({ register, errors, setSelectedSemester }) => {
               <div key={semester._id} className="flex items-center space-x-2 mb-2 w-full">
                 <Checkbox
                   id={semester._id}
-                  checked={selectedSemesters.includes(semester._id)}
+                  checked={tempSelectedSemesters.includes(semester._id)}
                   onCheckedChange={() => toggleSemester(semester._id)}
                 />
-                <label htmlFor={semester._id} className="text-sm">
+                <label htmlFor={semester._id} className="text-sm cursor-pointer">
                   {semester.title}
                 </label>
               </div>
