@@ -106,7 +106,7 @@ export function AssessmentPage() {
 
   const fetchAssessment = async (req, res) => {
     await axiosInstance
-      .get(`assessment/${assessmentid}`)
+      .get(`assessment/getAssesmentbyID/${assessmentid}`)
       .then((res) => {
         console.log(res);
         setAssessment(res.data.assessment);

@@ -14,7 +14,6 @@ import { Loader } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import BackButton from "@/CustomComponent/BackButton";
-import PhoneInput from "react-phone-input-2";
 
 const formSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
@@ -24,10 +23,6 @@ const formSchema = z.object({
   pronoun: z.string().optional(),
   gender: z.string().optional(),
   email: z.string().email("Invalid email address"),
-  phone: z
-    .string()
-    .min(10, "Phone number must be at least 10 digits")
-    .regex(/^\d{10,15}$/, "Phone number is not valid"),
   homeAddress: z.string().min(1, "Home address is "),
   mailingAddress: z.string().optional(),
 });
@@ -52,7 +47,6 @@ const EditGeneralInfo = () => {
       middleName: "",
       lastName: "",
       Bio: "",
-      phone: "",
       pronoun: "",
       gender: "",
       email: "",
@@ -80,7 +74,6 @@ const EditGeneralInfo = () => {
       setValue("firstName", user.firstName || "");
       setValue("middleName", user.middleName || "");
       setValue("Bio", user.Bio || "");
-      setValue("phone", user.phone || "");
       setValue("lastName", user.lastName || "");
       setValue("pronoun", user.pronoun || "");
       setValue("gender", user.gender || "");
@@ -149,7 +142,6 @@ const EditGeneralInfo = () => {
     formData.append("Bio", data.Bio);
     formData.append("pronoun", data.pronoun);
     formData.append("gender", data.gender);
-    formData.append("phone", data.phone);
     formData.append("email", data.email);
     formData.append("homeAddress", data.homeAddress);
     formData.append("mailingAddress", data.mailingAddress);
@@ -339,32 +331,6 @@ const EditGeneralInfo = () => {
                   ))}
                 </div>
               </div>
-            </div>
-          </section>
-          <section>
-            <div className="mb-6">
-              <Label htmlFor="phone">
-                Phone Number <span className="text-red-600">*</span>
-              </Label>
-              <PhoneInput
-                country={"us"}
-                value={watch("phone")}
-                onChange={(value) => setValue("phone", value)}
-                inputProps={{
-                  name: "phone",
-                  required: true,
-                }}
-                inputClass="!w-full !rounded-lg !pl-12 !py-2 !bg-gray-50"
-                containerClass="w-full"
-              />
-              <p className="text-xs text-red-600 mt-1">
-                {errors?.phone?.message}
-              </p>
-
-
-              <p className="text-xs text-red-600 mt-1">
-                {errors?.phone?.message}
-              </p>
             </div>
           </section>
 

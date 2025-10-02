@@ -94,7 +94,8 @@ const sideBarTabs = [
 ];
 
 export default function Layout() {
-  const { user, checkAuth } = React.useContext(GlobalContext);
+  const { user, checkAuth, UpdatedUser, setUpdatedUser } =
+    React.useContext(GlobalContext);
   const location = useLocation().pathname;
 
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
@@ -132,30 +133,30 @@ export default function Layout() {
       {/* Top header */}
       <header className="sticky top-0 z-10 bg-white">
         <div className="h-8 bg-green-600 flex justify-end items-center px-5">
-            {user && user.role === "teacherAsStudent" ? (
-              <div className="flex items-center justify-between space-x-4 w-full">
-                <div>
-                  <p className="text-white text-sm">
-                    {`Viewing as Student - ${user.firstName} ${user.lastName}`}
-                  </p>
-                </div>
-                <Button
-                  variant="outline"
-                  size="xs"
-                  className="px-3 text-xs"
-                  onClick={async () => {
-                    await axiosInstance.post("auth/previewSignOut").then(() => {
-                      checkAuth();
-                      navigate("/teacher");
-                    });
-                  }}
-                >
-                  Switch to Teacher
-                </Button>
+          {user && user.role === "teacherAsStudent" ? (
+            <div className="flex items-center justify-between space-x-4 w-full">
+              <div>
+                <p className="text-white text-sm">
+                  {`Viewing as Student - ${user.firstName} ${user.lastName}`}
+                </p>
               </div>
-            ) : (
-              <TopNavbarDropDown />
-            )}
+              <Button
+                variant="outline"
+                size="xs"
+                className="px-3 text-xs"
+                onClick={async () => {
+                  await axiosInstance.post("auth/previewSignOut").then(() => {
+                    checkAuth();
+                    navigate("/teacher");
+                  });
+                }}
+              >
+                Switch to Teacher
+              </Button>
+            </div>
+          ) : (
+            <TopNavbarDropDown />
+          )}
         </div>
         {/* <div>
           <div className="h-6 bg-yellow-200 flex justify-end items-end px-5">
@@ -283,20 +284,20 @@ export default function Layout() {
               <Link to="/student/account" className="block">
                 <div className="h-12 w-12 rounded-full overflow-hidden">
                   <img
-                    src={user?.profileImg?.url || avatar}
-                    alt={user.firstName}
+                    src={UpdatedUser?.profileImg?.url || avatar}
+                    alt={UpdatedUser?.firstName || "User Avatar"}
                     className="h-full w-full object-cover rounded-full"
                   />
                 </div>
               </Link>
               <div>
-                <p className="font-medium">{user.firstName}</p>
+                <p className="font-medium">{UpdatedUser?.firstName  || "User"}</p>
                 <p
                   className="text-sm text-gray-600 w-full max-w-[150px]  break-words"
-                  title={user.email}
+                  title={UpdatedUser?.email || "N/A"}
                 >
-                  {user.email}
-                </p>{" "}
+                  {UpdatedUser?.email || "N/A"}
+                </p>
               </div>
             </div>
 

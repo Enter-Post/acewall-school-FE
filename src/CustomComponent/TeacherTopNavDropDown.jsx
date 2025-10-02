@@ -15,7 +15,8 @@ import { toast } from "sonner";
 import avatar from "../assets/avatar.png";
 
 export function TeacherTopNavbarDropDown({ selected, setselected }) {
-  const { user, checkAuth, logout, setAuthLoading } = useContext(GlobalContext);
+  const { user, checkAuth, logout, setAuthLoading, UpdatedUser } =
+    useContext(GlobalContext);
 
   const tabs = [
     {
@@ -37,7 +38,7 @@ export function TeacherTopNavbarDropDown({ selected, setselected }) {
     try {
       await axiosInstance.post("auth/previewSignIn").then(async () => {
         await checkAuth();
-        navigate("/student/mycourses"); 
+        navigate("/student/mycourses");
       });
     } catch (error) {
       console.error("Preview signin failed:", error);
@@ -50,14 +51,14 @@ export function TeacherTopNavbarDropDown({ selected, setselected }) {
         <div className="flex items-center space-x-2 cursor-pointer">
           <Avatar className="w-5 h-5">
             <AvatarImage
-              src={user?.profileImg?.url || avatar}
+              src={UpdatedUser?.profileImg?.url || avatar}
               alt="User Avatar"
             />
             <AvatarFallback>
               <img src="../assets/avatar.png" alt="" />
             </AvatarFallback>
           </Avatar>
-          <p className="text-white flex items-center">{user.firstName}</p>
+          <p className="text-white flex items-center">{UpdatedUser?.firstName}</p>
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56 bg-white">

@@ -82,10 +82,18 @@ import FeaturedPage from "./Page/FeaturedPage";
 import TermsPage from "./Page/TermAndConditionPage";
 import PrivacyPolicyPage from "./Page/privacyPolicyPage";
 import FeaturedContantCard from "./CustomComponent/FeaturedContantCard";
+import { axiosInstance } from "./lib/AxiosInstance";
 
 function App() {
-  const { checkAuth, user, Authloading, socket, setSocket, setOnlineUser } =
-    useContext(GlobalContext);
+  const {
+    checkAuth,
+    user,
+    Authloading,
+    socket,
+    setSocket,
+    setOnlineUser,
+    setUpdatedUser,
+  } = useContext(GlobalContext);
 
   useEffect(() => {
     checkAuth();
@@ -96,6 +104,18 @@ function App() {
     return () => {
       if (socket) socket.disconnect();
     };
+  }, [user]);
+
+  useEffect(() => {
+    const fetchUser = () => {
+      axiosInstance
+        .get("auth/getUserInfo")
+        .then((res) => {
+          setUpdatedUser(res.data.user);
+        })
+        .catch(console.log);
+    };
+    fetchUser();
   }, [user]);
 
   const connectsocket = () => {
@@ -129,13 +149,13 @@ function App() {
         {/* Public-only accessible pages */}
         <Route path="/" element={<MainLayout />}>
           <Route index element={<FeaturedPage />} /> {/* This makes / public */}
-          <Route path="home" element={<LandingPage />} /> {/* This makes / public */}
+          <Route path="home" element={<LandingPage />} />{" "}
+          {/* This makes / public */}
           <Route path="about" element={<About />} />
           <Route path="terms" element={<TermsPage />} />
           <Route path="privacyPolicy" element={<PrivacyPolicyPage />} />
           <Route path="AdditionalServices" element={<AdditionalServices />} />
           <Route path="Contact" element={<FeaturedContantCard />} />
-
           <Route path="*" element={<NotFoundPage />} />
         </Route>
 
@@ -301,7 +321,6 @@ function App() {
               <Route
                 path="courseDetail/:id"
                 element={<TeacherCourseDetails />}
-
               />
               <Route path="edit/:courseId" element={<EditCourse />} />
               <Route
@@ -319,16 +338,17 @@ function App() {
               />
               <Route path=":courseId/quarterstdpre/:quarterId">
                 <Route index element={<AllChapterStdPre />} />
-                <Route path="chapterstdpre/:chapterId" element={<ChapterDetailStdPre />} />
+                <Route
+                  path="chapterstdpre/:chapterId"
+                  element={<ChapterDetailStdPre />}
+                />
               </Route>
               <Route
                 path="assessment/:assessmentid"
                 element={<AssessmentPage />}
               />
               <Route path="stdPreview/:id" element={<StdPreview />} />
-              <Route path="stdPreview2/:id" element={<StdPreview2 />}
-
-              />
+              <Route path="stdPreview2/:id" element={<StdPreview2 />} />
 
               <Route path="createCourses">
                 <Route index element={<CoursesBasis />} />

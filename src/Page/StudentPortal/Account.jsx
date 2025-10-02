@@ -1,28 +1,31 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Loader, Pen, Trash2 } from "lucide-react";
 import { axiosInstance } from "@/lib/AxiosInstance";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
 import avatar from "@/assets/avatar.png";
+import { GlobalContext } from "@/Context/GlobalProvider";
 
 const allowedTypes = ["image/jpeg", "image/png", "image/jpg", "image/webp"];
 const maxSize = 5 * 1024 * 1024;
 const MAX_DOCS = 4;
 
-
-
 const Account = () => {
   const [user, setUser] = useState({});
   const [profileImg, setProfileImg] = useState(null);
   const [loading, setLoading] = useState(false);
+  const { UpdatedUser, setUpdatedUser } = useContext(GlobalContext);
 
   const fetchUser = () => {
     axiosInstance
       .get("auth/getUserInfo")
-      .then((res) => setUser(res.data.user))
+      .then((res) => {
+        setUser(res.data.user);
+        setUpdatedUser(res.data.user);
+      })
       .catch(console.log);
   };
 
@@ -31,7 +34,11 @@ const Account = () => {
   }, [loading]);
 
   const handleImg = async () => {
-    if (!profileImg || !allowedTypes.includes(profileImg.type) || profileImg.size > maxSize) {
+    if (
+      !profileImg ||
+      !allowedTypes.includes(profileImg.type) ||
+      profileImg.size > maxSize
+    ) {
       toast.error("Invalid image. Use JPG/PNG/WebP under 5MB.");
       setProfileImg(null);
       return;
@@ -55,7 +62,6 @@ const Account = () => {
     }
   };
 
-
   const displayField = (label, value) => (
     <div className="space-y-1">
       <p className="text-sm font-medium text-gray-500">{label}</p>
@@ -63,15 +69,19 @@ const Account = () => {
     </div>
   );
 
-
   return (
     <div className="w-full mx-auto p-4 sm:p-6 space-y-8">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-foreground">Account Information</h2>
+        <h2 className="text-2xl font-bold text-foreground">
+          Account Information
+        </h2>
         {user?.role === "teacher" && user?.isVarified !== undefined && (
           <span
-            className={`text-sm px-3 py-1 rounded-full ${user.isVarified ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
-              }`}
+            className={`text-sm px-3 py-1 rounded-full ${
+              user.isVarified
+                ? "bg-green-100 text-green-800"
+                : "bg-red-100 text-red-800"
+            }`}
           >
             {user.isVarified ? "Verified" : "Not Verified"}
           </span>
@@ -83,7 +93,11 @@ const Account = () => {
         <h3 className="text-lg font-semibold text-gray-800">Profile Image</h3>
         <div className="relative w-32 h-32 border border-gray-300 rounded-full overflow-hidden">
           <img
-            src={profileImg ? URL.createObjectURL(profileImg) : user?.profileImg?.url ?? avatar}
+            src={
+              profileImg
+                ? URL.createObjectURL(profileImg)
+                : user?.profileImg?.url ?? avatar
+            }
             alt="Profile"
             className="w-full h-full object-cover rounded-full shadow-sm"
           />
@@ -99,8 +113,15 @@ const Account = () => {
         </div>
         {profileImg && (
           <div className="flex gap-2">
-            <Button onClick={handleImg} className="bg-green-500 text-white hover:bg-green-600">
-              {loading ? <Loader className="animate-spin w-4 h-4 mr-2" /> : "Save Changes"}
+            <Button
+              onClick={handleImg}
+              className="bg-green-500 text-white hover:bg-green-600"
+            >
+              {loading ? (
+                <Loader className="animate-spin w-4 h-4 mr-2" />
+              ) : (
+                "Save Changes"
+              )}
             </Button>
           </div>
         )}
@@ -109,10 +130,14 @@ const Account = () => {
       {/* Edit Buttons */}
       <section className="flex gap-2 justify-end">
         <Link to={`/${user.role}/account/editGeneralInfo`}>
-          <Button className="bg-green-500 text-white hover:bg-green-600">Edit Info</Button>
+          <Button className="bg-green-500 text-white hover:bg-green-600">
+            Edit Info
+          </Button>
         </Link>
         <Link to={`/${user.role}/account/editCredentials`}>
-          <Button className="bg-green-500 text-white hover:bg-green-600">Edit Credentials</Button>
+          <Button className="bg-green-500 text-white hover:bg-green-600">
+            Edit Credentials
+          </Button>
         </Link>
       </section>
 
@@ -158,10 +183,7 @@ const Account = () => {
         </div>
       </section>
 
-
-
       {/* Teacher Documents */}
-
     </div>
   );
 };

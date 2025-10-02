@@ -90,7 +90,7 @@ const sideBarTabs = [
 
 export default function TeacherLayout() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const { checkAuth, user, Authloading, setAuthLoading } =
+  const { checkAuth, user, Authloading, setAuthLoading, UpdatedUser } =
     useContext(GlobalContext);
   const location = useLocation().pathname;
 
@@ -254,19 +254,19 @@ export default function TeacherLayout() {
               <Link to="/teacher/account" className="w-10 h-10 block">
                 <div className="w-10 h-10 rounded-full overflow-hidden">
                   <img
-                    src={user?.profileImg?.url || avatar}
-                    alt={user?.firstName || "User Avatar"}
+                    src={UpdatedUser?.profileImg?.url || avatar}
+                    alt={UpdatedUser?.firstName || "User Avatar"}
                     className="w-full h-full object-cover rounded-full"
                   />
                 </div>
               </Link>
               <div>
-                <p className="font-medium">{user.firstName}</p>
+                <p className="font-medium">{UpdatedUser?.firstName || "User"}</p>
                 <p
                   className="text-sm text-gray-600 w-full max-w-[150px] break-words"
-                  title={user.email}
+                  title={UpdatedUser?.email || "N/A"}
                 >
-                  {user.email}
+                  {UpdatedUser?.email || "N/A"}
                 </p>
               </div>
             </div>

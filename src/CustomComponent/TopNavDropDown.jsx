@@ -15,7 +15,8 @@ import { axiosInstance } from "@/lib/AxiosInstance";
 import avatar from "../assets/avatar.png";
 
 export function TopNavbarDropDown({ selected, setselected }) {
-  const { checkAuth, user, logout, setAuthLoading } = useContext(GlobalContext);
+  const { checkAuth, user, logout, setAuthLoading, UpdatedUser } =
+    useContext(GlobalContext);
 
   const tabs = [
     {
@@ -39,14 +40,14 @@ export function TopNavbarDropDown({ selected, setselected }) {
         <div className="flex items-center space-x-2 cursor-pointer">
           <Avatar className="w-5 h-5">
             <AvatarImage
-              src={user?.profileImg?.url || avatar}
+              src={UpdatedUser?.profileImg?.url || avatar}
               alt="User Avatar"
             />
             <AvatarFallback className="text-white text-sm bg-black font-bold">
-              {user.firstName[0]}
+              {UpdatedUser?.firstName[0] || "N/A"}
             </AvatarFallback>
           </Avatar>
-          <p className="text-white flex items-center">{user.firstName}</p>
+          <p className="text-white flex items-center">{UpdatedUser?.firstName || "N/A" }</p>
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56 bg-white">

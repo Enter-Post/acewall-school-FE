@@ -30,7 +30,7 @@ const pdfFileSchema = z
 
 const lessonSchema = z.object({
   title: z.string().min(5).max(100),
-  description: z.string().min(5).max(2500),
+  description: z.string().min(5).max(250000),
   youtubeLinks: z
     .string()
     .trim()
@@ -56,11 +56,12 @@ const lessonSchema = z.object({
     }),
   pdfFiles: z
     .array(pdfFileSchema)
-    .optional()  // Make pdfFiles optional
+    .optional() // Make pdfFiles optional
     .refine(
       (files) =>
-        !files || files.reduce((acc, file) => acc + (file?.size || 0), 0) <=
-        5 * 1024 * 1024,
+        !files ||
+        files.reduce((acc, file) => acc + (file?.size || 0), 0) <=
+          5 * 1024 * 1024,
       {
         message: "Total file size must not exceed 5MB",
       }
@@ -105,6 +106,8 @@ const LessonModal = ({ type, chapterID, fetchQuarterDetail }) => {
       pdfFiles: [],
     },
   });
+
+  console.log(errors, "errors");
 
   const calculateTotalSize = (files) =>
     files.reduce((acc, f) => acc + (f?.size || 0), 0);
@@ -264,7 +267,10 @@ const LessonModal = ({ type, chapterID, fetchQuarterDetail }) => {
           </div>
 
           <div>
-            <Label>Lesson PDF Files <span className="text-xs text-muted-foreground">(optional)</span></Label>
+            <Label>
+              Lesson PDF Files{" "}
+              <span className="text-xs text-muted-foreground">(optional)</span>
+            </Label>
             {pdfInputs.map((input) => (
               <div key={input.id} className="flex items-center gap-2 mt-2">
                 <Input
