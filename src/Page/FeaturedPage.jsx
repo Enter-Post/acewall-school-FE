@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import bannerLogo from "../assets/featuredpage3.png";
 // import bannerLogo from "../assets/featuredpage2.png";
 import teacherpic from "../assets/TeacherPic.png";
+import bgvideo from "../assets/bg.mp4";
+
 import stppic from "../assets/std.png";
 import { Link, useNavigate } from "react-router-dom";
 // import FeaturedContantCard from "@/CustomComponent/FeaturedContantCard";
@@ -76,27 +78,108 @@ const FeaturedPage = () => {
       <div>
         {showPopup && <Popup onClose={() => setShowPopup(false)} />}
 
-     
+
       </div>
       {/* Hero Section */}
-      <section className="">
-        <div className="container mx-auto ">
-          <div className="flex flex-col py-2 px-4 sm:px-6 lg:px-12 lg:flex-row items-center justify-between gap-10">
-            {/* Left Content */}
-            <div className="lg:w-1/2 text-center lg:text-left space-y-6">
-              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-green-800 leading-tight">
+
+      <section className="relative overflow-hidden flex justify-center items-center px-4">
+        <div className="relative w-full max-w-6xl h-[400px] sm:h-[500px] lg:h-[590px] rounded-xl shadow-2xl overflow-hidden border-[12px] sm:border-[15px] border-[#a26631] bg-[#a26631]">
+          {/* Blackboard texture overlay */}
+          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/black-linen.png')] opacity-30 mix-blend-overlay z-10"></div>
+          <div className="absolute inset-0 bg-black opacity-20 z-10"></div>
+
+          {/* Video background */}
+          <video
+            src={bgvideo}
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="w-full h-full object-cover opacity-90"
+          />
+
+          {/* Main Content */}
+          <div className="absolute inset-0 z-20 flex flex-col lg:flex-row items-start justify-start gap-4 sm:gap-6 px-4 sm:px-8 lg:px-16 text-white pt-6 sm:pt-10">
+            <div className="w-full lg:w-1/2 text-center lg:text-left space-y-3 sm:space-y-4">
+              <h1 className="text-2xl sm:text-3xl lg:text-5xl font-extrabold leading-snug drop-shadow-md font-['Shadows_Into_Light']">
                 Best online platform for education.
               </h1>
-              <p className="text-base sm:text-base text-gray-700 leading-relaxed max-w-xl mx-auto lg:mx-0">
-                Since 2006,{" "}
-                <span className="font-semibold text-green-800">
-                  Acewall Scholars
-                </span>{" "}
-                has helped students master math, science,  english, and reading comprehension.  Our Learning Management Platform now empowers schools, teachers, and students. We’re making learning seamless, teaching effortless, and school management smarter—anytime, anywhere.
+              <p className="text-sm sm:text-base lg:text-lg text-white/90 leading-relaxed max-w-xl mx-auto lg:mx-0 font-['Patrick_Hand']">
+                Since 2006, <span className="font-bold">Acewall Scholars</span> has
+                helped students master math, science, english, and reading
+                comprehension. Our Learning Management Platform now empowers schools,
+                teachers, and students. We’re making learning seamless, teaching
+                effortless, and school management smarter—anytime, anywhere.
               </p>
 
-              {/* CTA Buttons */}
-              <div className="flex flex-col sm:flex-row gap-4  justify-center lg:justify-start">
+              {/* Buttons */}
+              <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
+                <button
+                  onClick={() => navigate("/contact")}
+                  className="bg-green-600/90 text-white font-bold py-2 sm:py-3 px-5 sm:px-8 rounded-md shadow-md hover:bg-green-700/90 transition text-sm sm:text-base border-2 border-white/40"
+                >
+                  Get Started Today
+                </button>
+
+                <Link to="/home">
+                  <button className="border-2 border-white/60 text-white font-bold py-2 sm:py-3 px-5 sm:px-8 rounded-md shadow-md hover:bg-white hover:text-green-700 transition text-sm sm:text-base">
+                    Existing user? Log in
+                  </button>
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          {/* Chalk & Duster */}
+          <div className="absolute bottom-2 sm:bottom-6 left-0 right-0 z-30 flex justify-between items-end px-4 sm:px-8">
+            {/* Chalks */}
+            <div className="flex gap-2 sm:gap-4">
+              <div className="w-8 sm:w-10 h-2.5 sm:h-3 bg-white rounded-sm shadow-md border border-gray-200 rotate-[-5deg]" />
+              <div className="w-6 sm:w-8 h-2.5 sm:h-3 bg-white rounded-sm shadow-md border border-gray-200 rotate-[8deg]" />
+            </div>
+
+            {/* Duster */}
+            <div className="w-16 sm:w-22 h-6 sm:h-8 bg-yellow-600 border-2 border-yellow-700 shadow-lg rounded-md flex flex-col">
+              {/* Wooden top */}
+              <div className="h-1/2 w-full bg-gradient-to-b from-yellow-400 to-yellow-600 rounded-t-md"></div>
+              {/* Felt bottom */}
+              <div className="h-1/2 w-full bg-gradient-to-b from-gray-600 to-gray-800 rounded-b-md"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+
+
+      {/* <section className="relative overflow-hidden flex justify-center items-center px-4 py-18">
+        <video
+          src={bgvideo}
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover z-0"
+        />
+
+        <div className="absolute inset-0 bg-black/40 z-0"></div>
+
+        <div className="relative z-10 container mx-auto px-6 lg:px-12">
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-10">
+            <div className="lg:w-1/2 text-center lg:text-left space-y-6 text-white">
+              <h1 className="text-3xl lg:text-5xl font-extrabold leading-tight drop-shadow-md">
+                Best online platform for education.
+              </h1>
+              <p className="text-base lg:text-lg text-white/90 leading-relaxed max-w-xl mx-auto lg:mx-0">
+                Since 2006,{" "}
+                <span className="font-bold">Acewall Scholars</span> has helped
+                students master math, science, english, and reading comprehension. Our
+                Learning Management Platform now empowers schools, teachers, and
+                students. We’re making learning seamless, teaching effortless, and
+                school management smarter—anytime, anywhere.
+              </p>
+
+              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                 <button
                   onClick={() => navigate("/contact")}
                   className="bg-green-600 text-white font-semibold py-3 px-6 sm:px-8 rounded-md shadow-md hover:bg-green-700 transition text-sm sm:text-base"
@@ -105,93 +188,148 @@ const FeaturedPage = () => {
                 </button>
 
                 <Link to="/home">
-                  <button className="border border-green-600 text-green-600  font-semibold py-3 px-6 sm:px-8 rounded-md shadow-md hover:bg-green-600 hover:text-white transition text-sm sm:text-base">
-                   Existing user? Log in
+                  <button className="  text-white font-semibold py-3 px-6 sm:px-8 rounded-md shadow-md hover:bg-green-600 hover:text-white transition text-sm sm:text-base">
+                    Existing user? Log in
                   </button>
                 </Link>
               </div>
             </div>
 
-            {/* Right Illustration */}
-            <div className="lg:w-1/2 flex justify-center lg:justify-end rounded-full">
-              <img
-                src={bannerLogo}
-                alt="Educational Platform Banner"
-                className="w-full h-full sm:w-full sm:h-full lg:w-full lg:h-full object-cover rounded-full "
-              />
-            </div>
           </div>
-
-          {/* Bottom Row */}
-          <div className="relative mt-16 mb-20 sm:mb-20">
-            {/* Card Wrapper */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-20 sm:gap-6 px-4 sm:px-0">
-
-              {/* Card 1 */}
-              <div
-                id="schools"
-                onClick={() =>
-                  document.getElementById("card1")?.scrollIntoView({ behavior: "smooth" })
-                }
-                className="relative bg-blue-900 text-white text-center rounded-lg p-6 pb-28 sm:pb-24 shadow-lg cursor-pointer hover:bg-blue-800 transition"
-              >
-                <h3 className="text-lg sm:text-2xl font-bold mb-12 sm:mb-20">
-                  Schools/Institutions
-                </h3>
-                <img
-                  src="https://imgs.search.brave.com/CADB44w2NE-4yBTcKGt32WI63tXzFpozkZ_HJXPYN4E/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9jZG5p/Lmljb25zY291dC5j/b20vaWxsdXN0cmF0/aW9uL3ByZW1pdW0v/dGh1bWIvc2Nob29s/LWJ1aWxkaW5nLWls/bHVzdHJhdGlvbi1k/b3dubG9hZC1pbi1z/dmctcG5nLWdpZi1m/aWxlLWZvcm1hdHMt/LXVuaXZlcnNpdHkt/cGFjay1lZHVjYXRp/b24taWxsdXN0cmF0/aW9ucy04NzQ2NjUw/LnBuZw"
-                  alt="Schools"
-                  className="absolute left-1/2 transform -translate-x-1/2 top-20 sm:top-20 w-50 sm:w-38 lg:w-55 object-contain"
-                />
-              </div>
-
-              {/* Card 2 */}
-              <div
-                id="teachers"
-                onClick={() =>
-                  document.getElementById("card2")?.scrollIntoView({ behavior: "smooth" })
-                }
-                className="relative bg-blue-900 text-white text-center rounded-lg p-6 pb-28 sm:pb-24 shadow-lg cursor-pointer hover:bg-blue-800 transition"
-              >
-                <h3 className="text-lg sm:text-2xl font-bold mb-12 sm:mb-20">
-                  Teachers
-                </h3>
-                <img
-                  src={teacherpic}
-                  alt="Teachers"
-                  className="absolute left-1/2 transform -translate-x-1/2 top-20 sm:top-20 w-50 sm:w-38 lg:w-55 object-contain"
-                />
-              </div>
-
-              {/* Card 3 */}
-              <div
-                id="students"
-                onClick={() =>
-                  document.getElementById("card3")?.scrollIntoView({ behavior: "smooth" })
-                }
-                className="relative bg-blue-900 text-white text-center rounded-lg p-6 pb-28 sm:pb-24 shadow-lg cursor-pointer hover:bg-blue-800 transition"
-              >
-                <h3 className="text-lg sm:text-2xl font-bold mb-12 sm:mb-20">
-                  Students K-12 / College Level
-                </h3>
-                <img
-                  src={stppic}
-                  alt="Students"
-                  className="absolute left-1/2 transform -translate-x-1/2 top-20 sm:top-20 w-50 sm:w-38 lg:w-75 object-contain"
-                />
-              </div>
-            </div>
-
-            {/* Bottom section (placeholder or content?) */}
-            <div className="bg-[#156082] py-12 sm:py-20 mt-6 px-4 sm:px-10">
-              {/* Content goes here */}
-            </div>
-          </div>
-
-
         </div>
-      </section>
+      </section> */}
 
+
+
+      {/* <section className="">
+        <div className="container mx-auto">
+          <div className="flex flex-col py-12 px-4 sm:px-6 lg:px-12 lg:flex-row items-center justify-between gap-10">
+
+            <div className="lg:w-1/2 text-center lg:text-left space-y-6">
+              <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-green-800 leading-tight">
+                Best online platform for education.
+              </h1>
+              <p className="text-base sm:text-base text-gray-700 leading-relaxed max-w-xl mx-auto lg:mx-0">
+                Since 2006,{" "}
+                <span className="font-semibold text-green-800">Acewall Scholars</span>{" "}
+                has helped students master math, science, english, and reading
+                comprehension. Our Learning Management Platform now empowers schools,
+                teachers, and students. We’re making learning seamless, teaching
+                effortless, and school management smarter—anytime, anywhere.
+              </p>
+
+              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                <button
+                  onClick={() => navigate("/contact")}
+                  className="bg-green-600 text-white font-semibold py-3 px-6 sm:px-8 rounded-md shadow-md hover:bg-green-700 transition text-sm sm:text-base"
+                >
+                  Get Started Today
+                </button>
+
+                <Link to="/home">
+                  <button className="border border-green-600 text-green-600 font-semibold py-3 px-6 sm:px-8 rounded-md shadow-md hover:bg-green-600 hover:text-white transition text-sm sm:text-base">
+                    Existing user? Log in
+                  </button>
+                </Link>
+              </div>
+            </div>
+
+            <div className="lg:w-1/2 flex justify-center">
+              <div className="relative w-[600px] h-[350px] border-[16px] rounded-lg border-yellow-700 overflow-hidden shadow-lg">
+                <video
+                  src={bgvideo}
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
+                  className="absolute inset-0 w-full h-full object-cover z-0"
+                />
+
+                <div className="relative z-20 w-full h-full flex flex-col justify-end py-2 px-4 ">
+                  <div className="flex justify-between items-end w-full">
+                    <div className="flex gap-2">
+                      <div className="w-5 h-2 bg-white rounded-sm shadow-sm" />
+                      <div className="w-5 h-2 bg-white rounded-sm shadow-sm" />
+                    </div>
+
+                    <div className="w-16 h-4 bg-yellow-400 border border-yellow-600 shadow-inner rounded-sm" />
+                    
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </section> */}
+
+
+
+
+      <div className="relative mt-16 mb-20 sm:mb-20">
+        {/* Card Wrapper */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-20 sm:gap-6 px-4 sm:px-0">
+
+          {/* Card 1 */}
+          <div
+            id="schools"
+            onClick={() =>
+              document.getElementById("card1")?.scrollIntoView({ behavior: "smooth" })
+            }
+            className="relative bg-blue-900 text-white text-center rounded-lg p-6 pb-28 sm:pb-24 shadow-lg cursor-pointer hover:bg-blue-800 transition"
+          >
+            <h3 className="text-lg sm:text-2xl font-bold mb-12 sm:mb-20">
+              Schools/Institutions
+            </h3>
+            <img
+              src="https://imgs.search.brave.com/CADB44w2NE-4yBTcKGt32WI63tXzFpozkZ_HJXPYN4E/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9jZG5p/Lmljb25zY291dC5j/b20vaWxsdXN0cmF0/aW9uL3ByZW1pdW0v/dGh1bWIvc2Nob29s/LWJ1aWxkaW5nLWls/bHVzdHJhdGlvbi1k/b3dubG9hZC1pbi1z/dmctcG5nLWdpZi1m/aWxlLWZvcm1hdHMt/LXVuaXZlcnNpdHkt/cGFjay1lZHVjYXRp/b24taWxsdXN0cmF0/aW9ucy04NzQ2NjUw/LnBuZw"
+              alt="Schools"
+              className="absolute left-1/2 transform -translate-x-1/2 top-20 sm:top-20 w-50 sm:w-38 lg:w-55 object-contain"
+            />
+          </div>
+
+          {/* Card 2 */}
+          <div
+            id="teachers"
+            onClick={() =>
+              document.getElementById("card2")?.scrollIntoView({ behavior: "smooth" })
+            }
+            className="relative bg-blue-900 text-white text-center rounded-lg p-6 pb-28 sm:pb-24 shadow-lg cursor-pointer hover:bg-blue-800 transition"
+          >
+            <h3 className="text-lg sm:text-2xl font-bold mb-12 sm:mb-20">
+              Teachers
+            </h3>
+            <img
+              src={teacherpic}
+              alt="Teachers"
+              className="absolute left-1/2 transform -translate-x-1/2 top-20 sm:top-20 w-50 sm:w-38 lg:w-55 object-contain"
+            />
+          </div>
+
+          {/* Card 3 */}
+          <div
+            id="students"
+            onClick={() =>
+              document.getElementById("card3")?.scrollIntoView({ behavior: "smooth" })
+            }
+            className="relative bg-blue-900 text-white text-center rounded-lg p-6 pb-28 sm:pb-24 shadow-lg cursor-pointer hover:bg-blue-800 transition"
+          >
+            <h3 className="text-lg sm:text-2xl font-bold mb-12 sm:mb-20">
+              Students K-12 / College Level
+            </h3>
+            <img
+              src={stppic}
+              alt="Students"
+              className="absolute left-1/2 transform -translate-x-1/2 top-20 sm:top-20 w-50 sm:w-38 lg:w-75 object-contain"
+            />
+          </div>
+        </div>
+
+        {/* Bottom section (placeholder or content?) */}
+        <div className="bg-[#156082] py-12 sm:py-20 mt-6 px-4 sm:px-10">
+          {/* Content goes here */}
+        </div>
+      </div>
       {/* Featured Cards Section */}
       <section>
         <div className="container mx-auto px-4 sm:px-6 lg:px-12 py-12">
@@ -215,6 +353,6 @@ const FeaturedPage = () => {
 
     </div>
   );
-};
+}; 3
 
 export default FeaturedPage;
