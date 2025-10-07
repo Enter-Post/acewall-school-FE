@@ -83,6 +83,8 @@ import TermsPage from "./Page/TermAndConditionPage";
 import PrivacyPolicyPage from "./Page/privacyPolicyPage";
 import FeaturedContantCard from "./CustomComponent/FeaturedContantCard";
 import { axiosInstance } from "./lib/AxiosInstance";
+import SocialMain from "./Page/teacher/SocialMain";
+import SocialProfilePage from "./Page/teacher/socialProfilePage";
 
 function App() {
   const {
@@ -295,6 +297,9 @@ function App() {
             <Route path="support" element={<Support />} />
 
             <Route path="Announcements" element={<TeacherAnnoucement />} />
+            <Route path="social" element={<SocialMain />} />
+            <Route path="socialprofile" element={<SocialProfilePage />} />
+            
             <Route path="allStudent" element={<AllStudent />} />
             <Route path="studentProfile/:id" element={<StudentProfile />} />
             <Route

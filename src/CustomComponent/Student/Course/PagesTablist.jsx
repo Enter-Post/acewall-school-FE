@@ -68,16 +68,7 @@ const PagesTablist = ({ chapter, lesson }) => {
                   <h3 className="text-lg font-semibold truncate max-w-[80%]">
                     {post.title}
                   </h3>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDeletePage(post._id);
-                    }}
-                  >
-                    <Trash2 className="h-4 w-4 text-red-600" />
-                  </Button>
+                 
                 </div>
                 <p className="text-sm text-gray-600 line-clamp-3 whitespace-pre-line">
                   {post.description}

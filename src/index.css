@@ -13,11 +13,11 @@
 *::-webkit-scrollbar {
   width: 0.5em;
 }
- 
+
 *::-webkit-scrollbar-track {
-  box-shadow: inset 0 0 6px #B8BAC8 ;
+  box-shadow: inset 0 0 6px #B8BAC8;
 }
- 
+
 *::-webkit-scrollbar-thumb {
   background-color: #9999A1;
   border-radius: 100px;
@@ -171,8 +171,15 @@
 } */
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .animate-fadeIn {
@@ -184,6 +191,7 @@
   0% {
     transform: translateX(-100%);
   }
+
   100% {
     transform: translateX(100%);
   }
@@ -193,3 +201,11 @@
   animation: shine 2s linear infinite;
 }
 
+/* You can add this in your global CSS or Tailwind */
+.particle {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  pointer-events: none;
+}

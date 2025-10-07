@@ -86,6 +86,12 @@ const sideBarTabs = [
     icon: <FaHandFist />,
     path: "/teacher/support",
   },
+  {
+    id: 15,
+    name: "Spill the Tea",
+    icon: <FaHandFist />,
+    path: "/teacher/social",
+  },
 ];
 
 export default function TeacherLayout() {
