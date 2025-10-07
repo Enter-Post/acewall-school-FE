@@ -13,6 +13,7 @@ import {
   MessagesSquare,
   NotepadText,
   MessagesSquareIcon,
+  Coffee,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import { Button } from "../../components/ui/button";
@@ -69,11 +70,11 @@ const sideBarTabs = [
     icon: <MessageCircleDashed />,
     path: "/teacher/messages",
   },
-    {
-      name: "Discussion Rooms",
-      icon: <MessagesSquareIcon />,
-      path: "/teacher/discussions?type=all",
-    },
+  {
+    name: "Discussion Rooms",
+    icon: <MessagesSquareIcon />,
+    path: "/teacher/discussions?type=all",
+  },
   {
     id: 13,
     name: "Students",
@@ -82,15 +83,16 @@ const sideBarTabs = [
   },
   {
     id: 14,
-    name: "Support",
-    icon: <FaHandFist />,
-    path: "/teacher/support",
+    name: "Spill the Tea",
+    icon: <Coffee />,
+    path: "/teacher/social",
   },
   {
     id: 15,
-    name: "Spill the Tea",
+    name: "Support",
     icon: <FaHandFist />,
-    path: "/teacher/social",
+    path: "/teacher/support",
+
   },
 ];
 
@@ -251,9 +253,8 @@ export default function TeacherLayout() {
 
       <div className="flex flex-1 overflow-hidden">
         <aside
-          className={`relative bg-white ${
-            isSidebarOpen ? "block" : "hidden"
-          } w-screen md:w-64 flex-shrink-0 overflow-y-auto md:block`}
+          className={`relative bg-white ${isSidebarOpen ? "block" : "hidden"
+            } w-screen md:w-64 flex-shrink-0 overflow-y-auto md:block`}
         >
           <div className="p-4">
             <div className="flex items-center space-x-3 pb-4">
@@ -284,15 +285,13 @@ export default function TeacherLayout() {
                   onClick={() => {
                     setIsSidebarOpen(false);
                   }}
-                  className={`flex items-center space-x-3 rounded-lg px-3 py-2 ${
-                    location === tab.path ? "bg-green-500" : "text-black"
-                  }`}
+                  className={`flex items-center space-x-3 rounded-lg px-3 py-2 ${location === tab.path ? "bg-green-500" : "text-black"
+                    }`}
                 >
                   <p>{tab.icon}</p>
                   <span
-                    className={`${
-                      location === tab.path ? "text-white" : "text-green-600"
-                    }`}
+                    className={`${location === tab.path ? "text-white" : "text-green-600"
+                      }`}
                   >
                     {tab.name}
                   </span>

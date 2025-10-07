@@ -243,6 +243,9 @@ function App() {
             <Route path="gradebook" element={<Gradebook />} />
             <Route path="stdPages" element={<StdPagesView />} />
             <Route path="announcements" element={<Announcement />} />
+            <Route path="social" element={<SocialMain />} />
+            <Route path="social/socialprofile/:userId" element={<SocialProfilePage />} />
+
             <Route path="account">
               <Route index element={<Account />} />
               <Route path="editGeneralInfo" element={<EditGeneralInfo />} />
@@ -297,9 +300,10 @@ function App() {
             <Route path="support" element={<Support />} />
 
             <Route path="Announcements" element={<TeacherAnnoucement />} />
+
             <Route path="social" element={<SocialMain />} />
-            <Route path="socialprofile" element={<SocialProfilePage />} />
-            
+            <Route path="social/socialprofile/:userId" element={<SocialProfilePage />} />
+
             <Route path="allStudent" element={<AllStudent />} />
             <Route path="studentProfile/:id" element={<StudentProfile />} />
             <Route
