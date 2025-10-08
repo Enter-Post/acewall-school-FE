@@ -6,6 +6,7 @@ import acewallshort from "../../assets/acewallshort.png";
 import avatar from "../../assets/avatar.png";
 
 import {
+  Coffee,
   Menu,
   MessageCircleDashed,
   MessagesSquare,
@@ -77,20 +78,27 @@ const sideBarTabs = [
     path: "/student/discussions",
     allowedAsPreview: true,
   },
-  {
+   {
     id: 6,
-    name: "Messages",
-    icon: <MessageCircleDashed />,
-    path: "/student/messages",
-    allowedAsPreview: false,
-  },
-  {
-    id: 7,
     name: "Pages",
     icon: <StickyNote />,
     path: "/student/stdPages",
     allowedAsPreview: true,
   },
+  {
+    id: 7,
+    name: "Spill the Tea",
+    icon: <Coffee />,
+    path: "/Student/social",
+  },
+  {
+    id: 8,
+    name: "Messages",
+    icon: <MessageCircleDashed />,
+    path: "/student/messages",
+    allowedAsPreview: false,
+  },
+ 
 ];
 
 export default function Layout() {
@@ -274,9 +282,8 @@ export default function Layout() {
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar */}
         <aside
-          className={`bg-white ${
-            isSidebarOpen ? "block" : "hidden"
-          } w-screen md:w-64 flex-shrink-0 overflow-y-auto md:block`}
+          className={`bg-white ${isSidebarOpen ? "block" : "hidden"
+            } w-screen md:w-64 flex-shrink-0 overflow-y-auto md:block`}
         >
           <div className="p-4">
             {/* User Info */}
@@ -291,7 +298,7 @@ export default function Layout() {
                 </div>
               </Link>
               <div>
-                <p className="font-medium">{UpdatedUser?.firstName  || "User"}</p>
+                <p className="font-medium">{UpdatedUser?.firstName || "User"}</p>
                 <p
                   className="text-sm text-gray-600 w-full max-w-[150px]  break-words"
                   title={UpdatedUser?.email || "N/A"}
@@ -315,26 +322,23 @@ export default function Layout() {
                 return user.role === "teacherAsStudent" ? (
                   <div
                     key={tab.id}
-                    className={`${
-                      tab.allowedAsPreview === false
+                    className={`${tab.allowedAsPreview === false
                         ? "pointer-events-none opacity-50"
                         : ""
-                    }`}
+                      }`}
                   >
                     <Link
                       to={tab.path}
                       onClick={() => setIsSidebarOpen(false)}
-                      className={`flex items-center space-x-3 rounded-lg px-3 py-2 ${
-                        location === tab.path ? "bg-green-500" : "text-black"
-                      }`}
+                      className={`flex items-center space-x-3 rounded-lg px-3 py-2 ${location === tab.path ? "bg-green-500" : "text-black"
+                        }`}
                     >
                       <p>{tab.icon}</p>
                       <span
-                        className={`${
-                          location === tab.path
+                        className={`${location === tab.path
                             ? "text-white"
                             : "text-green-600"
-                        }`}
+                          }`}
                       >
                         {tab.name}
                       </span>
@@ -345,17 +349,15 @@ export default function Layout() {
                     <Link
                       to={tab.path}
                       onClick={() => setIsSidebarOpen(false)}
-                      className={`flex items-center space-x-3 rounded-lg px-3 py-2 ${
-                        location === tab.path ? "bg-green-500" : "text-black"
-                      }`}
+                      className={`flex items-center space-x-3 rounded-lg px-3 py-2 ${location === tab.path ? "bg-green-500" : "text-black"
+                        }`}
                     >
                       <p>{tab.icon}</p>
                       <span
-                        className={`${
-                          location === tab.path
+                        className={`${location === tab.path
                             ? "text-white"
                             : "text-green-600"
-                        }`}
+                          }`}
                       >
                         {tab.name}
                       </span>
