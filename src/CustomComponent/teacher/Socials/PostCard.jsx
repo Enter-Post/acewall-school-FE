@@ -11,8 +11,7 @@ const PostCard = ({ post, setPosts }) => {
 
   // ✅ Extract author info safely
   const author = post?.author || {};
-  const authorName = `${author.firstName || ""} ${author.middleName || ""} ${author.lastName || ""
-    }`.trim();
+  const authorName = `${author.firstName || ""} ${author.middleName || ""} ${author.lastName || ""}`.trim();
 
   const profilePic =
     author?.profileImg?.url ||
@@ -23,8 +22,15 @@ const PostCard = ({ post, setPosts }) => {
     ? new Date(post.createdAt).toLocaleString()
     : "Just now";
 
-  // ✅ Main content
-  const text = post?.text || "";
+  // ✅ Strip HTML from post.text
+  const stripHtml = (html) => {
+    const div = document.createElement("div");
+    div.innerHTML = html;
+    return div.textContent || div.innerText || "";
+  };
+
+  const text = stripHtml(post?.text || "");
+
   const assets = Array.isArray(post?.assets) ? post.assets : [];
 
   return (
@@ -61,13 +67,12 @@ const PostCard = ({ post, setPosts }) => {
         </div>
       )}
 
-      {/* 📸 Media (supports multiple assets) */}
+      {/* 📸 Media */}
       {assets.length > 0 && (
         <div className="grid grid-cols-1 gap-2 mt-2">
           {assets.map((asset, index) => {
             const isVideo =
-              asset?.url?.endsWith(".mp4") ||
-              asset?.type?.includes("video");
+              asset?.url?.endsWith(".mp4") || asset?.type?.includes("video");
             return isVideo ? (
               <video
                 key={index}
@@ -96,9 +101,10 @@ const PostCard = ({ post, setPosts }) => {
       />
 
       {/* Comments Section */}
-      {showComments && <PostComments postId={post._id} setPosts={setPosts} />
-      }    </div>
-
+      {showComments && (
+        <PostComments postId={post._id} setPosts={setPosts} />
+      )}
+    </div>
   );
 };
 

@@ -62,7 +62,7 @@ const SocialMain = ({ posts: externalPosts, setPosts: setExternalPosts }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-blue-300">
       {/* 🔝 Navbar */}
       <div className="bg-green-600 text-white rounded-lg shadow-sm sticky top-0 flex items-center justify-between px-6 py-3 border-b ">
         <div className="flex items-center gap-3">
