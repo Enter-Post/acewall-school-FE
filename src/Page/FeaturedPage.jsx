@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import teacherpic from "../assets/TeacherPic.png";
-import bgvideo from "../assets/bg2.mp4";
+import bgvideo from "../assets/bg.mp4";
 
 import stppic from "../assets/std.png";
 import blackboard from "../assets/blackboard.png";
