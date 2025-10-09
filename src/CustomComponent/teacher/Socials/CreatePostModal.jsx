@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { X, Image, Video } from "lucide-react";
 import gsap from "gsap";
 import { axiosInstance } from "@/lib/AxiosInstance";
+import JoditEditor from "jodit-react";
 
 const CreatePostModal = ({ onClose, onCreate }) => {
   const [text, setText] = useState("");
@@ -94,14 +95,21 @@ const CreatePostModal = ({ onClose, onCreate }) => {
         <h2 className="text-lg font-semibold mb-3">Create Post</h2>
 
         {/* 📝 Post Text */}
-        <div className="rounded-lg border p-3 mb-3 bg-white">
+        {/* <div className="rounded-lg border p-3 mb-3 bg-white">
           <textarea
             placeholder="What's on your mind?"
             className="w-full h-24 bg-transparent text-sm resize-none focus:outline-none placeholder-gray-500"
             value={text}
             onChange={(e) => setText(e.target.value)}
           />
-        </div>
+        </div> */}
+        <JoditEditor
+          placeholder="What's on your mind?"
+          value={text}
+          onChange={(e) => {
+            setText(e)
+          }}
+        />
 
         {/* 📸 Media Preview */}
         {(image || video) && (
