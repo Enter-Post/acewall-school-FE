@@ -15,7 +15,7 @@ const LMSPopup = ({ onClose }) => {
     "Dedicated Support Team",
     "Income opportunities for schools and teachers just through signing-up",
     "Switch and save up to 30% off current LMS",
-    "Interactive Community Feed – Share posts, pictures, and videos just like social media, but safe and private for your school.",
+    "Social Community Feed – Share posts, pictures, and videos just like social media, but safe and private for your school.",
   ];
 
   useEffect(() => {
