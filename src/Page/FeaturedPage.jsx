@@ -80,61 +80,59 @@ const FeaturedPage = () => {
       </div>
       {/* Hero Section */}
 
-      <section className="relative p-10  flex justify-center items-center bg-gray-100 ">
-        {/* Blackboard Background */}
-        {/* <div className="bg-green-800 "> */}
-        <div className="relative w-full  p-4 flex justify-center items-center bg-cover bg-center bg-no-repeat max-w-5xl" style={{ backgroundImage: `url(${blackboard})` }}>
+      <section className="relative py-6 px-6 sm:px-10 bg-gray-100 flex justify-center items-center">
+        <div className="max-w-7xl w-full flex flex-col lg:flex-row items-center justify-between gap-10">
+
+          {/* Left: Blackboard with kids video */}
 
 
-          {/* Inner “Screen” for the video */}
-          <div className="relative w-[92%] sm:w-[90%] lg:w-[88%] aspect-video mb-20 mt-10 ">
-            {/* Blackboard texture overlay */}
-            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/black-linen.png')] opacity-14 z-10"></div>
-            <div className="absolute inset-0 bg-black/20 z-10"></div>
+          {/* Right: Acewall blurb */}
+          <div className="w-full lg:w-1/2 text-center lg:text-left space-y-5">
+            <h1 className="text-2xl sm:text-3xl lg:text-5xl font-extrabold leading-snug text-gray-900 font-['Shadows_Into_Light']">
+              Best online platform for education.
+            </h1>
+            <p className="text-sm sm:text-base lg:text-lg text-gray-700 leading-relaxed font-['Patrick_Hand'] max-w-lg mx-auto lg:mx-0">
+              Since 2006, <span className="font-bold text-green-700">Acewall Scholars</span> has
+              helped students master math, science, English, and reading comprehension.
+              We’re making learning seamless, teaching effortless, and school management smarter.
+            </p>
 
-            {/* Video inside the board */}
-            <video
-              src={bgvideo}
-              autoPlay
-              muted
-              loop
-              playsInline
-              className="w-full h-full object-cover opacity-90 rounded-xl"
-            />
+            <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
+              <button
+                onClick={() => navigate("/contact")}
+                className="bg-green-600 text-white font-bold py-2 px-5 rounded-md shadow-md hover:bg-green-700 transition border-2 border-green-700"
+              >
+                Get Started Today
+              </button>
 
-            {/* Content overlay (if you want text over the video) */}
-            <div className="absolute inset-0 z-20 flex flex-col lg:flex-row items-start justify-start gap-4 sm:gap-6 px-4 sm:px-8 lg:px-16 text-white pt-6 sm:pt-10">
-              <div className="w-full lg:w-1/2 text-center lg:text-left space-y-3 sm:space-y-4">
-                <h1 className="text-2xl sm:text-3xl lg:text-5xl font-extrabold leading-snug drop-shadow-md font-['Shadows_Into_Light']">
-                  Best online platform for education.
-                </h1>
-                <p className="text-sm sm:text-base lg:text-lg text-white/90 leading-relaxed max-w-xl mx-auto lg:mx-0 font-['Patrick_Hand']">
-                  Since 2006, <span className="font-bold">Acewall Scholars</span> has
-                  helped students master math, science, english, and reading comprehension.
-                  We’re making learning seamless, teaching effortless, and school management smarter.
-                </p>
-
-                <div className="flex flex-col sm:flex-row gap-2 justify-center lg:justify-start">
-                  <button
-                    onClick={() => navigate("/contact")}
-                    className="bg-green-600/90 text-white font-bold py-1.5 px-4 rounded-md shadow-md hover:bg-green-700/90 transition text-sm border-2 border-white/40"
-                  >
-                    Get Started Today
-                  </button>
-
-                  <Link to="/home">
-                    <button className="border-2 border-white/60 text-white font-bold py-1.5 px-4 rounded-md shadow-md hover:bg-white hover:text-green-700 transition text-sm">
-                      Existing user? Log in
-                    </button>
-                  </Link>
-                </div>
-
-              </div>
+              <Link to="/home">
+                <button className="border-2 border-green-700 text-green-700 font-bold py-2 px-5 rounded-md shadow-md hover:bg-green-700 hover:text-white transition">
+                  Existing user? Log in
+                </button>
+              </Link>
             </div>
           </div>
-          {/* </div> */}
 
 
+          <div
+            className="relative w-full lg:w-1/2 flex justify-center items-center bg-cover bg-center bg-no-repeat rounded-2xl shadow-lg"
+            style={{ backgroundImage: `url(${blackboard})` }}
+          >
+            <div className="relative w-[80%] aspect-video my-20">
+              {/* Blackboard texture overlays */}
+              <div className="absolute inset-0 bg-black/20 z-10 rounded-lg"></div>
+
+              {/* Video inside the board */}
+              <video
+                src={bgvideo}
+                autoPlay
+                muted
+                loop
+                playsInline
+                className="w-full h-full object-cover opacity-90 rounded-lg"
+              />
+            </div>
+          </div>
         </div>
       </section>
 
