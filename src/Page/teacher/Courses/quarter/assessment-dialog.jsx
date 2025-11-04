@@ -104,9 +104,11 @@ export function AssessmentPage() {
   const [assessment, setAssessment] = useState();
   const [loading, setLoading] = useState(true);
 
+  console.log(assessment, "assessment");
+
   const fetchAssessment = async (req, res) => {
     await axiosInstance
-      .get(`assessment/getAssesmentbyID/${assessmentid}`)
+      .get(`assessment/${assessmentid}`)
       .then((res) => {
         console.log(res);
         setAssessment(res.data.assessment);
@@ -136,6 +138,16 @@ export function AssessmentPage() {
       <div className="flex justify-center items-center py-10">
         <section className="flex justify-center items-center h-full w-full">
           <Loader className="animate-spin " />
+        </section>
+      </div>
+    );
+  }
+
+  if (assessment == null) {
+    return (
+      <div className="flex justify-center items-center py-10">
+        <section className="flex justify-center items-center h-full w-full">
+          <p className="text-center text-gray-500">Assessment not found</p>
         </section>
       </div>
     );

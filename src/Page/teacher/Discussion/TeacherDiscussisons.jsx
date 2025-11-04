@@ -22,8 +22,8 @@ const TeacherDiscussion = () => {
   const semesterId = searchParams.get("semester");
   const quarterId = searchParams.get("quarter");
 
-  console.log(semesterId, "semesterId");
-  console.log(quarterId, "quarterId");
+  console.log(discussion, "discussion");
+  // console.log(quarterId, "quarterId");
 
   useEffect(() => {
     const fetchDiscussions = async () => {
@@ -79,13 +79,16 @@ const TeacherDiscussion = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 font-sans">
           {!loading &&
-            discussion?.map((item) => (
-              <DiscussionCard
-                key={item._id}
-                discussion={item}
-                link={`/teacher/discussions/${item._id}?type=${type}&typeId=${typeId}&course=${courseId}&semester=${semesterId}&quarter=${quarterId}`}
-              />
-            ))}
+            discussion?.map(
+              (item) =>
+                item.course && (
+                  <DiscussionCard
+                    key={item._id}
+                    discussion={item}
+                    link={`/teacher/discussions/${item._id}?type=${type}&typeId=${typeId}&course=${courseId}&semester=${semesterId}&quarter=${quarterId}`}
+                  />
+                )
+            )}
         </div>
       </Tabs>
     </div>
