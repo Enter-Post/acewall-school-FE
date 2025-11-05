@@ -139,12 +139,12 @@ const StdPreview = () => {
                   >
                     Instructor
                   </TabsTrigger>
-                  <TabsTrigger
+                  {/* <TabsTrigger
                     value="reviews"
                     className="data-[state=active]:border-b-3   data-[state=active]:border-green-500 rounded-none"
                   >
                     Reviews
-                  </TabsTrigger>
+                  </TabsTrigger> */}
                 </TabsList>
 
                 {/* overview */}
@@ -326,7 +326,7 @@ const StdPreview = () => {
                 </TabsContent>
 
                 {/* reviews */}
-                <TabsContent value="reviews" className="p-6">
+                {/* <TabsContent value="reviews" className="p-6">
                   <div className="flex flex-col gap-8">
                     <div className="">
                       <div className="text-center">
@@ -391,7 +391,7 @@ const StdPreview = () => {
                       </div>
                     </div>
                   </div>
-                </TabsContent>
+                </TabsContent> */}
               </Tabs>
             </div>
           </div>
