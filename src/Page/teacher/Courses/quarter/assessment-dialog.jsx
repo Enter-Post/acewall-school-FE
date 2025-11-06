@@ -1,11 +1,4 @@
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
   Accordion,
   AccordionContent,
   AccordionItem,
@@ -13,19 +6,10 @@ import {
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  ArrowBigLeft,
-  ArrowLeft,
-  BookOpen,
-  FileText,
-  Loader,
-  Pen,
-  Trash2,
-} from "lucide-react";
+import { ArrowLeft, FileText, Loader } from "lucide-react";
 import { axiosInstance } from "@/lib/AxiosInstance";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import CreateAssessmentDialog from "@/CustomComponent/CreateCourse/EditAssessment";
 import EditAssessmentDialog from "@/CustomComponent/CreateCourse/EditAssessment";
 
 function QuestionDisplay({ question, index }) {
@@ -107,6 +91,40 @@ export function AssessmentPage() {
   const navigate = useNavigate();
   const [assessment, setAssessment] = useState();
   const [loading, setLoading] = useState(true);
+  const [loadingReminder, setLoadingReminder] = useState(false);
+
+const handleSendReminder = async () => {
+  if (!assessment?._id) return;
+
+  try {
+    setLoadingReminder(true);
+    const res = await axiosInstance.post(
+      `/assessment/${assessment._id}/send-reminder`
+    );
+
+    const { message, data } = res.data;
+    alert(message);
+
+    console.log("📬 Reminder Details:", data);
+
+    // Example: show a summary alert of the students
+    if (data?.enrolledStudents?.length) {
+      const studentList = data.enrolledStudents
+        .map((s) => `• ${s.name} (${s.email})`)
+        .join("\n");
+
+      alert(
+        `Assessment ID: ${data.assessmentId}\n\nEnrolled Students:\n${studentList}`
+      );
+    }
+  } catch (err) {
+    console.error("Error sending reminder:", err);
+    alert(err.response?.data?.message || "Failed to send reminder.");
+  } finally {
+    setLoadingReminder(false);
+  }
+};
+
 
   console.log(assessment, "assessment");
 
@@ -168,6 +186,7 @@ export function AssessmentPage() {
         <ArrowLeft size={16} />
         Back
       </Button>
+
       <div className="mb-6 border-b pb-4 flex items-center justify-between">
         <section>
           <h1 className="text-2xl font-bold flex items-center gap-2">
@@ -178,11 +197,26 @@ export function AssessmentPage() {
             due date: {new Date(assessment?.dueDate.date).toDateString()}
           </div>
         </section>
-        <section>
+        <section className="flex items-center gap-2">
           <EditAssessmentDialog
             assessment={assessment}
             fetchAssessment={fetchAssessment}
           />
+
+          <Button
+            variant="primary"
+            className="bg-blue-300"
+            disabled={loadingReminder}
+            onClick={handleSendReminder}
+          >
+            {loadingReminder ? (
+              <>
+                <Loader className="animate-spin mr-2" size={16} /> Sending...
+              </>
+            ) : (
+              "Send Reminder"
+            )}
+          </Button>
         </section>
       </div>
 
@@ -192,38 +226,6 @@ export function AssessmentPage() {
           <p className="text-sm text-blue-800">{assessment.description}</p>
         </div>
       )}
-      {/* <section className="mb-6">
-        <h4 className="text-sm font-semibold text-gray-700 mb-3">Files</h4>
-        {assessment?.files.length === 0 ? (
-          <p className="text-sm text-gray-500">no file available</p>
-        ) : (
-          assessment?.files.lent &&
-          assessment?.files &&
-          assessment?.files.length > 0 && (
-            <div className="mb-6">
-              <h4 className="text-sm font-semibold text-gray-700 mb-3">
-                Files
-              </h4>
-              <div className="flex flex-wrap gap-2">
-                {assessment?.files
-                  .filter((file) => /\.(pdf|docx)$/i.test(file.filename))
-                  .map((file, i) => (
-                    <a
-                      key={file.url || i}
-                      href={file.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm text-blue-600 hover:bg-blue-50 transition-colors shadow-sm"
-                    >
-                      <FileText className="h-4 w-4" />
-                      {file.filename}
-                    </a>
-                  ))}
-              </div>
-            </div>
-          )
-        )}
-      </section> */}
 
       <section>
         <h4 className="text-sm font-semibold text-gray-700 mb-3">Questions</h4>
