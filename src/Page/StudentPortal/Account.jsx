@@ -19,6 +19,8 @@ const Account = () => {
   const [loading, setLoading] = useState(false);
   const { UpdatedUser, setUpdatedUser } = useContext(GlobalContext);
 
+  console.log(user.guardianEmails, "user");
+
   const fetchUser = () => {
     axiosInstance
       .get("auth/getUserInfo")
@@ -139,51 +141,76 @@ const Account = () => {
             Edit Credentials
           </Button>
         </Link>
+        {user?.role === "student" && (
+          <Link to={`/${user.role}/account/EditParentEmail`}>
+            <Button className="bg-green-500 text-white hover:bg-green-600">
+              Edit Parent/Guardian Email
+            </Button>
+          </Link>
+        )}
       </section>
 
-      {/* Info Sections */}
       <section className="space-y-6">
-        <h3 className="text-lg font-semibold">Personal Information</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {displayField("First Name", user?.firstName)}
-          {displayField("Middle Name", user?.middleName)}
-          {displayField("Last Name", user?.lastName)}
-        </div>
-      </section>
-      {user?.role === "teacher" && (
         <section className="space-y-6">
-          <h3 className="text-lg font-semibold">Bio</h3>
-          <div className="grid grid-cols-1 gap-4">
-            {displayField("Bio", user?.Bio)}
+          <h3 className="text-lg font-semibold">Personal Information</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {displayField("First Name", user?.firstName)}
+            {displayField("Middle Name", user?.middleName)}
+            {displayField("Last Name", user?.lastName)}
           </div>
         </section>
-      )}
+        {user?.role === "teacher" && (
+          <section className="space-y-6">
+            <h3 className="text-lg font-semibold">Bio</h3>
+            <div className="grid grid-cols-1 gap-4">
+              {displayField("Bio", user?.Bio)}
+            </div>
+          </section>
+        )}
 
-      <section className="space-y-6">
-        <h3 className="text-lg font-semibold">Identity Information</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {displayField("Preferred Pronouns", user?.pronoun)}
-          {displayField("Gender Identity", user?.gender)}
-        </div>
+        <section className="space-y-6">
+          <h3 className="text-lg font-semibold">Identity Information</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {displayField("Preferred Pronouns", user?.pronoun)}
+            {displayField("Gender Identity", user?.gender)}
+          </div>
+        </section>
+
+        <section className="space-y-6">
+          <h3 className="text-lg font-semibold">Contact Information</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {displayField("Email Address", user?.email)}
+            {displayField("Phone Number", user?.phone)}
+            {user?.role === "student" && (
+              <div className="space-y-1">
+                <p className="text-sm font-medium text-gray-500">
+                  Parent/Guardian's Emails
+                </p>
+                {user?.guardianEmails && user?.guardianEmails.length > 0 ? (
+                  user.guardianEmails.map((email, index) => (
+                    <p
+                      key={index}
+                      className="text-base text-gray-900 dark:text-white"
+                    >
+                      {email}
+                    </p>
+                  ))
+                ) : (
+                  <p className="text-base text-gray-900 dark:text-white">—</p>
+                )}
+              </div>
+            )}
+          </div>
+        </section>
+
+        <section className="space-y-6">
+          <h3 className="text-lg font-semibold">Address Information</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {displayField("Home Address", user?.homeAddress)}
+            {displayField("Mailing Address", user?.mailingAddress)}
+          </div>
+        </section>
       </section>
-
-      <section className="space-y-6">
-        <h3 className="text-lg font-semibold">Contact Information</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {displayField("Email Address", user?.email)}
-          {displayField("Phone Number", user?.phone)}
-        </div>
-      </section>
-
-      <section className="space-y-6">
-        <h3 className="text-lg font-semibold">Address Information</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {displayField("Home Address", user?.homeAddress)}
-          {displayField("Mailing Address", user?.mailingAddress)}
-        </div>
-      </section>
-
-      {/* Teacher Documents */}
     </div>
   );
 };

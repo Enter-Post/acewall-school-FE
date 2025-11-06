@@ -132,7 +132,6 @@ const EditGeneralInfo = () => {
   // Form submission handler
   const onSubmit = async (data) => {
 
-    console.log(data, "data")
     const formData = new FormData();
     formData.append("firstName", data.firstName);
     if (data.middleName.length > 0) {

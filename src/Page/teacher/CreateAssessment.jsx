@@ -56,6 +56,9 @@ const mcqQuestionSchema = baseQuestionSchema.extend({
   question: z
     .string()
     .min(1, { message: "Question must be at least 1 characters" }),
+  concept: z
+    .string()
+    .min(1, { message: "Concept must be at least 1 characters" }),
   options: z
     .array(optionSchema)
     .min(2, { message: "At least 2 options are required" })
@@ -214,15 +217,9 @@ export default function CreateAssessmentPage() {
   const parsedEndDate = new Date(endDate);
   const today = new Date();
 
-
   const minDate = today;
   const maxDate =
     parsedEndDate > parsedStartDate ? parsedEndDate : parsedStartDate;
-
-
-  console.log(minDate, "minDate")
-  console.log(maxDate, "maxDate")
-
 
   // Initialize the form with react-hook-form and zod resolver
   const form = useForm({
@@ -447,6 +444,10 @@ export default function CreateAssessmentPage() {
       }
       if (quarter) {
         formData.append("quarter", quarter);
+      }
+
+      for (let [key, value] of formData.entries()) {
+        console.log(key, value);
       }
 
       const res = await axiosInstance.post(
@@ -737,6 +738,20 @@ export default function CreateAssessmentPage() {
                                 }
                               }}
                             />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name={`questions.${questionIndex}.concept`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Concept</FormLabel>
+                          <FormControl>
+                            <Textarea {...field} type="text" />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
