@@ -32,6 +32,63 @@ import { ChapterCard } from "./chapter-card";
 import { AssessmentDialog } from "../Models/AssessmentFields";
 import ChapterOptionDropdown from "@/CustomComponent/teacher/OptionDropdown";
 
+
+
+const ReadMoreHTML = ({ html = "", maxLength = 180 }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  // Strip HTML tags for measuring text length safely
+  const plainText = html.replace(/<[^>]+>/g, "");
+  const shouldTruncate = plainText.length > maxLength;
+
+  // Prepare truncated HTML (so tags don't break mid-way)
+  const truncatedHTML = (() => {
+    if (!shouldTruncate) return html;
+    const tempDiv = document.createElement("div");
+    tempDiv.innerHTML = html;
+    let text = "";
+    const walker = document.createTreeWalker(tempDiv, NodeFilter.SHOW_TEXT);
+    let node;
+    while ((node = walker.nextNode())) {
+      if (text.length + node.nodeValue.length > maxLength) {
+        node.nodeValue = node.nodeValue.slice(0, maxLength - text.length);
+        break;
+      }
+      text += node.nodeValue;
+    }
+    return tempDiv.innerHTML + "...";
+  })();
+
+  // 👇 Updated toggle handler to prevent link navigation
+  const handleToggle = (e) => {
+    e.preventDefault(); // stops link default
+    e.stopPropagation(); // stops link click bubbling
+    setIsExpanded(!isExpanded);
+  };
+
+  return (
+    <div>
+      <div
+        className="text-sm text-gray-600"
+        dangerouslySetInnerHTML={{
+          __html: isExpanded ? html : truncatedHTML,
+        }}
+      />
+      {shouldTruncate && (
+        <button
+          onClick={handleToggle}
+          className="text-green-600 font-medium hover:underline mt-1"
+        >
+          {isExpanded ? "Read Less" : "Read More"}
+        </button>
+      )}
+    </div>
+  );
+};
+
+
+
+
 const TeacherChapterDetail = () => {
   const { chapterId } = useParams();
   const [searchParams] = useSearchParams();
@@ -54,7 +111,6 @@ const TeacherChapterDetail = () => {
       setChapter(response.data.chapter);
       setLessons(response.data.chapter.lessons || []);
       console.log(response.data.chapter.lessons, "chapter lessons");
-
     } catch (err) {
       console.error(err);
     }
@@ -202,10 +258,12 @@ const TeacherChapterDetail = () => {
                           <h4 className="font-semibold text-gray-900">
                             {assessment.title}
                           </h4>
+
                           {assessment.description && (
-                            <p className="text-sm text-gray-600 mt-1">
-                              {assessment.description}
-                            </p>
+                            <ReadMoreHTML
+                              html={assessment.description}
+                              maxLength={180}
+                            />
                           )}
                         </Link>
                       </div>
@@ -236,10 +294,10 @@ const TeacherChapterDetail = () => {
                   Create your first lesson to start building your chapter
                   content.
                 </p>
-                <LessonModal
+                {/* <LessonModal
                   chapterID={chapterId}
                   fetchChapterDetail={fetchChapterDetail}
-                />
+                /> */}
               </div>
             ) : (
               <div className="space-y-4">
@@ -296,11 +354,9 @@ const TeacherChapterDetail = () => {
                     </CardHeader>
                     <CardContent className="space-y-4">
                       {lesson.description && (
-                        <p
-                          className="text-sm text-gray-600"
-                          dangerouslySetInnerHTML={{
-                            __html: lesson.description,
-                          }}
+                        <ReadMoreHTML
+                          html={lesson.description}
+                          maxLength={180}
                         />
                       )}
 
@@ -341,7 +397,9 @@ const TeacherChapterDetail = () => {
                                       {/* Date formatted in MM/DD/YYYY hh:mm AM/PM */}
                                       {pdf.uploadedAt && (
                                         <span className="text-xs text-gray-500">
-                                          {new Date(pdf.uploadedAt).toLocaleString("en-US", {
+                                          {new Date(
+                                            pdf.uploadedAt
+                                          ).toLocaleString("en-US", {
                                             month: "2-digit",
                                             day: "2-digit",
                                             year: "numeric",
@@ -355,14 +413,15 @@ const TeacherChapterDetail = () => {
 
                                     <DeleteModal
                                       what="File"
-                                      deleteFunc={() => handleDeleteFile(pdf._id, lesson._id)}
+                                      deleteFunc={() =>
+                                        handleDeleteFile(pdf._id, lesson._id)
+                                      }
                                     />
                                   </section>
                                 )
                             )
                           )}
                         </div>
-
                       </div>
 
                       {/* Resources */}
