@@ -42,6 +42,36 @@ import { format } from "date-fns";
 import { CourseContext } from "@/Context/CoursesProvider";
 import { GlobalContext } from "@/Context/GlobalProvider";
 
+const ReadMore = ({ text = "", maxLength = 500 }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  if (!text)
+    return (
+      <p className="text-black">Course description goes here...</p>
+    );
+
+  const toggleReadMore = () => setIsExpanded(!isExpanded);
+
+  const displayText = isExpanded ? text : text.slice(0, maxLength);
+
+  return (
+    <div>
+      <p className="text-muted-foreground">
+        {displayText}
+        {text.length > maxLength && !isExpanded && "..."}
+      </p>
+      {text.length > maxLength && (
+        <button
+          onClick={toggleReadMore}
+          className="text-green-700 text-sm hover:underline mt-1"
+        >
+          {isExpanded ? "Read Less" : "Read More"}
+        </button>
+      )}
+    </div>
+  );
+};
+
 export default function CourseOverview() {
   const { id } = useParams();
   const [course, setCourse] = useState(null);
@@ -156,7 +186,7 @@ export default function CourseOverview() {
           </h1>
 
           <p className="text-gray-900 font-medium leading-relaxed">
-            {course.courseDescription}
+            <ReadMore text={course?.courseDescription} />
           </p>
 
           <div className="flex items-center gap-10 mt-4">
@@ -359,10 +389,7 @@ export default function CourseOverview() {
         </TabsContent>
 
         {/* Reviews */}
-        {/* <TabsContent value="reviews" className="py-8 space-y-8">
-          <RatingSection id={id} course={course} />
-          <CommentSection id={course._id} />
-        </TabsContent> */}
+       
         <TabsContent value="syllabus" className="py-8 space-y-6">
           <h2 className="text-2xl font-semibold">Course Syllabus</h2>
 
