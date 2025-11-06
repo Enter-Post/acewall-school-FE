@@ -1,9 +1,6 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
 import {
   Dialog,
   DialogContent,
@@ -19,120 +16,143 @@ import { Plus, Trash } from "lucide-react";
 import { axiosInstance } from "@/lib/AxiosInstance";
 import { toast } from "sonner";
 
-// Zod schema
-const pdfFileSchema = z
-  .instanceof(File)
-  .refine((file) => file.type === "application/pdf", {
-    message: "Only PDF files are allowed",
-  });
+/**
+ * AddMoreFile
+ *
+ * - lessonId: id of the lesson to add files to
+ * - fetchChapterDetail: callback to refresh parent data after successful upload
+ *
+ * Notes:
+ * - server total size (prev) fetched from `lesson/getallFilesofLesson/${lessonId}`
+ *   must return `totalSizeinMB` (number) or `totalSizeInBytes` — we handle both variants.
+ */
 
-const lessonSchema = z.object({
-  pdfFiles: z
-    .array(pdfFileSchema)
-    .min(1, { message: "At least one PDF is required" })
-    .refine(
-      (files) =>
-        files.reduce((acc, file) => acc + (file?.size || 0), 0) <=
-        5 * 1024 * 1024,
-      {
-        message: "Total file size must not exceed 5MB",
-      }
-    ),
-});
+const MAX_TOTAL_BYTES = 5 * 1024 * 1024; // 5 MB
+
+const formatBytes = (bytes) => {
+  if (!bytes) return "0 B";
+  const k = 1024;
+  const sizes = ["B", "KB", "MB", "GB"];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  const value = bytes / Math.pow(k, i);
+  return `${value.toFixed(i === 0 ? 0 : 2)} ${sizes[i]}`;
+};
 
 const AddMoreFile = ({ lessonId, fetchChapterDetail }) => {
   const [open, setOpen] = useState(false);
-  const [selectedFiles, setSelectedFiles] = useState([]);
-  const [prevSizeMB, setPrevSizeMB] = useState(0);
-  const [newSizeBytes, setNewSizeBytes] = useState(0);
+  const [selectedFiles, setSelectedFiles] = useState([]); // Array<File>
+  const [prevSizeBytes, setPrevSizeBytes] = useState(0);
   const [loading, setLoading] = useState(false);
 
-  const {
-    handleSubmit,
-    setValue,
-    reset,
-    formState: { errors },
-  } = useForm({
-    resolver: zodResolver(lessonSchema),
-    defaultValues: {
-      pdfFiles: [],
-    },
-  });
-
+  // Fetch previously uploaded total size (in bytes)
   const prevFiles = async () => {
     try {
-      const res = await axiosInstance.get(
-        `lesson/getallFilesofLesson/${lessonId}`
-      );
-      const sizeInMB = res.data.totalSizeinMB || 0;
-      setPrevSizeMB(sizeInMB);
+      const res = await axiosInstance.get(`lesson/getallFilesofLesson/${lessonId}`);
+      // API might return totalSizeinMB or totalSizeInBytes; handle both.
+      const mb = res.data?.totalSizeinMB;
+      const bytes = res.data?.totalSizeInBytes;
+      if (typeof bytes === "number") {
+        setPrevSizeBytes(bytes);
+      } else if (typeof mb === "number") {
+        setPrevSizeBytes(Math.round(mb * 1024 * 1024));
+      } else {
+        // fallback: try to parse or assume 0
+        setPrevSizeBytes(0);
+      }
     } catch (err) {
-      console.log(err);
+      console.error("Error fetching previous files size:", err);
+      setPrevSizeBytes(0);
     }
   };
 
   useEffect(() => {
-    prevFiles();
-  }, []);
+    if (lessonId) prevFiles();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lessonId]);
 
-  const calculateTotalSize = (files) =>
-    files.reduce((acc, f) => acc + (f?.size || 0), 0);
+  // Helper to compute total size of selected files in bytes
+  const getSelectedBytes = (filesArray) =>
+    filesArray.reduce((acc, f) => acc + (f?.size || 0), 0);
 
-  const handleFileChange = (file) => {
-    if (!file) return;
+  // Remaining bytes allowed
+  const selectedBytes = getSelectedBytes(selectedFiles);
+  const totalBytes = prevSizeBytes + selectedBytes;
+  const remainingBytes = Math.max(0, MAX_TOTAL_BYTES - prevSizeBytes);
 
-    if (file.type !== "application/pdf") {
-      toast.error("Only PDF files are allowed");
+  // Handle file(s) input change (accept multiple)
+  const handleFileChange = (fileList) => {
+    if (!fileList || fileList.length === 0) return;
+
+    // Convert FileList to Array
+    const incoming = Array.from(fileList);
+
+    // Validate types and size individually before adding
+    for (const f of incoming) {
+      if (f.type !== "application/pdf") {
+        toast.error(`${f.name} is not a PDF.`);
+        return;
+      }
+    }
+
+    // Compute prospective new total
+    const incomingBytes = getSelectedBytes(incoming);
+    const prospectiveSelected = [...selectedFiles, ...incoming];
+    const prospectiveSelectedBytes = getSelectedBytes(prospectiveSelected);
+    const prospectiveTotal = prevSizeBytes + prospectiveSelectedBytes;
+
+    if (prospectiveTotal > MAX_TOTAL_BYTES) {
+      const allowedBytes = MAX_TOTAL_BYTES - prevSizeBytes - getSelectedBytes(selectedFiles);
+      toast.error(
+        `Cannot add files — total would exceed 5 MB. You can add up to ${formatBytes(
+          allowedBytes > 0 ? allowedBytes : 0
+        )} more.`
+      );
       return;
     }
 
-    const updatedFiles = [...selectedFiles, file];
-    const size = calculateTotalSize(updatedFiles);
-    const totalSizeInMB = (prevSizeMB * 1024 * 1024 + size) / (1024 * 1024);
-
-    if (totalSizeInMB > 5) {
-      toast.error("Total size exceeds 5MB limit.");
-      return;
-    }
-
-    setSelectedFiles(updatedFiles);
-    setNewSizeBytes(size);
-    setValue("pdfFiles", updatedFiles, { shouldValidate: true });
+    // Append new files
+    setSelectedFiles(prospectiveSelected);
   };
 
+  // Remove single file by index
   const handleRemoveFile = (index) => {
     const updated = selectedFiles.filter((_, i) => i !== index);
-    const size = calculateTotalSize(updated);
     setSelectedFiles(updated);
-    setNewSizeBytes(size);
-    setValue("pdfFiles", updated, { shouldValidate: true });
   };
 
-  const onSubmit = async () => {
-    setLoading(true);
+  const onSubmit = async (e) => {
+    e.preventDefault();
+
+    if (selectedFiles.length === 0) {
+      toast.error("Please select at least one PDF to upload.");
+      return;
+    }
+
+    // Final size check (server-side safety)
+    const finalTotal = prevSizeBytes + getSelectedBytes(selectedFiles);
+    if (finalTotal > MAX_TOTAL_BYTES) {
+      toast.error("Total files exceed the 5 MB limit. Remove some files and try again.");
+      return;
+    }
+
     const formData = new FormData();
+    selectedFiles.forEach((file) => formData.append("pdfFiles", file));
 
-    selectedFiles.forEach((file) => {
-      formData.append("pdfFiles", file);
-    });
-
+    setLoading(true);
     try {
-      const res = await axiosInstance.put(
-        `/lesson/addMoreFiles/${lessonId}`,
-        formData,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        }
-      );
+      const res = await axiosInstance.put(`/lesson/addMoreFiles/${lessonId}`, formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
 
-      toast.success(res.data.message);
-      reset();
+      toast.success(res.data?.message || "Files added successfully");
+      // refresh parent & prev size
       setSelectedFiles([]);
-      fetchChapterDetail();
-      prevFiles();
+      await fetchChapterDetail?.();
+      await prevFiles();
       setOpen(false);
     } catch (err) {
-      toast.error(err?.response?.data?.message || "Something went wrong");
+      console.error("Upload error:", err);
+      toast.error(err?.response?.data?.message || "Failed to upload files");
     } finally {
       setLoading(false);
     }
@@ -146,59 +166,76 @@ const AddMoreFile = ({ lessonId, fetchChapterDetail }) => {
           <p className="text-sm">Add</p>
         </div>
       </DialogTrigger>
+
       <DialogContent className="sm:max-w-[600px] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Add Files</DialogTitle>
           <DialogDescription>
-            Upload only PDF files. Combined total must not exceed 5MB.
+            Upload only PDF files. Combined total (existing + new) must not exceed 5 MB.
           </DialogDescription>
         </DialogHeader>
 
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="space-y-4 flex flex-col justify-between"
-        >
+        <form onSubmit={onSubmit} className="space-y-4 flex flex-col justify-between">
           <div className="space-y-3">
             <Input
               type="file"
               accept="application/pdf"
-              onChange={(e) => handleFileChange(e.target.files?.[0])}
+              multiple
+              onChange={(e) => handleFileChange(e.target.files)}
             />
 
-            {/* File List */}
+            {/* Selected Files */}
             <div className="space-y-2">
-              {selectedFiles.map((file, index) => (
-                <div
-                  key={index}
-                  className="flex items-center justify-between bg-gray-100 p-2 rounded"
-                >
-                  <span className="text-sm text-gray-800 truncate max-w-[85%]">
-                    {file.name}
-                  </span>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    className="text-red-500"
-                    onClick={() => handleRemoveFile(index)}
+              {selectedFiles.length === 0 ? (
+                <div className="text-sm text-gray-500">No files selected</div>
+              ) : (
+                selectedFiles.map((file, index) => (
+                  <div
+                    key={`${file.name}-${file.size}-${index}`}
+                    className="flex items-center justify-between bg-gray-100 p-2 rounded"
                   >
-                    <Trash className="h-4 w-4" />
-                  </Button>
-                </div>
-              ))}
+                    <div className="flex items-center gap-3">
+                      <div className="text-sm text-gray-800 truncate max-w-[300px]">
+                        {file.name}
+                      </div>
+                      <div className="text-xs text-gray-500">{formatBytes(file.size)}</div>
+                    </div>
+
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="text-red-500"
+                      onClick={() => handleRemoveFile(index)}
+                    >
+                      <Trash className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))
+              )}
             </div>
 
-            <p className="text-gray-600 text-sm">
-              Total size:{" "}
-              {(parseFloat(prevSizeMB) + newSizeBytes / 1024 / 1024).toFixed(2)}{" "}
-              MB / 5 MB
-            </p>
-
-            {errors.pdfFiles && (
-              <p className="text-red-500 text-sm mt-1">
-                {errors.pdfFiles.message}
-              </p>
-            )}
+            {/* Size summary */}
+            <div className="text-sm text-gray-600">
+           
+              <div>
+                Selected files: <strong>{formatBytes(selectedBytes)}</strong>
+              </div>
+              <div>
+                Total after upload:{" "}
+                <strong className={totalBytes > MAX_TOTAL_BYTES ? "text-red-600" : ""}>
+                  {formatBytes(totalBytes)}
+                </strong>{" "}
+                / 5 MB
+              </div>
+              <div className="text-xs text-gray-500">
+                You can add up to:{" "}
+                <strong>
+                  {formatBytes(Math.max(0, MAX_TOTAL_BYTES - prevSizeBytes - selectedBytes))}
+                </strong>{" "}
+                more in this selection.
+              </div>
+            </div>
           </div>
 
           <DialogFooter>
@@ -206,14 +243,16 @@ const AddMoreFile = ({ lessonId, fetchChapterDetail }) => {
               type="button"
               variant="outline"
               onClick={() => {
-                reset();
                 setSelectedFiles([]);
                 setOpen(false);
               }}
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={loading}>
+            <Button
+              type="submit"
+              disabled={loading || selectedFiles.length === 0 || totalBytes > MAX_TOTAL_BYTES}
+            >
               {loading ? "Adding..." : "Add Files"}
             </Button>
           </DialogFooter>
