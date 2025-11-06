@@ -141,12 +141,7 @@ const TeacherLogin = () => {
                       >
                         Login as a Student
                       </Link>
-                      <Link
-                        to="/home"
-                        className="text-sm text-green-600 hover:underline"
-                      >
-                        Create an Account
-                      </Link>
+                     
                     </div>
 
                     <button

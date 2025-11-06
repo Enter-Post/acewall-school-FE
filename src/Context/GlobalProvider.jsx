@@ -26,6 +26,7 @@ export const GlobalProvider = ({ children }) => {
     }
   };
 
+
   const login = async (formdata) => {
     await axiosInstance
       .post("auth/login", formdata)

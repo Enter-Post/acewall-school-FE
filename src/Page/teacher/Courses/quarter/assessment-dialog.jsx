@@ -29,7 +29,6 @@ import CreateAssessmentDialog from "@/CustomComponent/CreateCourse/EditAssessmen
 import EditAssessmentDialog from "@/CustomComponent/CreateCourse/EditAssessment";
 
 function QuestionDisplay({ question, index }) {
-  console.log(question, "question");
   return (
     <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
       {question.type === "file" ? (
@@ -58,6 +57,11 @@ function QuestionDisplay({ question, index }) {
           />
         </div>
       )}
+
+      <div className="flex gap-1 flex-col">
+        <h4 className="text-xl font-bold">Concept:</h4>
+        <p className="text-gray-600 text-lg">{question.concept}</p>
+      </div>
 
       {question.type === "mcq" && (
         <ul className="list-disc ml-5 text-sm text-gray-700 space-y-1">

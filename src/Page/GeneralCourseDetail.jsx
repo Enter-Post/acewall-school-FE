@@ -139,12 +139,12 @@ const GeneralCourseDetail = () => {
                       >
                         Instructor
                       </TabsTrigger>
-                      <TabsTrigger
+                      {/* <TabsTrigger
                         value="reviews"
                         className="data-[state=active]:border-b-3   data-[state=active]:border-green-500 rounded-none"
                       >
                         Reviews
-                      </TabsTrigger>
+                      </TabsTrigger> */}
                     </TabsList>
 
                     {/* overview */}
@@ -311,7 +311,7 @@ const GeneralCourseDetail = () => {
                     </TabsContent>
 
                     {/* reviews */}
-                    <TabsContent value="reviews" className="p-6">
+                    {/* <TabsContent value="reviews" className="p-6">
                       <div className="flex flex-col gap-8">
                         <div className="">
                           <div className="text-center">
@@ -359,9 +359,7 @@ const GeneralCourseDetail = () => {
                                         {review.student}
                                       </div>
                                       <div className="flex items-center gap-2 mt-1">
-                                        {/* {[...Array(review.rating)].map((_, i) => (
-                  <Star key={i} size={14} className="text-yellow-400 fill-yellow-400" />
-                ))} */}
+                                     
                                       </div>
                                       <p className="text-sm mt-2">
                                         {review.comment}
@@ -377,7 +375,7 @@ const GeneralCourseDetail = () => {
 
                         </div>
                       </div>
-                    </TabsContent>
+                    </TabsContent> */}
 
                   </Tabs>
                 </div>

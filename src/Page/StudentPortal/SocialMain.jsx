@@ -96,7 +96,7 @@ const SocialMain = ({ posts: externalPosts, setPosts: setExternalPosts }) => {
           <div className="text-center text-gray-500 py-6">Loading posts...</div>
         ) : posts.length > 0 ? (
           posts.map((post) => (
-            <PostCard key={post._id} post={post} setPosts={setPosts} />
+            <Post Card key={post._id} post={post} setPosts={setPosts} />
           ))
         ) : (
           <div className="text-center text-gray-500 py-6">No posts found</div>

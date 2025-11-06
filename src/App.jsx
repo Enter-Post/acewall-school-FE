@@ -85,6 +85,7 @@ import FeaturedContantCard from "./CustomComponent/FeaturedContantCard";
 import { axiosInstance } from "./lib/AxiosInstance";
 import SocialMain from "./Page/teacher/SocialMain";
 import SocialProfilePage from "./Page/teacher/socialProfilePage";
+import EditParentEmail from "./Page/Account/EditParentEmail";
 
 function App() {
   const {
@@ -250,6 +251,7 @@ function App() {
               <Route index element={<Account />} />
               <Route path="editGeneralInfo" element={<EditGeneralInfo />} />
               <Route path="editCredentials" element={<EditCredentials />} />
+              <Route path="editParentEmail" element={<EditParentEmail />} />
             </Route>
             <Route path="support" element={<Support />} />
             <Route path="ContactUs" element={<ContactUs />} />

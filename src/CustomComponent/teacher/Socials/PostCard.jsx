@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import PostReactions from "./PostReactions";
-import CommentSection from "./CommentSection";
 import PostComments from "./PostComments";
+import { axiosInstance } from "@/lib/AxiosInstance";
+import DeleteConfirmDialog from "./DeletePostModal";
 
 const PostCard = ({ post, setPosts }) => {
   const [showComments, setShowComments] = useState(false);
@@ -11,7 +12,9 @@ const PostCard = ({ post, setPosts }) => {
 
   // ✅ Extract author info safely
   const author = post?.author || {};
-  const authorName = `${author.firstName || ""} ${author.middleName || ""} ${author.lastName || ""}`.trim();
+  const authorName = `${author.firstName || ""} ${author.middleName || ""} ${
+    author.lastName || ""
+  }`.trim();
 
   const profilePic =
     author?.profileImg?.url ||
@@ -30,24 +33,39 @@ const PostCard = ({ post, setPosts }) => {
   };
 
   const text = stripHtml(post?.text || "");
-
   const assets = Array.isArray(post?.assets) ? post.assets : [];
+
+  // ✅ Handle post deletion (includes backend + UI update)
+  const handleDeletePost = async () => {
+    try {
+      await axiosInstance.delete(`/posts/deletePost/${post._id}`);
+      setPosts((prev) => prev.filter((p) => p._id !== post._id));
+    } catch (error) {
+      console.error("Error deleting post:", error);
+      alert("Failed to delete post. Please try again.");
+    }
+  };
 
   return (
     <div className="bg-white rounded-xl shadow-sm p-3 hover:shadow-md transition-all">
       {/* 🧑‍💻 Header */}
-      <div className="flex items-center gap-3 mb-2">
-        <img
-          src={profilePic}
-          alt={authorName}
-          className="w-9 h-9 rounded-full object-cover"
-        />
-        <div>
-          <h3 className="font-semibold text-gray-900 text-[15px]">
-            {authorName || "Unknown User"}
-          </h3>
-          <p className="text-xs text-gray-500">{postTime}</p>
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-3">
+          <img
+            src={profilePic}
+            alt={authorName}
+            className="w-9 h-9 rounded-full object-cover"
+          />
+          <div>
+            <h3 className="font-semibold text-gray-900 text-[15px]">
+              {authorName || "Unknown User"}
+            </h3>
+            <p className="text-xs text-gray-500">{postTime}</p>
+          </div>
         </div>
+
+        {/* 🗑️ Delete button with confirmation */}
+        <DeleteConfirmDialog onDelete={handleDeletePost} />
       </div>
 
       {/* 📝 Text */}
@@ -100,10 +118,8 @@ const PostCard = ({ post, setPosts }) => {
         onToggleComments={() => setShowComments((prev) => !prev)}
       />
 
-      {/* Comments Section */}
-      {showComments && (
-        <PostComments postId={post._id} setPosts={setPosts} />
-      )}
+      {/* 💬 Comments Section */}
+      {showComments && <PostComments postId={post._id} setPosts={setPosts} />}
     </div>
   );
 };

@@ -205,7 +205,7 @@ export default function stdPreview2() {
             >
                 {/* Tab List */}
                 <TabsList className="flex flex-wrap justify-center gap-4 w-full sm:gap-10 bg-white p-1 shadow-inner">
-                    {["Overview", "Reviews", "Syllabus"].map((tab) => (
+                    {["Overview",  "Syllabus"].map((tab) => (
                         <TabsTrigger
                             key={tab}
                             value={tab.toLowerCase()}
@@ -255,10 +255,10 @@ export default function stdPreview2() {
                 </TabsContent>
 
                 {/* Reviews */}
-                <TabsContent value="reviews" className="py-8 space-y-8">
+                {/* <TabsContent value="reviews" className="py-8 space-y-8">
                     <RatingSectionTeacher id={id} course={course} />
                     <CommentSection id={course._id} disabled />
-                </TabsContent>
+                </TabsContent> */}
                 <TabsContent value="syllabus" className="py-8 space-y-6">
                     <h2 className="text-2xl font-semibold">Course Syllabus</h2>
 
