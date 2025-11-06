@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -10,65 +10,56 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { axiosInstance } from "@/lib/AxiosInstance";
-import { Loader2 } from "lucide-react"; // Lucide loader icon
+import { Loader2 } from "lucide-react";
+import BackButton from "../BackButton";
 
 const Pages = ({ onCreated, courseId, type, typeId }) => {
   const [open, setOpen] = useState(false);
-  const [allCourses, setAllCourses] = useState([]);
-  const [selectedCourseId, setSelectedCourseId] = useState("");
-  const [loadingCourses, setLoadingCourses] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
 
   const [pageData, setPageData] = useState({
     title: "",
     description: "",
     image: null,
-    files: [],
+    file: null, // ✅ single file instead of array
   });
 
-  const handleCreatePage = async (e) => {
-    e.preventDefault();
+ const handleCreatePage = async (e) => {
+  e.preventDefault();
+  setIsCreating(true);
 
-    setIsCreating(true);
+  const formData = new FormData();
+  formData.append("title", pageData.title);
+  formData.append("description", pageData.description);
+  if (pageData.image) formData.append("image", pageData.image);
+  if (pageData.file) formData.append("files", pageData.file); // ✅ match backend key
 
-    const formData = new FormData();
-    formData.append("title", pageData.title);
-    formData.append("description", pageData.description);
-    if (pageData.image) formData.append("image", pageData.image);
-    pageData.files.forEach((file) => formData.append("files", file));
+  try {
+    await axiosInstance.post(
+      `/pages/createpage/${courseId}/${type}/${typeId}`,
+      formData,
+      {
+        headers: { "Content-Type": "multipart/form-data" },
+      }
+    );
+    toast.success("Page created successfully!");
+    setOpen(false);
+    setPageData({ title: "", description: "", image: null, file: null });
+    if (onCreated) onCreated();
+  } catch (err) {
+    toast.error(err.response?.data?.message || "Failed to create page");
+  } finally {
+    setIsCreating(false);
+  }
+};
 
-    try {
-      const res = await axiosInstance.post(
-        `/pages/createpage/${courseId}/${type}/${typeId}`,
-        formData,
-        {
-          headers: { "Content-Type": "multipart/form-data" },
-        }
-      );
-      toast.success("Page created successfully!");
-      setOpen(false);
-      setPageData({ title: "", description: "", image: null, files: [] });
-      setSelectedCourseId("");
-      if (onCreated) onCreated(); // ✅ refresh parent
-    } catch (err) {
-      toast.error(err.response?.data?.message || "Failed to create page");
-    } finally {
-      setIsCreating(false);
-    }
-  };
 
   return (
     <>
+    
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
           <Button className="bg-green-600 text-white hover:bg-green-700">
@@ -114,20 +105,71 @@ const Pages = ({ onCreated, courseId, type, typeId }) => {
                   setPageData({ ...pageData, image: e.target.files[0] })
                 }
               />
+
+              {/* ✅ Image Preview */}
+              {pageData.image && (
+                <div className="mt-3 flex items-center justify-between bg-gray-100 px-3 py-2 rounded-md text-sm text-gray-700">
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={URL.createObjectURL(pageData.image)}
+                      alt={pageData.image.name}
+                      className="w-10 h-10 object-cover rounded"
+                    />
+                    <span className="truncate max-w-[200px]">
+                      {pageData.image.name}
+                    </span>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="text-red-600 hover:text-red-700"
+                    onClick={() => setPageData({ ...pageData, image: null })}
+                  >
+                    Remove
+                  </Button>
+                </div>
+              )}
             </div>
 
             <div>
-              <Label>Upload Files (optional)</Label>
+              <Label>Upload File (optional)</Label>
               <Input
                 type="file"
-                multiple
                 onChange={(e) =>
                   setPageData({
                     ...pageData,
-                    files: Array.from(e.target.files),
+                    file: e.target.files[0] || null,
                   })
                 }
               />
+
+              {/* ✅ File Preview */}
+              {pageData.file && (
+                <div className="mt-3 flex items-center justify-between bg-gray-100 px-3 py-2 rounded-md text-sm text-gray-700">
+                  <div className="flex items-center gap-3">
+                    {pageData.file.type.startsWith("image/") && (
+                      <img
+                        src={URL.createObjectURL(pageData.file)}
+                        alt={pageData.file.name}
+                        className="w-10 h-10 object-cover rounded"
+                      />
+                    )}
+                    <span className="truncate max-w-[200px]">
+                      {pageData.file.name}
+                    </span>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="text-red-600 hover:text-red-700"
+                    onClick={() => setPageData({ ...pageData, file: null })}
+                  >
+                    Remove
+                  </Button>
+                </div>
+              )}
             </div>
 
             <DialogFooter className="pt-4">
@@ -138,8 +180,7 @@ const Pages = ({ onCreated, courseId, type, typeId }) => {
               >
                 {isCreating ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />{" "}
-                    Creating...
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Creating...
                   </>
                 ) : (
                   "Create Page"
@@ -158,7 +199,7 @@ const Pages = ({ onCreated, courseId, type, typeId }) => {
         </DialogContent>
       </Dialog>
 
-      {/* Fullscreen Loading Overlay */}
+      {/* ✅ Fullscreen Loading Overlay */}
       {isCreating && (
         <div className="fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white rounded-lg shadow-lg px-6 py-4 text-center">

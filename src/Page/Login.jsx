@@ -146,12 +146,7 @@ const Login = () => {
                       >
                         Login as a Teacher
                       </Link>
-                      <Link
-                        to="/home"
-                        className="text-sm text-green-600 hover:underline"
-                      >
-                        Create an Account 
-                      </Link>
+                    
                     </div>
                     <button
                       type="submit"

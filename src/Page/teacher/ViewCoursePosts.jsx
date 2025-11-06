@@ -19,6 +19,7 @@ import { Trash2, Users } from "lucide-react";
 import Pages from "@/CustomComponent/teacher/Pages";
 import { GlobalContext } from "@/Context/GlobalProvider";
 import { useParams, useSearchParams } from "react-router-dom";
+import BackButton from "@/CustomComponent/BackButton";
 
 const ViewCoursePostsPage = () => {
   const { user } = useContext(GlobalContext);
@@ -72,111 +73,117 @@ const ViewCoursePostsPage = () => {
   };
 
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <h1 className="text-2xl font-semibold">Pages for {type}</h1>
-        <Pages
-          onCreated={() => fetchPages(selectedCourseId)}
-          courseId={courseId}
-          type={type}
-          typeId={typeId}
-        />
+    <>
+      <div>
+        <BackButton />
       </div>
 
-      {/* Page Cards */}
-      {posts.length === 0 ? (
-        <p className="text-sm text-gray-500 mt-4">
-          No pages found for this teacher or course.
-        </p>
-      ) : (
-        <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {posts.map((post) => (
-            <div
-              key={post._id}
-              id={`page-${post._id}`}
-              className="bg-white border rounded-lg shadow-sm p-4 space-y-4 hover:shadow-md cursor-pointer"
-              onClick={() => setSelectedPost(post)}
-            >
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold truncate max-w-[80%]">
-                  {post.title}
-                </h3>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDeletePage(post._id);
-                  }}
-                >
-                  <Trash2 className="h-4 w-4 text-red-600" />
-                </Button>
-              </div>
-              <p className="text-sm text-gray-600 line-clamp-3 whitespace-pre-line">
-                {post.description}
-              </p>
-              {post.image?.url && (
-                <img
-                  src={post.image.url}
-                  alt="Post visual"
-                  className="w-full h-48 object-cover rounded-md border"
-                />
-              )}
-            </div>
-          ))}
+      <div className="space-y-8">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <h1 className="text-2xl font-semibold">Pages for {type}</h1>
+          <Pages
+            onCreated={() => fetchPages(selectedCourseId)}
+            courseId={courseId}
+            type={type}
+            typeId={typeId}
+          />
         </div>
-      )}
 
-      {/* Modal for detailed post view */}
-      {selectedPost && (
-        <Dialog
-          open={!!selectedPost}
-          onOpenChange={() => setSelectedPost(null)}
-        >
-          <DialogContent className=" !max-w-4xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle className="text-xl">
-                {selectedPost?.title}
-              </DialogTitle>
-            </DialogHeader>
-
-            <div className="space-y-4">
-              {selectedPost.image?.url && (
-                <img
-                  src={selectedPost.image.url}
-                  alt="Page visual"
-                  className="w-full object-contain rounded-md border max-h-[70vh]"
-                />
-              )}
-
-              <p className="text-sm text-gray-700 whitespace-pre-line">
-                {selectedPost?.description}
-              </p>
-
-              {selectedPost.files?.length > 0 && (
-                <div className="space-y-2">
-                  <h4 className="font-semibold text-sm">Attachments:</h4>
-                  <ul className="list-disc pl-5 text-sm text-blue-600">
-                    {selectedPost.files.map((file, idx) => (
-                      <li key={idx}>
-                        <a
-                          href={file.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="underline"
-                        >
-                          {file.filename}
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
+        {/* Page Cards */}
+        {posts.length === 0 ? (
+          <p className="text-sm text-gray-500 mt-4">
+            No pages found for this teacher or course.
+          </p>
+        ) : (
+          <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {posts.map((post) => (
+              <div
+                key={post._id}
+                id={`page-${post._id}`}
+                className="bg-white border rounded-lg shadow-sm p-4 space-y-4 hover:shadow-md cursor-pointer"
+                onClick={() => setSelectedPost(post)}
+              >
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold truncate max-w-[80%]">
+                    {post.title}
+                  </h3>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeletePage(post._id);
+                    }}
+                  >
+                    <Trash2 className="h-4 w-4 text-red-600" />
+                  </Button>
                 </div>
-              )}
-            </div>
-          </DialogContent>
-        </Dialog>
-      )}
-    </div>
+                <p className="text-sm text-gray-600 line-clamp-3 whitespace-pre-line">
+                  {post.description}
+                </p>
+                {post.image?.url && (
+                  <img
+                    src={post.image.url}
+                    alt="Post visual"
+                    className="w-full h-48 object-cover rounded-md border"
+                  />
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Modal for detailed post view */}
+        {selectedPost && (
+          <Dialog
+            open={!!selectedPost}
+            onOpenChange={() => setSelectedPost(null)}
+          >
+            <DialogContent className=" !max-w-4xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle className="text-xl">
+                  {selectedPost?.title}
+                </DialogTitle>
+              </DialogHeader>
+
+              <div className="space-y-4">
+                {selectedPost.image?.url && (
+                  <img
+                    src={selectedPost.image.url}
+                    alt="Page visual"
+                    className="w-full object-contain rounded-md border max-h-[70vh]"
+                  />
+                )}
+
+                <p className="text-sm text-gray-700 whitespace-pre-line">
+                  {selectedPost?.description}
+                </p>
+
+                {selectedPost.files?.length > 0 && (
+                  <div className="space-y-2">
+                    <h4 className="font-semibold text-sm">Attachments:</h4>
+                    <ul className="list-disc pl-5 text-sm text-blue-600">
+                      {selectedPost.files.map((file, idx) => (
+                        <li key={idx}>
+                          <a
+                            href={file.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="underline"
+                          >
+                            {file.filename}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            </DialogContent>
+          </Dialog>
+        )}
+      </div>
+    </>
   );
 };
 

@@ -131,12 +131,12 @@ const AllCoursesDetail = () => {
                   >
                     Instructor
                   </TabsTrigger>
-                  <TabsTrigger
+                  {/* <TabsTrigger
                     value="reviews"
                     className="data-[state=active]:border-b-3 data-[state=active]:border-green-500 rounded-none py-2"
                   >
                     Reviews
-                  </TabsTrigger>
+                  </TabsTrigger> */}
                   <TabsTrigger
                     value="syllabus"
                     className="data-[state=active]:border-b-3 data-[state=active]:border-green-500 rounded-none py-2"
@@ -338,9 +338,9 @@ const AllCoursesDetail = () => {
 
 
                 {/* reviews */}
-                <TabsContent value="reviews" className="p-6">
+                {/* <TabsContent value="reviews" className="p-6">
                   <RatingSection courseId={courseDetails._id} />
-                </TabsContent>
+                </TabsContent> */}
                 <TabsContent value="syllabus" className="py-8 space-y-6">
                   <h2 className="text-2xl font-semibold">Course Syllabus</h2>
 
