@@ -47,6 +47,34 @@ import { set } from "lodash";
 import { Global } from "recharts";
 import { GlobalContext } from "@/Context/GlobalProvider";
 
+const ReadMore = ({ text = "", maxLength = 500 }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  if (!text)
+    return <p className="text-black">Course description goes here...</p>;
+
+  const toggleReadMore = () => setIsExpanded(!isExpanded);
+
+  const displayText = isExpanded ? text : text.slice(0, maxLength);
+
+  return (
+    <div>
+      <p className="text-muted-foreground">
+        {displayText}
+        {text.length > maxLength && !isExpanded && "..."}
+      </p>
+      {text.length > maxLength && (
+        <button
+          onClick={toggleReadMore}
+          className="text-green-700 text-sm hover:underline mt-1"
+        >
+          {isExpanded ? "Read Less" : "Read More"}
+        </button>
+      )}
+    </div>
+  );
+};
+
 export default function TeacherCourseDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -286,8 +314,8 @@ export default function TeacherCourseDetails() {
               <h2 className="text-2xl uppercase font-semibold">
                 {course.courseTitle || "Course Title"}
               </h2>
-              <p className="text-muted-foreground">
-                {course.courseDescription || "Course description goes here..."}
+              <p className="text-gray-900 font-medium leading-relaxed">
+                <ReadMore text={course?.courseDescription} />
               </p>
             </div>
           </div>
@@ -390,10 +418,10 @@ export default function TeacherCourseDetails() {
             />
           ))}
         {/* Rating */}
-        <RatingSection courseId={id} />
+        {/* <RatingSection courseId={id} /> */}
       </div>
 
-      <CommentSection id={id} />
+      {/* <CommentSection id={id} /> */}
 
       <div className="flex justify-end">
         <ArchiveDialog course={course} fetchCourseDetail={fetchCourseDetail} />
