@@ -163,9 +163,9 @@ export default function EditAssessmentDialog({ assessment, fetchAssessment }) {
       </DialogTrigger>
       <DialogContent className="max-w-xl">
         <DialogHeader>
-          <DialogTitle>Create New Assessment</DialogTitle>
+          <DialogTitle>Edit Assessment</DialogTitle>
           <DialogDescription>
-            Fill in the form to create a new assessment.
+            Edit assessment.
           </DialogDescription>
         </DialogHeader>
 

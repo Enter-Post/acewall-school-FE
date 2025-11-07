@@ -32,7 +32,7 @@ const SubCategorySelect_createCourse = ({ register, errors, selectedCategory }) 
   return (
     <div>
       <Label htmlFor="subcategory" className="block mb-2">
-        	SubTopics 
+        	SubTopics *
       </Label>
       <Select
         onValueChange={(value) => {
