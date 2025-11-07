@@ -325,6 +325,9 @@ export default function TeacherCourseDetails() {
             <AssessmentCategoryDialog courseId={id} />
           </section>
           <div className="flex justify-between items-center gap-4">
+            <Link to={`/teacher/studentAssisstance/${id}`}>
+              <button className="bg-green-500 text-white py-2 px-4 rounded-lg shadow-md transition-all duration-150 text-sm cursor-pointer">Student who need assistance</button>
+            </Link>
             <button
               variant="outline"
               className="bg-green-500 text-white py-2 px-4 rounded-lg shadow-md transition-all duration-150 text-sm cursor-pointer"

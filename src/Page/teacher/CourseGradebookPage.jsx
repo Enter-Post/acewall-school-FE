@@ -3,5 +3,5 @@ import CourseGradebook from "../../CustomComponent/teacher/CourseGradebook";
 
 export default function CourseGradebookPage() {
   const { courseId } = useParams();
-  return <CourseGradebook courseId={courseId} />;
+  return <CourseGradebook courseId={courseId} title="Gradebook" />;
 }

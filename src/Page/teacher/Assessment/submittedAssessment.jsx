@@ -29,6 +29,7 @@ import { toast } from "sonner";
 const AssessmentReview = () => {
   const { id } = useParams();
   const [manualGrades, setManualGrades] = useState({});
+  const [totalCourseMarks, setTotalCourseMarks] = useState();
   const [submission, setSubmission] = useState(null);
   const [totalScore, setTotalScore] = useState(
     submission?.answers?.reduce(
@@ -39,14 +40,11 @@ const AssessmentReview = () => {
   const [error, setError] = useState({});
   const [loading, setLoading] = useState(false);
 
-  console.log(manualGrades, "manualGrades");
-
   useEffect(() => {
     const fetchSubmission = async () => {
       await axiosInstance
         .get(`/assessmentSubmission/submission/${id}`)
         .then((response) => {
-          console.log(response.data);
           setSubmission(response.data.submission);
         })
         .catch((error) => {
@@ -55,6 +53,16 @@ const AssessmentReview = () => {
     };
     fetchSubmission();
   }, [loading]);
+
+  useEffect(() => {
+    if (submission?.answers?.length > 0) {
+      const totalMarks = submission.answers.reduce((sum, ans) => {
+        return sum + (ans?.questionDetails?.points || 0);
+      }, 0);
+
+      setTotalCourseMarks(totalMarks);
+    }
+  }, [submission]);
 
   const handleGradeChange = (questionId, points, maxPoints) => {
     const newGrades = {
@@ -81,7 +89,8 @@ const AssessmentReview = () => {
     try {
       const response = await axiosInstance.put(
         `/assessmentSubmission/teacherGrading/${id}`,
-        manualGrades
+        manualGrades,
+        { params: { totalCourseMarks } }
       );
       console.log(response.data);
 
@@ -277,7 +286,6 @@ const QuestionCard = ({
 }) => {
   const questionType = answer?.questionDetails?.type || "unknown";
   const maxPoints = answer?.questionDetails?.points || 0;
-
 
   const handleError = (questionId, message) => {
     setError((prevErrors) => {
