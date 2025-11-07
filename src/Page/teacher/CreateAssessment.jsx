@@ -74,6 +74,9 @@ const trueFalseQuestionSchema = baseQuestionSchema.extend({
   question: z
     .string()
     .min(1, { message: "Question must be at least 1 characters" }),
+  concept: z
+    .string()
+    .min(1, { message: "Concept must be at least 1 characters" }),
   correctAnswer: z.enum(["true", "false"], {
     required_error: "Please select the correct answer",
   }),
@@ -85,6 +88,9 @@ const qaQuestionSchema = baseQuestionSchema.extend({
   question: z
     .string()
     .min(5, { message: "Question must be at least 5 characters" }),
+  concept: z
+    .string()
+    .min(1, { message: "Concept must be at least 1 characters" }),
   points: z.number().min(1).max(999),
 });
 
@@ -119,6 +125,9 @@ const fileQuestionSchema = baseQuestionSchema.extend({
         message: "Total file size must be less than 5MB",
       }
     ),
+  concept: z
+    .string()
+    .min(1, { message: "Concept must be at least 1 characters" }),
   points: z.number().min(1).max(999),
 });
 
