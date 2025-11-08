@@ -86,6 +86,7 @@ import { axiosInstance } from "./lib/AxiosInstance";
 import SocialMain from "./Page/teacher/SocialMain";
 import SocialProfilePage from "./Page/teacher/socialProfilePage";
 import EditParentEmail from "./Page/Account/EditParentEmail";
+import StudentWhoNeedAssistance from "./Page/teacher/StudentNeedAssistancePage";
 
 function App() {
   const {
@@ -320,6 +321,11 @@ function App() {
             <Route
               path="gradebook/:courseId"
               element={<CourseGradebookPage />}
+            />
+
+            <Route
+              path="studentAssisstance/:courseId"
+              element={<StudentWhoNeedAssistance />}
             />
 
             <Route path="discussions">

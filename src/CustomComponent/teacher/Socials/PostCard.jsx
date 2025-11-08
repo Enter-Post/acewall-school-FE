@@ -8,6 +8,8 @@ const PostCard = ({ post, setPosts }) => {
   const [showComments, setShowComments] = useState(false);
   const [showFullText, setShowFullText] = useState(false);
 
+  const location = window.location.pathname;
+
   const TEXT_LIMIT = 150;
 
   // ✅ Extract author info safely
@@ -64,8 +66,9 @@ const PostCard = ({ post, setPosts }) => {
           </div>
         </div>
 
-        {/* 🗑️ Delete button with confirmation */}
-        <DeleteConfirmDialog onDelete={handleDeletePost} />
+        {location.includes("/socialprofile/") ? (
+          <DeleteConfirmDialog onDelete={handleDeletePost} />
+        ) : null}
       </div>
 
       {/* 📝 Text */}

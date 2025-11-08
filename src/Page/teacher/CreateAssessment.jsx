@@ -222,13 +222,18 @@ export default function CreateAssessmentPage() {
     fetchQuarterDate();
   }, []);
 
+  const today = new Date();
   const parsedStartDate = new Date(startDate);
   const parsedEndDate = new Date(endDate);
-  const today = new Date();
 
-  const minDate = today;
-  const maxDate =
-    parsedEndDate > parsedStartDate ? parsedEndDate : parsedStartDate;
+  // minDate becomes the later of "today" or "quarter start"
+  const minDate = parsedStartDate > today ? parsedStartDate : today;
+  const maxDate = parsedEndDate;
+
+  // Optional: prevent user error if quarter data is incorrect
+  if (isNaN(parsedStartDate) || isNaN(parsedEndDate)) {
+    console.warn("Invalid start or end date for the quarter.");
+  }
 
   // Initialize the form with react-hook-form and zod resolver
   const form = useForm({
@@ -407,24 +412,32 @@ export default function CreateAssessmentPage() {
       formData.append("assessmentType", data.assessmentType);
       formData.append(type, id);
 
+      // ✅ Validate and apply due date
       const dueDate = new Date(data.dueDate.dateTime);
-      if (dueDate >= minDate && dueDate <= maxDate) {
-        formData.append("dueDate", dueDate.toISOString());
-      } else {
+
+      if (isNaN(dueDate)) {
+        toast.error("Please select a valid due date.", { id: toastId });
+        setIsSubmitting(false);
+        return;
+      }
+
+      // ✅ Enforce due date within quarter range
+      if (dueDate < minDate || dueDate > maxDate) {
         toast.error(
-          "Due date must be within the Semester/Quarter start and end date.",
-          {
-            id: toastId,
-          }
+          `Due date must be between ${minDate.toLocaleDateString()} and ${maxDate.toLocaleDateString()} (Quarter duration).`,
+          { id: toastId }
         );
         setIsSubmitting(false);
         return;
       }
 
-      // Process questions - handle both regular questions and file questions
+      formData.append("dueDate", dueDate.toISOString());
+
+      // ========================
+      // Process questions
+      // ========================
       const processedQuestions = data.questions.map((question, index) => {
         if (question.type === "file") {
-          // For file questions, we'll send files separately and reference them
           return {
             type: "file",
             question: question.question || `File Upload Question ${index + 1}`,
@@ -437,6 +450,7 @@ export default function CreateAssessmentPage() {
 
       formData.append("questions", JSON.stringify(processedQuestions));
 
+      // Attach files if any
       data.questions.forEach((question, questionIndex) => {
         if (question.type === "file" && question.files) {
           question.files.forEach((file, fileIndex) => {
@@ -448,17 +462,15 @@ export default function CreateAssessmentPage() {
         }
       });
 
-      if (semester) {
-        formData.append("semester", semester);
-      }
-      if (quarter) {
-        formData.append("quarter", quarter);
-      }
+      if (semester) formData.append("semester", semester);
+      if (quarter) formData.append("quarter", quarter);
 
+      // Debug log
       for (let [key, value] of formData.entries()) {
         console.log(key, value);
       }
 
+      // Submit the form
       const res = await axiosInstance.post(
         "assessment/createAssessment/updated",
         formData,
@@ -470,12 +482,10 @@ export default function CreateAssessmentPage() {
       toast.success(res.data.message, { id: toastId });
       navigate(-1);
     } catch (err) {
-      console.log(err);
+      console.error(err);
       toast.error(
         err?.response?.data?.message || "Failed to create assessment",
-        {
-          id: toastId,
-        }
+        { id: toastId }
       );
     } finally {
       setIsSubmitting(false);

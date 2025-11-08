@@ -8,7 +8,7 @@ import { ChevronDown, ChevronRight } from "lucide-react"
 import { axiosInstance } from "@/lib/AxiosInstance"
 import { useParams } from "react-router-dom"
 
-const CourseGradebook = () => {
+const CourseGradebook = ({title}) => {
   const { courseId } = useParams()
   const [gradebook, setGradebook] = useState([])
   const [expanded, setExpanded] = useState({})
@@ -42,7 +42,7 @@ const CourseGradebook = () => {
   return (
     <Card className="p-6 shadow-lg rounded-2xl">
       <CardHeader>
-        <CardTitle className="text-2xl font-semibold">Gradebook</CardTitle>
+        <CardTitle className="text-2xl font-semibold">{title}</CardTitle>
       </CardHeader>
       <CardContent>
         <Table>
