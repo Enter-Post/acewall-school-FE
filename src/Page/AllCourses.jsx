@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
 import { GlobalContext } from "@/Context/GlobalProvider";
 import avatar from "@/assets/avatar.png";
+import SearchCourseDialog from "@/CustomComponent/CodeEnrollmentDialog";
 
 const AllCourses = () => {
   const [allCourses, setAllCourses] = useState([]);
@@ -78,7 +79,10 @@ const AllCourses = () => {
             <Loader className="animate-spin" />
           )}
         </div>
-        <SearchBox query={searchQuery} setQuery={setSearchQuery} />
+        <div className="flex items-center justify-between gap-3">
+          <SearchBox query={searchQuery} setQuery={setSearchQuery} />
+          <SearchCourseDialog />
+        </div>
       </div>
 
       {loading ? (
@@ -169,8 +173,6 @@ const AllCourses = () => {
                             {course.createdby?.lastName}
                           </p>
                         </div>
-
-                       
                       </div>
                     </CardContent>
                   </Card>
