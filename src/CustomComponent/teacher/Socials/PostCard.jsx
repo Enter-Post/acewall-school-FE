@@ -21,7 +21,7 @@ const PostCard = ({ post, setPosts }) => {
   const profilePic =
     author?.profileImg?.url ||
     author?.profileImg ||
-    "https://i.pravatar.cc/100?img=10";
+    "https://imgs.search.brave.com/F09pGxti9Zp8AhLyRRrgNIfE6cmyTUR3aeyqv7kLJ6E/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9pLnBp/bmltZy5jb20vb3Jp/Z2luYWxzLzVhL2Jk/Lzk4LzVhYmQ5ODU3/MzVhOGZkNGFkY2Iw/ZTc5NWRlNmExMDA1/LmpwZw";
 
   const postTime = post?.createdAt
     ? new Date(post.createdAt).toLocaleString()
