@@ -59,7 +59,7 @@ export default function SearchCourseDialog() {
       })
       .catch((err) => {
         console.log(err);
-        toast.error(err.response.data.error || "Something went wrong");
+        toast.error(err.response.data.message || "Something went wrong");
       });
     setOpen(false);
   };
