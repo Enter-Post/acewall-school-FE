@@ -16,6 +16,7 @@ const LMSPopup = ({ onClose }) => {
     "Income opportunities for schools and teachers just through signing-up",
     "Switch and save up to 30% off current LMS",
     "Social Community Feed – Share posts, pictures, and videos just like social media, but safe and private for your school.",
+    "Upcoming Standards Based Learning Integration"
   ];
 
   useEffect(() => {
