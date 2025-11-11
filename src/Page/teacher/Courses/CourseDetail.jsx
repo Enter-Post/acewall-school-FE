@@ -46,6 +46,7 @@ import { Label } from "@/components/ui/label";
 import { set } from "lodash";
 import { Global } from "recharts";
 import { GlobalContext } from "@/Context/GlobalProvider";
+import CommentsRatingsToggle from "@/CustomComponent/teacher/CommentsRatingsToggle";
 
 const ReadMore = ({ text = "", maxLength = 500 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -79,7 +80,7 @@ export default function TeacherCourseDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { quarters, setQuarters } = useContext(CourseContext);
-  const { checkAuth } = useContext(GlobalContext);
+  const { checkAuth, user } = useContext(GlobalContext);
 
   const [course, setCourse] = useState(null);
   const [enrollmentsId, setEnrollmentsId] = useState(null);
@@ -115,6 +116,14 @@ export default function TeacherCourseDetails() {
       });
     // Set the course data in state
   };
+
+  const handleToggleComments = (newState) => {
+    setCourse((prev) => ({
+      ...prev,
+      commentsEnabled: newState,
+    }));
+  };
+
   const findEnrollment = async () => {
     await axiosInstance
       .post(`enrollment/enrollmentforTeacher`, {
@@ -326,7 +335,9 @@ export default function TeacherCourseDetails() {
           </section>
           <div className="flex justify-between items-center gap-4">
             <Link to={`/teacher/studentAssisstance/${id}`}>
-              <button className="bg-green-500 text-white py-2 px-4 rounded-lg shadow-md transition-all duration-150 text-sm cursor-pointer">Student who need assistance</button>
+              <button className="bg-green-500 text-white py-2 px-4 rounded-lg shadow-md transition-all duration-150 text-sm cursor-pointer">
+                Student who need assistance
+              </button>
             </Link>
             <button
               variant="outline"
@@ -420,11 +431,32 @@ export default function TeacherCourseDetails() {
               handleDeleteAssessment={handleDeleteAssessment}
             />
           ))}
-        {/* Rating */}
-        {/* <RatingSection courseId={id} /> */}
       </div>
+      {/* Comments & Ratings Toggle (Teacher only) */}
+      {course?.createdby === user?._id && (
+        <CommentsRatingsToggle
+          courseId={id}
+          onToggle={handleToggleComments} // 🔹 pass callback
+        />
+      )}
 
-      {/* <CommentSection id={id} /> */}
+      {/* Comments & Ratings Sections */}
+      {typeof course.commentsEnabled === "boolean" ? (
+        course.commentsEnabled ? (
+          <>
+            <RatingSection courseId={id} />
+            <CommentSection id={id} />
+          </>
+        ) : (
+          <div className="text-center text-gray-500 my-4">
+            Comments & Ratings are currently disabled for this course.
+          </div>
+        )
+      ) : (
+        <div className="text-center text-gray-500 my-4">
+          Loading comments & ratings status...
+        </div>
+      )}
 
       <div className="flex justify-end">
         <ArchiveDialog course={course} fetchCourseDetail={fetchCourseDetail} />
