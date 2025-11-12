@@ -11,6 +11,7 @@ import { axiosInstance } from "@/lib/AxiosInstance";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import EditAssessmentDialog from "@/CustomComponent/CreateCourse/EditAssessment";
+import AssessmentReminderDialog from "@/CustomComponent/Assessment/ReminderDialog";
 
 function QuestionDisplay({ question, index }) {
   return (
@@ -93,40 +94,37 @@ export function AssessmentPage() {
   const [loading, setLoading] = useState(true);
   const [loadingReminder, setLoadingReminder] = useState(false);
 
-const handleSendReminder = async () => {
-  if (!assessment?._id) return;
+  const handleSendReminder = async () => {
+    if (!assessment?._id) return;
 
-  try {
-    setLoadingReminder(true);
-    const res = await axiosInstance.post(
-      `/assessment/${assessment._id}/send-reminder`
-    );
-
-    const { message, data } = res.data;
-    alert(message);
-
-    console.log("📬 Reminder Details:", data);
-
-    // Example: show a summary alert of the students
-    if (data?.enrolledStudents?.length) {
-      const studentList = data.enrolledStudents
-        .map((s) => `• ${s.name} (${s.email})`)
-        .join("\n");
-
-      alert(
-        `Assessment ID: ${data.assessmentId}\n\nEnrolled Students:\n${studentList}`
+    try {
+      setLoadingReminder(true);
+      const res = await axiosInstance.post(
+        `/assessment/${assessment._id}/send-reminder`
       );
+
+      const { message, data } = res.data;
+      alert(message);
+
+      console.log("📬 Reminder Details:", data);
+
+      // Example: show a summary alert of the students
+      if (data?.enrolledStudents?.length) {
+        const studentList = data.enrolledStudents
+          .map((s) => `• ${s.name} (${s.email})`)
+          .join("\n");
+
+        alert(
+          `Assessment ID: ${data.assessmentId}\n\nEnrolled Students:\n${studentList}`
+        );
+      }
+    } catch (err) {
+      console.error("Error sending reminder:", err);
+      alert(err.response?.data?.message || "Failed to send reminder.");
+    } finally {
+      setLoadingReminder(false);
     }
-  } catch (err) {
-    console.error("Error sending reminder:", err);
-    alert(err.response?.data?.message || "Failed to send reminder.");
-  } finally {
-    setLoadingReminder(false);
-  }
-};
-
-
-  console.log(assessment, "assessment");
+  };
 
   const fetchAssessment = async (req, res) => {
     await axiosInstance
@@ -217,6 +215,8 @@ const handleSendReminder = async () => {
               "Send Reminder"
             )}
           </Button>
+
+          <AssessmentReminderDialog assessmentId={assessment._id} />
         </section>
       </div>
 
