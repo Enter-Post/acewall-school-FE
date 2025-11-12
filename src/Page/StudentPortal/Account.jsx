@@ -19,7 +19,6 @@ const Account = () => {
   const [loading, setLoading] = useState(false);
   const { UpdatedUser, setUpdatedUser } = useContext(GlobalContext);
 
-  console.log(user.guardianEmails, "user");
 
   const fetchUser = () => {
     axiosInstance
@@ -141,13 +140,7 @@ const Account = () => {
             Edit Credentials
           </Button>
         </Link>
-        {user?.role === "student" && (
-          <Link to={`/${user.role}/account/EditParentEmail`}>
-            <Button className="bg-green-500 text-white hover:bg-green-600">
-              Edit Parent/Guardian Email
-            </Button>
-          </Link>
-        )}
+       
       </section>
 
       <section className="space-y-6">

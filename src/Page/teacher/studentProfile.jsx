@@ -1,19 +1,30 @@
+import React, { useState } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import {
   StudentProfileCourseCard,
   StudentProfileStatCard,
 } from "@/CustomComponent/Card";
-import { Mail, Calendar, School } from "lucide-react";
+import { Mail, Calendar, School, ChevronDown, ChevronUp } from "lucide-react";
 import avatar from "@/assets/avatar.png";
-import { axiosInstance } from "@/lib/AxiosInstance";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import EditParentEmail from "../Account/EditParentEmail";
 
 export default function StudentProfile() {
   const { id } = useParams();
   const { state } = useLocation();
   const navigate = useNavigate();
-  const student = state?.student;
+  const [student, setStudent] = React.useState(state?.student || null);
+  const [emailOpen, setEmailOpen] = useState(false);
+
+console.log(student);
 
 
   const handleConversation = async () => {
@@ -21,16 +32,13 @@ export default function StudentProfile() {
       await axiosInstance.post("conversation/create", {
         memberId: student._id,
       });
-      navigate("/teacher/messages"); // ✅ fixed typo
+      navigate("/teacher/messages");
     } catch (err) {
       console.error("Failed to create conversation:", err);
     }
   };
 
-
-
   if (!student) {
-    // Fallback if user directly visits the URL without navigation state
     return (
       <div className="text-center mt-10">
         <p className="text-red-500">Student data not found.</p>
@@ -61,17 +69,11 @@ export default function StudentProfile() {
 
         <div className="flex flex-col justify-center text-center md:text-left">
           <div className="flex flex-wrap justify-center md:justify-start items-center gap-x-2 gap-y-1">
-            <p className="text-2xl font-bold text-gray-800">
-              {student?.firstName}
-            </p>
+            <p className="text-2xl font-bold text-gray-800">{student?.firstName}</p>
             {student?.middleName && (
-              <p className="text-2xl font-bold text-gray-800">
-                {student.middleName}
-              </p>
+              <p className="text-2xl font-bold text-gray-800">{student.middleName}</p>
             )}
-            <p className="text-2xl font-bold text-gray-800">
-              {student?.lastName}
-            </p>
+            <p className="text-2xl font-bold text-gray-800">{student?.lastName}</p>
           </div>
 
           <div className="mt-3 space-y-1 text-sm text-gray-600">
@@ -82,14 +84,64 @@ export default function StudentProfile() {
             <div className="flex items-center justify-center md:justify-start gap-2">
               <Calendar className="w-4 h-4 text-gray-500" />
               <span>
-                Joined: {new Date(student?.createdAt).toLocaleString("en-US", { year: "2-digit", month: "2-digit", day: "2-digit" })}
+                Joined:{" "}
+                {new Date(student?.createdAt).toLocaleString("en-US", {
+                  year: "2-digit",
+                  month: "2-digit",
+                  day: "2-digit",
+                })}
               </span>
             </div>
           </div>
-           <div className="flex items-center justify-center md:justify-start gap-2 mt-4">
+
+          <div className="flex flex-wrap justify-center md:justify-start gap-2 mt-4">
             <Button className="bg-green-500" onClick={handleConversation}>
               Message
             </Button>
+          </div>
+
+          {/* Guardian Emails Dropdown */}
+          <div className="mt-4 flex flex-col gap-2">
+            <button
+              onClick={() => setEmailOpen(!emailOpen)}
+              className="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-gray-900"
+            >
+              Guardian Emails
+              {emailOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+            </button>
+
+            {emailOpen && (
+              <ul className="mt-2 border rounded-md bg-gray-50 p-2 space-y-1 max-w-sm">
+                {student.guardianEmails && student.guardianEmails.length > 0 ? (
+                  student.guardianEmails.map((email, index) => (
+                    <li key={index} className="text-sm text-gray-700">
+                      {email}
+                    </li>
+                  ))
+                ) : (
+                  <li className="text-sm text-gray-500">No guardian emails added yet.</li>
+                )}
+              </ul>
+            )}
+
+            {/* Add/Edit Guardian Email Modal */}
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="outline">Add / Edit Guardian Emails</Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-lg">
+                <DialogHeader>
+                  <DialogTitle>Add / Edit Guardian Emails</DialogTitle>
+                </DialogHeader>
+                <EditParentEmail
+                  studentId={student._id}
+                  initialEmails={student.guardianEmails || []}
+                  onUpdate={(updatedEmails) =>
+                    setStudent((prev) => ({ ...prev, guardianEmails: updatedEmails }))
+                  }
+                />
+              </DialogContent>
+            </Dialog>
           </div>
         </div>
       </div>
@@ -126,7 +178,6 @@ export default function StudentProfile() {
           </Link>
         ))}
       </div>
-
     </div>
   );
 }

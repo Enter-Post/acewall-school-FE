@@ -46,9 +46,7 @@ const ReadMore = ({ text = "", maxLength = 500 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   if (!text)
-    return (
-      <p className="text-black">Course description goes here...</p>
-    );
+    return <p className="text-black">Course description goes here...</p>;
 
   const toggleReadMore = () => setIsExpanded(!isExpanded);
 
@@ -295,20 +293,40 @@ export default function CourseOverview() {
       >
         {/* Tab List */}
         <TabsList className="flex flex-wrap justify-center gap-4 w-full sm:gap-10 bg-white p-1 shadow-inner">
-          {["Overview",  "Syllabus"].map((tab) => (
-            <TabsTrigger
-              key={tab}
-              value={tab.toLowerCase()}
-              className="px-3 py-2 text-base font-medium capitalize transition-all duration-300  
+          {/* Always show Overview */}
+          <TabsTrigger
+            value="overview"
+            className="px-3 py-2 text-base font-medium capitalize transition-all duration-300  
         text-gray-700 hover:text-green-600 hover:bg-gray-50 
         data-[state=active]:bg-gray-100 data-[state=active]:text-green-600 data-[state=active]:shadow-sm"
+          >
+            Overview
+          </TabsTrigger>
+
+          {/* Show Reviews tab only if enabled */}
+          {course?.commentsEnabled && (
+            <TabsTrigger
+              value="reviews"
+              className="px-3 py-2 text-base font-medium capitalize transition-all duration-300  
+          text-gray-700 hover:text-green-600 hover:bg-gray-50 
+          data-[state=active]:bg-gray-100 data-[state=active]:text-green-600 data-[state=active]:shadow-sm"
             >
-              {tab}
+              Reviews
             </TabsTrigger>
-          ))}
+          )}
+
+          {/* Always show Syllabus */}
+          <TabsTrigger
+            value="syllabus"
+            className="px-3 py-2 text-base font-medium capitalize transition-all duration-300  
+        text-gray-700 hover:text-green-600 hover:bg-gray-50 
+        data-[state=active]:bg-gray-100 data-[state=active]:text-green-600 data-[state=active]:shadow-sm"
+          >
+            Syllabus
+          </TabsTrigger>
         </TabsList>
 
-        {/* Overview */}
+        {/* Overview Tab */}
         <TabsContent value="overview" className="py-8 space-y-10">
           <section>
             <h2 className="text-2xl font-semibold mb-4">What You'll Learn</h2>
@@ -325,7 +343,7 @@ export default function CourseOverview() {
           <section>
             <h2 className="text-2xl font-semibold mb-4">Requirements</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {course?.requirements.map((req, i) => (
+              {course?.requirements?.map((req, i) => (
                 <div key={i} className="flex items-start gap-2">
                   <CheckCircle className="w-5 h-5 text-green-500 mt-1" />
                   <span>{req}</span>
@@ -333,7 +351,8 @@ export default function CourseOverview() {
               ))}
             </div>
           </section>
-          {/* unenroll section start  */}
+
+          {/* Unenroll Section */}
           {user?.role !== "teacherAsStudent" && (
             <section>
               <Button
@@ -344,9 +363,11 @@ export default function CourseOverview() {
               </Button>
             </section>
           )}
+
+          {/* Unenroll Confirmation Modal */}
           <section>
             <Dialog open={showModal} onOpenChange={setShowModal}>
-              <DialogContent className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 ">
+              <DialogContent className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
                 <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
                   <DialogHeader>
                     <DialogTitle>Confirm Unenrollment</DialogTitle>
@@ -388,8 +409,15 @@ export default function CourseOverview() {
           </section>
         </TabsContent>
 
-        {/* Reviews */}
-       
+        {/* Reviews Tab – Only rendered if enabled */}
+        {course?.commentsEnabled && (
+          <TabsContent value="reviews" className="py-8 space-y-8">
+            <RatingSection id={id} course={course} />
+            <CommentSection id={course._id} />
+          </TabsContent>
+        )}
+
+        {/* Syllabus Tab */}
         <TabsContent value="syllabus" className="py-8 space-y-6">
           <h2 className="text-2xl font-semibold">Course Syllabus</h2>
 
@@ -398,7 +426,6 @@ export default function CourseOverview() {
               <div className="mb-4">
                 <p className="text-md font-medium">{course?.syllabus?.name}</p>
 
-                {/* Upload date (if available) */}
                 {course?.syllabus?.uploadedAt && (
                   <p className="text-sm text-gray-500 mt-1">
                     Uploaded:{" "}

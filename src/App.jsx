@@ -252,7 +252,7 @@ function App() {
               <Route index element={<Account />} />
               <Route path="editGeneralInfo" element={<EditGeneralInfo />} />
               <Route path="editCredentials" element={<EditCredentials />} />
-              <Route path="editParentEmail" element={<EditParentEmail />} />
+              
             </Route>
             <Route path="support" element={<Support />} />
             <Route path="ContactUs" element={<ContactUs />} />
@@ -285,6 +285,7 @@ function App() {
               <Route index element={<Account />} />
               <Route path="editGeneralInfo" element={<EditGeneralInfo />} />
               <Route path="editCredentials" element={<EditCredentials />} />
+              <Route path="editParentEmail" element={<EditParentEmail />} />
             </Route>
             <Route path="assessments">
               <Route index element={<TeacherrAssessment />} />
