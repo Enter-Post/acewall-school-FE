@@ -16,6 +16,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import EditParentEmail from "../Account/EditParentEmail";
+import ManageEmailNotifications from "@/CustomComponent/togelNotificationDialog";
 
 export default function StudentProfile() {
   const { id } = useParams();
@@ -23,9 +24,6 @@ export default function StudentProfile() {
   const navigate = useNavigate();
   const [student, setStudent] = React.useState(state?.student || null);
   const [emailOpen, setEmailOpen] = useState(false);
-
-console.log(student);
-
 
   const handleConversation = async () => {
     try {
@@ -69,11 +67,17 @@ console.log(student);
 
         <div className="flex flex-col justify-center text-center md:text-left">
           <div className="flex flex-wrap justify-center md:justify-start items-center gap-x-2 gap-y-1">
-            <p className="text-2xl font-bold text-gray-800">{student?.firstName}</p>
+            <p className="text-2xl font-bold text-gray-800">
+              {student?.firstName}
+            </p>
             {student?.middleName && (
-              <p className="text-2xl font-bold text-gray-800">{student.middleName}</p>
+              <p className="text-2xl font-bold text-gray-800">
+                {student.middleName}
+              </p>
             )}
-            <p className="text-2xl font-bold text-gray-800">{student?.lastName}</p>
+            <p className="text-2xl font-bold text-gray-800">
+              {student?.lastName}
+            </p>
           </div>
 
           <div className="mt-3 space-y-1 text-sm text-gray-600">
@@ -98,6 +102,8 @@ console.log(student);
             <Button className="bg-green-500" onClick={handleConversation}>
               Message
             </Button>
+            {/* <Button variant="outline">Manage Emails Notifications</Button> */}
+            <ManageEmailNotifications studentId={student._id} />
           </div>
 
           {/* Guardian Emails Dropdown */}
@@ -107,7 +113,11 @@ console.log(student);
               className="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-gray-900"
             >
               Guardian Emails
-              {emailOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+              {emailOpen ? (
+                <ChevronUp className="w-4 h-4" />
+              ) : (
+                <ChevronDown className="w-4 h-4" />
+              )}
             </button>
 
             {emailOpen && (
@@ -119,7 +129,9 @@ console.log(student);
                     </li>
                   ))
                 ) : (
-                  <li className="text-sm text-gray-500">No guardian emails added yet.</li>
+                  <li className="text-sm text-gray-500">
+                    No guardian emails added yet.
+                  </li>
                 )}
               </ul>
             )}
@@ -137,7 +149,10 @@ console.log(student);
                   studentId={student._id}
                   initialEmails={student.guardianEmails || []}
                   onUpdate={(updatedEmails) =>
-                    setStudent((prev) => ({ ...prev, guardianEmails: updatedEmails }))
+                    setStudent((prev) => ({
+                      ...prev,
+                      guardianEmails: updatedEmails,
+                    }))
                   }
                 />
               </DialogContent>
@@ -173,7 +188,9 @@ console.log(student);
             </div>
 
             <div className="absolute inset-0 bg-green-600 bg-opacity-80 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              <span className="text-white text-lg font-semibold">View Grade Book</span>
+              <span className="text-white text-lg font-semibold">
+                View Grade Book
+              </span>
             </div>
           </Link>
         ))}
