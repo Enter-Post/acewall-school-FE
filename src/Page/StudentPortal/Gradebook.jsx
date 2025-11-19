@@ -140,7 +140,6 @@ export default function Gradebook() {
       setCurrentPage(res.data.currentPage);
       setTotalPages(res.data.totalPages);
       setTotalCourses(res.data.totalCourses);
-      console.log(res.data);
     } catch (err) {
       console.error(err);
       setError(err.message);
@@ -382,10 +381,10 @@ export default function Gradebook() {
                                                   </div>
                                                   <Badge
                                                     className={`${getLetterGradeColor(
-                                                      quarter.letterGrade
+                                                      quarter.letterGrade  
                                                     )}`}
                                                   >
-                                                    {quarter.standardGrade ||
+                                                    {quarter.letterGrade ||
                                                       "N/A"}
                                                   </Badge>
                                                 </div>
