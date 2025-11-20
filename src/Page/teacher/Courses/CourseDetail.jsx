@@ -459,12 +459,12 @@ export default function TeacherCourseDetails() {
           ))}
       </div>
       {/* Comments & Ratings Toggle (Teacher only) */}
-      {course?.createdby === user?._id && (
+      {/* {course?.createdby === user?._id && (
         <CommentsRatingsToggle
           courseId={id}
           onToggle={handleToggleComments} // 🔹 pass callback
         />
-      )}
+      )} */}
 
       {/* Comments & Ratings Sections */}
       {typeof course.commentsEnabled === "boolean" ? (
