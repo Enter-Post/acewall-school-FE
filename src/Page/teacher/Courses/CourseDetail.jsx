@@ -109,7 +109,7 @@ export default function TeacherCourseDetails() {
       .then((res) => {
         setCourse(res.data.course);
         setQuarters(res.data.course.quarter);
-        console.log(res.data.course, "course");
+        console.log("course", res.data);
       })
       .catch((err) => {
         console.log(err);
@@ -131,7 +131,7 @@ export default function TeacherCourseDetails() {
         courseId: course._id,
       })
       .then((res) => {
-        console.log(res.data.enrollment, "enrollment data");
+        // console.log(res.data.enrollment, "enrollment data");
         setEnrollmentsId(res.data.enrollment._id);
       })
       .catch((err) => {
@@ -201,7 +201,7 @@ export default function TeacherCourseDetails() {
         }
       )
       .then((res) => {
-        console.log(res);
+        // console.log(res);
         toast.success(res.data.message || "Thumbnail updated successfully!");
         fetchCourseDetail();
         setPrevThumbnail(null);
@@ -213,6 +213,23 @@ export default function TeacherCourseDetails() {
         setLoadingThumbnail(false);
       });
   };
+
+  const handleToggleGrading = async () => {
+  try {
+    const res = await axiosInstance.put(`course/course/${id}/toggle-grading`);
+    toast.success(res.data.message);
+
+    setCourse((prev) => ({
+      ...prev,
+      gradingSystem: res.data.gradingSystem,
+    }));
+  } catch (error) {
+    toast.error(
+      error.response?.data?.message || "Failed to toggle grading system"
+    );
+  }
+};
+
 
   const prevSemesterIds = course?.semester?.map((sem) => sem._id) || [];
   const prevQuarterIds = course?.quarter?.map((quarter) => quarter._id) || [];
@@ -372,6 +389,15 @@ export default function TeacherCourseDetails() {
               <BookOpen size={16} />
               Syllabus
             </a>
+            <button
+              className="flex gap-2 items-center bg-purple-600 text-white py-2 px-4 rounded-lg shadow-md transition-all duration-150 text-sm cursor-pointer"
+              onClick={handleToggleGrading}
+            >
+              <ChartBarStacked size={16} />
+              {course.gradingSystem === "normalGrading"
+                ? "Switch to Standard Grading"
+                : "Switch to Normal Grading"}
+            </button>
           </div>
         </div>
         {/* Stats */}
