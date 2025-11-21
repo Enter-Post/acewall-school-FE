@@ -14,6 +14,7 @@ import {
   NotepadText,
   MessagesSquareIcon,
   Coffee,
+  GitGraph,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import { Button } from "../../components/ui/button";
@@ -89,6 +90,12 @@ const sideBarTabs = [
   },
   {
     id: 15,
+    name: "Grading Graphs",
+    icon: <GitGraph />,
+    path: "/teacher/graphs",
+
+  }, {
+    id: 16,
     name: "Support",
     icon: <FaHandFist />,
     path: "/teacher/support",

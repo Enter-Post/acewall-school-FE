@@ -87,6 +87,7 @@ import SocialMain from "./Page/teacher/SocialMain";
 import SocialProfilePage from "./Page/teacher/socialProfilePage";
 import EditParentEmail from "./Page/Account/EditParentEmail";
 import StudentWhoNeedAssistance from "./Page/teacher/StudentNeedAssistancePage";
+import GradingScales from "./Page/teacher/GradingScales";
 
 function App() {
   const {
@@ -245,14 +246,18 @@ function App() {
             <Route path="gradebook" element={<Gradebook />} />
             <Route path="stdPages" element={<StdPagesView />} />
             <Route path="announcements" element={<Announcement />} />
+            <Route path="graphs" element={<GradingScales />} />
+
             <Route path="social" element={<SocialMain />} />
-            <Route path="social/socialprofile/:userId" element={<SocialProfilePage />} />
+            <Route
+              path="social/socialprofile/:userId"
+              element={<SocialProfilePage />}
+            />
 
             <Route path="account">
               <Route index element={<Account />} />
               <Route path="editGeneralInfo" element={<EditGeneralInfo />} />
               <Route path="editCredentials" element={<EditCredentials />} />
-              
             </Route>
             <Route path="support" element={<Support />} />
             <Route path="ContactUs" element={<ContactUs />} />
@@ -304,9 +309,13 @@ function App() {
             <Route path="support" element={<Support />} />
 
             <Route path="Announcements" element={<TeacherAnnoucement />} />
+            <Route path="graphs" element={<GradingScales />} />
 
             <Route path="social" element={<SocialMain />} />
-            <Route path="social/socialprofile/:userId" element={<SocialProfilePage />} />
+            <Route
+              path="social/socialprofile/:userId"
+              element={<SocialProfilePage />}
+            />
 
             <Route path="allStudent" element={<AllStudent />} />
             <Route path="studentProfile/:id" element={<StudentProfile />} />
