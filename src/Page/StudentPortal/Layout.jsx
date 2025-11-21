@@ -7,6 +7,7 @@ import avatar from "../../assets/avatar.png";
 
 import {
   Coffee,
+  GitGraph,
   Menu,
   MessageCircleDashed,
   MessagesSquare,
@@ -91,8 +92,16 @@ const sideBarTabs = [
     icon: <Coffee />,
     path: "/Student/social",
   },
-  {
+
+   {
     id: 8,
+    name: "Grading Graphs",
+    icon: <GitGraph />,
+    path: "/Student/graphs",
+
+  },
+  {
+    id: 9,
     name: "Messages",
     icon: <MessageCircleDashed />,
     path: "/student/messages",
