@@ -107,6 +107,14 @@ const sideBarTabs = [
     path: "/student/messages",
     allowedAsPreview: false,
   },
+  {
+    id: 10,
+    name: "AI Assistant",
+    icon: <MessageCircleDashed />,
+    path: "/student/ai",
+    allowedAsPreview: false,
+  },
+
  
 ];
 
