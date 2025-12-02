@@ -88,6 +88,7 @@ import SocialProfilePage from "./Page/teacher/socialProfilePage";
 import EditParentEmail from "./Page/Account/EditParentEmail";
 import StudentWhoNeedAssistance from "./Page/teacher/StudentNeedAssistancePage";
 import GradingScales from "./Page/teacher/GradingScales";
+import AiChatbot from "./Page/StudentPortal/AiChatbot";
 
 function App() {
   const {
@@ -247,6 +248,9 @@ function App() {
             <Route path="stdPages" element={<StdPagesView />} />
             <Route path="announcements" element={<Announcement />} />
             <Route path="graphs" element={<GradingScales />} />
+            <Route path="ai" element={<AiChatbot />} />
+
+
 
             <Route path="social" element={<SocialMain />} />
             <Route
