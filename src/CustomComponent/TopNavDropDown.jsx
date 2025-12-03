@@ -1,22 +1,21 @@
 import * as React from "react";
-import axios from "axios";
+import { useContext } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import {
   DropdownMenu,
   DropdownMenuItem,
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "../components/ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar"; // Use ShadCN's Avatar
-import { Link, useNavigate } from "react-router-dom";
+import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
 import { GlobalContext } from "@/Context/GlobalProvider";
-import { useContext } from "react";
 import { toast } from "sonner";
 import { axiosInstance } from "@/lib/AxiosInstance";
 import avatar from "../assets/avatar.png";
 
 export function TopNavbarDropDown({ selected, setselected }) {
-  const { checkAuth, user, logout, setAuthLoading, UpdatedUser } =
-    useContext(GlobalContext);
+  const { checkAuth, logout, UpdatedUser } = useContext(GlobalContext);
+  const navigate = useNavigate();
 
   const tabs = [
     {
@@ -26,40 +25,73 @@ export function TopNavbarDropDown({ selected, setselected }) {
     },
   ];
 
-  const navigate = useNavigate();
-
   const handleLogout = async () => {
-    await logout();
-    await checkAuth();
-    location.reload();
+    try {
+      await logout();
+      await checkAuth();
+      toast.success("Logged out successfully");
+      location.reload();
+    } catch (error) {
+      toast.error("Logout failed. Please try again.");
+    }
   };
 
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <div className="flex items-center space-x-2 cursor-pointer">
-          <Avatar className="w-5 h-5">
+      <DropdownMenuTrigger
+        asChild
+        aria-label="User menu"
+        aria-haspopup="true"
+        className="focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 rounded"
+      >
+        <button className="flex items-center space-x-2">
+          <Avatar className="w-8 h-8">
             <AvatarImage
               src={UpdatedUser?.profileImg?.url || avatar}
-              alt="User Avatar"
+              alt={`${UpdatedUser?.firstName || "User"}'s avatar`}
             />
-            <AvatarFallback className="text-white text-sm bg-black font-bold">
-              {UpdatedUser?.firstName[0] || "N/A"}
+            <AvatarFallback className="bg-black text-white font-bold text-sm">
+              {UpdatedUser?.firstName?.[0] || "N/A"}
             </AvatarFallback>
           </Avatar>
-          <p className="text-white flex items-center">{UpdatedUser?.firstName || "N/A" }</p>
-        </div>
+          <span className="text-white font-medium">
+            {UpdatedUser?.firstName || "N/A"}
+          </span>
+        </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56 bg-white">
-        {tabs.map((tab, index) => {
-          return (
-            <DropdownMenuItem key={index} asChild>
-              <Link to={tab.path}>{tab.title}</Link>
-            </DropdownMenuItem>
-          );
-        })}
-        <DropdownMenuItem asChild>
-          <button onClick={() => handleLogout()}>Logout</button>
+
+      <DropdownMenuContent
+        className="w-56 bg-white"
+        role="menu"
+        aria-label="User dropdown menu"
+      >
+        {tabs.map((tab, index) => (
+          <DropdownMenuItem
+            key={index}
+            asChild
+            role="menuitem"
+            aria-current={selected === tab.id ? "page" : undefined}
+          >
+            <Link
+              to={tab.path}
+              className={`block w-full text-left px-4 py-2 rounded focus:outline-none focus:bg-green-100 hover:bg-gray-100 ${
+                selected === tab.id
+                  ? "bg-green-500 text-white"
+                  : "text-gray-900"
+              }`}
+            >
+              {tab.title}
+            </Link>
+          </DropdownMenuItem>
+        ))}
+
+        <DropdownMenuItem asChild role="menuitem">
+          <button
+            onClick={handleLogout}
+            className="w-full text-left px-4 py-2 rounded text-gray-900 hover:bg-gray-100 focus:outline-none focus:bg-green-100"
+          >
+            Logout
+          </button>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

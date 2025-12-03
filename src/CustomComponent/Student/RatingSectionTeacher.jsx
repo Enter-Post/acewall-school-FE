@@ -1,42 +1,34 @@
 import React, { useEffect, useState } from "react";
-import RatingStars from "../RatingStars";
 import { Loader, Star } from "lucide-react";
 import { axiosInstance } from "@/lib/AxiosInstance";
-import { toast } from "sonner";
 
 const RatingSectionTeacher = ({ course, id }) => {
-  const [userRating, setUserRating] = useState(0);
   const [hasRated, setHasRated] = useState(false);
   const [courseRating, setCourseRating] = useState();
   const [loading, setLoading] = useState(false);
 
   const fetchUserRating = async () => {
     setLoading(true);
-    await axiosInstance
-      .get(`rating/isRated/${course._id}`)
-      .then((res) => {
-        console.log(res);
-        setHasRated(res.data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.log(err, "err");
-        setLoading(false);
-      });
+    try {
+      const res = await axiosInstance.get(`rating/isRated/${course._id}`);
+      setHasRated(res.data);
+    } catch (err) {
+      console.error(err, "Error fetching user rating");
+    } finally {
+      setLoading(false);
+    }
   };
+
   const fetchCourseRating = async () => {
     setLoading(true);
-    await axiosInstance
-      .get(`rating/course/${course._id}`)
-      .then((res) => {
-        setLoading(false);
-        console.log(res, "whole course rating");
-        setCourseRating(res.data);
-      })
-      .catch((err) => {
-        setLoading(false);
-        console.log(err, "err is fetching course rating");
-      });
+    try {
+      const res = await axiosInstance.get(`rating/course/${course._id}`);
+      setCourseRating(res.data);
+    } catch (err) {
+      console.error(err, "Error fetching course rating");
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -44,78 +36,70 @@ const RatingSectionTeacher = ({ course, id }) => {
     fetchCourseRating();
   }, [id]);
 
-  // const handleRatingSubmit = async (rating) => {
-  //   if (hasRated) {
-  //     toast.error("You have already rated this course.");
-  //     return;
-  //   }
-  //   setLoading(true);
-  //   try {
-  //     const res = await axiosInstance.post(`rating/create/${course._id}`, {
-  //       star: rating,
-  //     });
-  //     toast.success(res.data.message);
-  //     setUserRating(rating);
-  //     setHasRated(true);
-  //     setLoading(false);
-  //   } catch (err) {
-  //     console.log(err);
-  //     toast.error(err.response?.data?.message || "Failed to submit rating");
-  //     setLoading(false);
-  //   }
-  // };
-
   return (
-    <div className="bg-gray-50 p-6 rounded-lg">
-      <h3 className="text-xl font-bold mb-4">Rate this course</h3>
+    <section
+      aria-label={`Course rating for ${course.title}`}
+      className="bg-gray-50 p-6 rounded-lg"
+    >
+      <h3 className="text-xl font-bold mb-4">Course Ratings</h3>
 
-      <div className="flex flex-col sm:flex-row items-start sm:items-center ">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center mb-4">
         {loading ? (
-          <Loader className="animate-spin" />
+          <Loader className="animate-spin" aria-label="Loading ratings" />
         ) : hasRated && hasRated.rating ? (
-          <>
+          <div
+            className="flex items-center"
+            aria-label={`You rated this course ${hasRated.star} star${
+              hasRated.star > 1 ? "s" : ""
+            }`}
+          >
             {[...Array(hasRated.star)].map((_, i) => (
               <Star
                 key={i}
                 className="h-5 w-5 fill-yellow-500 text-yellow-500"
+                aria-hidden="true"
               />
             ))}
             <span className="ml-2 text-sm text-gray-600">
               You rated this course {hasRated.star} star
               {hasRated.star > 1 ? "s" : ""}
             </span>
-          </>
+          </div>
         ) : (
-          <>
-            
-         
-          </>
+          <p className="text-sm text-gray-500">
+            You have not rated this course.
+          </p>
         )}
       </div>
 
-      <div className="mt-4">
-        <div className="flex items-center gap-2">
-          <div className="flex">
-            {[1, 2, 3, 4, 5].map((star) => (
-              <Star
-                key={star}
-                className={`h-5 w-5 ${
-                  star <= Math.round(courseRating?.averageStar)
-                    ? "fill-yellow-500 text-yellow-500"
-                    : "text-gray-300"
-                }`}
-              />
-            ))}
-          </div>
-          <span className="font-medium">
-            {courseRating?.averageStar?.toFixed(1)}
-          </span>
-          <span className="text-gray-500">
-            ({courseRating?.count} ratings)
-          </span>
+      <div
+        className="flex items-center gap-2"
+        role="img"
+        aria-label={`Average course rating: ${
+          courseRating?.averageStar?.toFixed(1) || 0
+        } out of 5, based on ${courseRating?.count || 0} ratings`}
+      >
+        <div className="flex">
+          {[1, 2, 3, 4, 5].map((star) => (
+            <Star
+              key={star}
+              className={`h-5 w-5 ${
+                star <= Math.round(courseRating?.averageStar)
+                  ? "fill-yellow-500 text-yellow-500"
+                  : "text-gray-300"
+              }`}
+              aria-hidden="true"
+            />
+          ))}
         </div>
+        <span className="font-medium">
+          {courseRating?.averageStar?.toFixed(1) || 0}
+        </span>
+        <span className="text-gray-500">
+          ({courseRating?.count || 0} ratings)
+        </span>
       </div>
-    </div>
+    </section>
   );
 };
 

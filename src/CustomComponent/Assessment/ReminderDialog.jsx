@@ -16,16 +16,12 @@ import { toast } from "sonner";
 export default function AssessmentReminderDialog({ assessmentId }) {
   const [reminder, setReminder] = useState("");
 
-  console.log(reminder, "reminder state");
-
   useEffect(() => {
     const fetchReminderSetting = async () => {
       try {
         const res = await axiosInstance.get(
           `assessment/findReminderTime/${assessmentId}`
         );
-
-        console.log(res, "fetch reminder setting response");
         setReminder(res.data.reminderTime || "noReminder");
       } catch (err) {
         console.error("Error fetching reminder setting:", err);
@@ -36,20 +32,22 @@ export default function AssessmentReminderDialog({ assessmentId }) {
   }, [assessmentId]);
 
   const handleSave = async () => {
-    await axiosInstance
-      .put(`assessment/setReminder/${assessmentId}`, {
-        reminder,
-      })
-      .then((res) => {
-        console.log(res);
-        toast.success("Reminder setting saved successfully.");
-      })
-      .catch((err) => {
-        console.log(err);
-        toast.error(
-          err.response?.data?.message || "Failed to save reminder setting."
-        );
+    try {
+      const res = await axiosInstance.put(
+        `assessment/setReminder/${assessmentId}`,
+        {
+          reminder,
+        }
+      );
+      toast.success("Reminder setting saved successfully.", {
+        ariaLive: "polite",
       });
+    } catch (err) {
+      toast.error(
+        err.response?.data?.message || "Failed to save reminder setting.",
+        { ariaLive: "polite" }
+      );
+    }
   };
 
   return (
@@ -57,7 +55,10 @@ export default function AssessmentReminderDialog({ assessmentId }) {
       <DialogTrigger asChild>
         <Button variant="outline">Set Reminder</Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-sm">
+      <DialogContent
+        className="sm:max-w-sm"
+        aria-label="Set Assessment Reminder"
+      >
         <DialogHeader>
           <DialogTitle>Assessment Reminder</DialogTitle>
           <DialogDescription>
@@ -69,21 +70,38 @@ export default function AssessmentReminderDialog({ assessmentId }) {
           value={reminder}
           onValueChange={setReminder}
           className="flex flex-col space-y-2 mt-4"
+          aria-label="Reminder options"
         >
           <div className="flex items-center space-x-2">
-            <RadioGroupItem value="12hours" id="12hours" />
+            <RadioGroupItem
+              value="12hours"
+              id="12hours"
+              aria-label="12 Hours Before"
+            />
             <label htmlFor="12hours">12 Hours Before</label>
           </div>
           <div className="flex items-center space-x-2">
-            <RadioGroupItem value="24hours" id="24hours" />
+            <RadioGroupItem
+              value="24hours"
+              id="24hours"
+              aria-label="24 Hours Before"
+            />
             <label htmlFor="24hours">24 Hours Before</label>
           </div>
           <div className="flex items-center space-x-2">
-            <RadioGroupItem value="48hours" id="48hours" />
+            <RadioGroupItem
+              value="48hours"
+              id="48hours"
+              aria-label="48 Hours Before"
+            />
             <label htmlFor="48hours">48 Hours Before</label>
           </div>
           <div className="flex items-center space-x-2">
-            <RadioGroupItem value="noReminder" id="noReminder" />
+            <RadioGroupItem
+              value="noReminder"
+              id="noReminder"
+              aria-label="No Reminder"
+            />
             <label htmlFor="noReminder">No Reminder</label>
           </div>
         </RadioGroup>
@@ -91,9 +109,8 @@ export default function AssessmentReminderDialog({ assessmentId }) {
         <DialogFooter>
           <Button
             variant="default"
-            onClick={() => {
-              handleSave();
-            }}
+            onClick={handleSave}
+            aria-label="Save reminder setting"
           >
             Save
           </Button>

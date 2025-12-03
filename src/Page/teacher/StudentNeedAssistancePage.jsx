@@ -3,5 +3,22 @@ import StudentAssistanceCard from "@/CustomComponent/teacher/StudentAssistanceCa
 
 export default function StudentWhoNeedAssistance() {
   const { courseId } = useParams();
-  return <StudentAssistanceCard courseId={courseId} title="Student who need assistance" />;
+
+  return (
+    <main
+      role="main"
+      aria-labelledby="assistance-page-title"
+      className="w-full h-full"
+    >
+      {/* Screen-reader only heading */}
+      <h1 id="assistance-page-title" className="sr-only">
+        Students Who Need Assistance
+      </h1>
+
+      <StudentAssistanceCard
+        courseId={courseId}
+        title="Student who need assistance"
+      />
+    </main>
+  );
 }

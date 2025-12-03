@@ -11,34 +11,48 @@ const DescriptionTablist = ({
     <TabsContent
       value="description"
       className="p-6 bg-white rounded-lg shadow-md"
+      role="tabpanel"
+      aria-labelledby="description-tab"
     >
       <div className="space-y-6">
+
         {/* Chapter Title and Description */}
-        <div>
-          <h3 className="text-xl font-semibold text-gray-800">
+        <section aria-labelledby="chapter-title">
+          <h3
+            id="chapter-title"
+            className="text-xl font-semibold text-gray-800"
+          >
             {chapter.title}
           </h3>
+
           <p className="text-gray-700 mt-4 text-sm">{chapter.description}</p>
-        </div>
+        </section>
 
         {/* Active Lesson Toggle */}
         {activeLesson && (
-          <div className="mt-8 pt-6 border-t border-gray-200">
+          <section
+            className="mt-8 pt-6 border-t border-gray-200"
+            aria-labelledby="current-lesson-title"
+          >
             <button
               onClick={toggleLessonVisibility}
-              className="text-xl font-semibold text-gray-800 w-full text-left flex justify-between items-center focus:outline-none"
+              aria-expanded={isLessonVisible}
+              aria-controls="lesson-description"
+              className="text-xl font-semibold text-gray-800 w-full text-left flex justify-between items-center focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded"
             >
-              <span>
+              <span id="current-lesson-title">
                 Current Lesson: <br /> {activeLesson.title}
               </span>
+
+              {/* Decorative arrow icon */}
               <svg
+                aria-hidden="true"
                 className={`w-5 h-5 transition-transform duration-200 ${
-                  isLessonVisible ? "transform rotate-180" : ""
+                  isLessonVisible ? "rotate-180" : ""
                 }`}
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
               >
                 <path
                   strokeLinecap="round"
@@ -48,12 +62,22 @@ const DescriptionTablist = ({
                 />
               </svg>
             </button>
+
+            {/* Lesson Description */}
             {isLessonVisible && (
-              <div className="text-gray-600 mt-3 text-sm">
-                <div dangerouslySetInnerHTML={{ __html: activeLesson.description }} />
-              </div>
+              <section
+                id="lesson-description"
+                className="text-gray-600 mt-3 text-sm"
+                aria-label="Lesson description"
+              >
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html: activeLesson.description,
+                  }}
+                />
+              </section>
             )}
-          </div>
+          </section>
         )}
       </div>
     </TabsContent>

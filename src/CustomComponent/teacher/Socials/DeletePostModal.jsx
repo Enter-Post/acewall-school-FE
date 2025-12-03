@@ -13,23 +13,34 @@ export default function DeleteConfirmDialog({ onDelete }) {
   const [open, setOpen] = useState(false);
 
   const handleDelete = async () => {
-    await onDelete(); // ✅ Support async deletion
+    await onDelete(); // Support async deletion
     setOpen(false); // Close dialog after delete
   };
 
   return (
     <div>
-      {/* 🗑️ Button to open dialog */}
-      <Trash2
-        className="text-red-400 cursor-pointer hover:text-red-600 transition"
+      {/* Trash icon button, now keyboard accessible */}
+      <button
         onClick={() => setOpen(true)}
-      />
+        aria-label="Delete post"
+        className="text-red-400 hover:text-red-600 transition focus:outline-none focus:ring-2 focus:ring-red-500 rounded"
+      >
+        <Trash2 />
+      </button>
 
-      {/* 🔒 Confirmation Dialog */}
-      <Dialog open={open} onOpenChange={setOpen}>
+      {/* Confirmation Dialog */}
+      <Dialog
+        open={open}
+        onOpenChange={setOpen}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="delete-dialog-title"
+      >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>Are you sure you want to delete?</DialogTitle>
+            <DialogTitle id="delete-dialog-title">
+              Are you sure you want to delete?
+            </DialogTitle>
           </DialogHeader>
 
           <p className="text-sm text-gray-500">
@@ -40,7 +51,11 @@ export default function DeleteConfirmDialog({ onDelete }) {
             <Button variant="outline" onClick={() => setOpen(false)}>
               Cancel
             </Button>
-            <Button variant="destructive" onClick={handleDelete}>
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+              autoFocus
+            >
               Delete
             </Button>
           </DialogFooter>

@@ -12,44 +12,74 @@ const GradingScaleCard = ({
 }) => {
   const minInputRef = useRef(null);
 
-  // Autofocus when editing starts
   useEffect(() => {
     if (isEditingScale !== null && minInputRef.current) {
       minInputRef.current.focus();
     }
   }, [isEditingScale]);
 
-  // Validation function
   const validateGradeRange = (grade) => {
     return grade.min < grade.max;
   };
 
   return (
-    <Card className="mb-6 border-red-800">
+    <Card
+      className="mb-6 border-red-800"
+      role="region"
+      aria-labelledby="grading-scale-heading"
+    >
       <CardContent className="p-0">
-        <div className="grid grid-cols-3 bg-gray-50 p-4 border-b border-gray-200 font-medium text-gray-600">
-          <div>Letter Grade</div>
-          <div>Percentage Range</div>
-          <div></div>
+        <h2 id="grading-scale-heading" className="sr-only">
+          Current Grading Scale
+        </h2>
+
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <caption className="sr-only">
+              Grading scale with letter grades and percentage ranges.
+            </caption>
+
+            <thead className="bg-gray-50">
+              <tr>
+                <th
+                  scope="col"
+                  className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider"
+                >
+                  Letter Grade
+                </th>
+                <th
+                  scope="col"
+                  className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider"
+                >
+                  Percentage Range
+                </th>
+                <th
+                  scope="col"
+                  className="px-4 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider"
+                >
+                  <span className="sr-only">Actions</span>
+                </th>
+              </tr>
+            </thead>
+
+            <tbody className="bg-white divide-y divide-gray-200">
+              {scaleFields.map((grade) => (
+                <tr key={grade.id}>
+                  {/* Letter Grade */}
+                  <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-700">
+                    {grade.letter}
+                  </td>
+
+                  <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-700">
+                    {grade.min}% - {grade.max}%
+                  </td>
+
+                  <td className="px-4 py-4 whitespace-nowrap text-right text-sm font-medium"></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-
-        {scaleFields.map((grade) => (
-          <div
-            key={grade.id}
-            className="grid grid-cols-3 p-4 border-b border-gray-200 gap-4 items-center"
-          >
-            {/* Letter Grade */}
-            <div className="text-gray-700 font-medium">{grade.letter}</div>
-
-            {/* Percentage Range */}
-            <div className="text-gray-700">
-              {grade.min}% - {grade.max}%
-            </div>
-
-            {/* Empty placeholder for layout */}
-            <div></div>
-          </div>
-        ))}
       </CardContent>
     </Card>
   );

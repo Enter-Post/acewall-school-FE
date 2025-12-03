@@ -3,11 +3,15 @@ import React from "react";
 
 const LoadingLoader = () => {
   return (
-    <div>
-      <section className="flex justify-center items-center h-screen w-screen">
-        <Loader size={48} className={"animate-spin"} />
-      </section>
-    </div>
+    <section
+      className="flex justify-center items-center h-screen w-screen"
+      role="status"
+      aria-live="polite"
+      aria-label="Loading content"
+    >
+      <Loader size={48} className="animate-spin" />
+      <span className="sr-only">Loading...</span>
+    </section>
   );
 };
 

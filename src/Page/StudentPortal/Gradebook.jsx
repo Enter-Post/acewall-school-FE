@@ -31,11 +31,21 @@ const AssessmentTable = ({ assessments = [] }) => {
       <Table>
         <TableHeader>
           <TableRow className="bg-gray-50">
-            <TableHead className="text-xs">Assessment</TableHead>
-            <TableHead className="text-xs">Topics </TableHead>
-            <TableHead className="text-xs">Score</TableHead>
-            <TableHead className="text-xs">Max Points</TableHead>
-            <TableHead className="text-xs">Percentage</TableHead>
+            <TableHead scope="col" className="text-xs">
+              Assessment
+            </TableHead>
+            <TableHead scope="col" className="text-xs">
+              Topics{" "}
+            </TableHead>
+            <TableHead scope="col" className="text-xs">
+              Score
+            </TableHead>
+            <TableHead scope="col" className="text-xs">
+              Max Points
+            </TableHead>
+            <TableHead scope="col" className="text-xs">
+              Percentage
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -291,6 +301,8 @@ export default function Gradebook() {
                         <Button
                           variant="ghost"
                           size="sm"
+                          aria-expanded={expandedCourseId === course.courseId}
+                          aria-controls={`course-details-${course.courseId}`}
                           onClick={() => toggleCourseExpand(course.courseId)}
                           className="flex items-center gap-2"
                         >
@@ -315,9 +327,12 @@ export default function Gradebook() {
                               <div
                                 key={semester.semesterId}
                                 className="space-y-3"
+                                id={`semester-${semester.semesterId}`}
+                                role="region"
+                                aria-labelledby={`semester-title-${semester.semesterId}`}
                               >
                                 <div className="flex items-center justify-between">
-                                  <h3 className="text-lg font-semibold text-gray-800">
+                                  <h3 className="text-lg font-semibold text-gray-800" id={`semester-title-${semester.semesterId}`}>
                                     {semester.semesterTitle}
                                   </h3>
                                   <Button
@@ -381,7 +396,7 @@ export default function Gradebook() {
                                                   </div>
                                                   <Badge
                                                     className={`${getLetterGradeColor(
-                                                      quarter.letterGrade  
+                                                      quarter.letterGrade
                                                     )}`}
                                                   >
                                                     {quarter.letterGrade ||
@@ -409,8 +424,7 @@ export default function Gradebook() {
                                                       </span>
                                                       <span className="text-blue-600 font-bold">
                                                         {quarter.standardGrade
-                                                          ?.remark ||
-                                                          "Pending"}
+                                                          ?.remark || "Pending"}
                                                       </span>
                                                     </div>
                                                   </div>

@@ -61,6 +61,7 @@ const ReadMore = ({ text = "", maxLength = 500 }) => {
       {text.length > maxLength && (
         <button
           onClick={toggleReadMore}
+          aria-expanded={isExpanded}
           className="text-green-700 text-sm hover:underline mt-1"
         >
           {isExpanded ? "Read Less" : "Read More"}
@@ -148,7 +149,11 @@ export default function CourseOverview() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
+      <div
+        className="flex justify-center items-center min-h-screen"
+        role="status"
+        aria-live="polite"
+      >
         <Loader className="animate-spin" />
       </div>
     );
@@ -220,7 +225,7 @@ export default function CourseOverview() {
           <Avatar className="h-15 w-15 rounded-full bg-cover bg-center">
             <AvatarImage
               src={course?.createdby?.profileImg?.url || avatar}
-              alt={`N/A`}
+              alt={`${course.createdby.firstName} ${course.createdby.lastName} profile picture`}
               className="h-full w-full bg-cover bg-center rounded-full"
             />
             <AvatarFallback>N/A</AvatarFallback>
@@ -265,9 +270,20 @@ export default function CourseOverview() {
       {/* Course Semester */}
       <section className="mt-8">
         {course?.semester?.map((semester, index) => (
-          <Link
-            key={semester._id}
-            to={`/student/mycourses/${course._id}/semester/${semester._id}`}
+          <div
+            role="button"
+            tabIndex={0}
+            onClick={() =>
+              navigate(
+                `/student/mycourses/${course._id}/semester/${semester._id}`
+              )
+            }
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ")
+                navigate(
+                  `/student/mycourses/${course._id}/semester/${semester._id}`
+                );
+            }}
           >
             <div
               key={semester._id}
@@ -281,7 +297,7 @@ export default function CourseOverview() {
                 {format(new Date(semester.endDate), "MMMM do, yyyy")}
               </p>
             </div>
-          </Link>
+          </div>
         ))}
       </section>
 
@@ -328,8 +344,13 @@ export default function CourseOverview() {
 
         {/* Overview Tab */}
         <TabsContent value="overview" className="py-8 space-y-10">
-          <section>
-            <h2 className="text-2xl font-semibold mb-4">What You'll Learn</h2>
+          <section aria-labelledby="what-you-learn-title">
+            <h2
+              id="what-you-learn-title"
+              className="text-2xl font-semibold mb-4"
+            >
+              What You'll Learn
+            </h2>
             <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {course?.teachingPoints?.map((point, i) => (
                 <li key={i} className="flex items-start gap-2">
@@ -367,11 +388,17 @@ export default function CourseOverview() {
           {/* Unenroll Confirmation Modal */}
           <section>
             <Dialog open={showModal} onOpenChange={setShowModal}>
-              <DialogContent className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+              <DialogContent
+                aria-labelledby="unenroll-dialog-title"
+                aria-describedby="unenroll-dialog-desc"
+                className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+              >
                 <div className="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
                   <DialogHeader>
-                    <DialogTitle>Confirm Unenrollment</DialogTitle>
-                    <DialogDescription>
+                    <DialogTitle id="unenroll-dialog-title">
+                      Confirm Unenrollment
+                    </DialogTitle>
+                    <DialogDescription id="unenroll-dialog-desc">
                       To confirm, type <strong>unenroll</strong> below. This
                       action cannot be undone.
                     </DialogDescription>

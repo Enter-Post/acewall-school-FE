@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Card,
   CardContent,
@@ -39,6 +39,7 @@ const AssessmentReview = () => {
   );
   const [error, setError] = useState({});
   const [loading, setLoading] = useState(false);
+  const [fetchingLoading, setFetchingLoading] = useState(true);
 
   useEffect(() => {
     const fetchSubmission = async () => {
@@ -46,13 +47,15 @@ const AssessmentReview = () => {
         .get(`/assessmentSubmission/submission/${id}`)
         .then((response) => {
           setSubmission(response.data.submission);
+          setFetchingLoading(false);
         })
         .catch((error) => {
           console.error("Error fetching submission:", error);
+          setFetchingLoading(false);
         });
     };
     fetchSubmission();
-  }, [loading]);
+  }, [loading, id]);
 
   useEffect(() => {
     if (submission?.answers?.length > 0) {
@@ -94,13 +97,11 @@ const AssessmentReview = () => {
       );
       console.log(response.data);
 
-      // Optional: Notify teacher grading and email status
       toast.success("Grades submitted and student notified via email.");
 
-      // Optional: reset UI state
       setManualGrades({});
       setError({});
-      setSubmission(response.data.submission); // refresh submission with graded=true
+      setSubmission(response.data.submission);
     } catch (error) {
       console.error("Error submitting grades:", error);
       toast.error("Failed to submit grades.");
@@ -114,6 +115,25 @@ const AssessmentReview = () => {
     return date.toLocaleString();
   };
 
+  const manualCheckCount =
+    submission?.answers?.filter((a) => a.requiresManualCheck).length || 0;
+  const autoGradedCount =
+    submission?.answers?.filter((a) => !a.requiresManualCheck).length || 0;
+
+  if (fetchingLoading) {
+    return (
+      <div className="container mx-auto px-4 py-6">
+        <div className="flex justify-center items-center h-screen">
+          <Loader
+            className="animate-spin"
+            role="status"
+            aria-label="Loading submission details"
+          />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto px-4 py-6">
       <Card className="w-full">
@@ -125,7 +145,7 @@ const AssessmentReview = () => {
               <Avatar className="h-12 w-12 rounded-full overflow-hidden">
                 <AvatarImage
                   src={submission?.studentId?.profileImg?.url || avatar}
-                  alt={`${submission?.studentId?.firstName} ${submission?.studentId?.lastName}`}
+                  alt={`Profile picture of ${submission?.studentId?.firstName} ${submission?.studentId?.lastName}`}
                   className="object-cover"
                 />
                 <AvatarFallback>
@@ -153,15 +173,23 @@ const AssessmentReview = () => {
                       ? "success"
                       : "destructive"
                   }
+                  aria-label={`Submission status: ${submission?.status}`}
                 >
                   {submission?.status}
                 </Badge>
-                <Badge variant={submission?.graded ? "outline" : "secondary"}>
+                <Badge
+                  variant={submission?.graded ? "outline" : "secondary"}
+                  aria-label={`Grading status: ${
+                    submission?.graded ? "Graded" : "Needs Grading"
+                  }`}
+                >
                   {submission?.graded ? "Graded" : "Needs Grading"}
                 </Badge>
               </div>
               <CardDescription className="text-sm">
-                Submitted on: {formatDate(submission?.createdAt)}
+                <time dateTime={submission?.createdAt}>
+                  Submitted on: {formatDate(submission?.createdAt)}
+                </time>
               </CardDescription>
             </div>
           </div>
@@ -170,8 +198,13 @@ const AssessmentReview = () => {
         {/* Content */}
         <CardContent className="pt-6 space-y-6">
           {/* Summary */}
-          <div>
-            <h3 className="text-lg font-semibold mb-2">Assessment Summary</h3>
+          <section aria-labelledby="assessment-summary-heading">
+            <h3
+              id="assessment-summary-heading"
+              className="text-lg font-semibold mb-2"
+            >
+              Assessment Summary
+            </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 bg-slate-50 rounded-md">
               <div>
                 <p className="text-sm text-muted-foreground">Assessment ID</p>
@@ -179,36 +212,49 @@ const AssessmentReview = () => {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Total Points</p>
-                <p className="font-medium">{submission?.totalScore} points</p>
+                <p
+                  className="font-medium"
+                  aria-label={`Total score: ${submission?.totalScore} points`}
+                >
+                  {submission?.totalScore} points
+                </p>
               </div>
             </div>
-          </div>
+          </section>
 
           {/* Tabs */}
           <Tabs defaultValue="all" className="w-full">
-            <TabsList className="flex-wrap justify-start gap-2 mb-4">
-              <TabsTrigger value="all">
-                All Questions ({submission?.answers?.length})
+            <TabsList
+              className="flex-wrap justify-start gap-2 mb-4"
+              role="tablist"
+              aria-label="Question filter tabs"
+            >
+              <TabsTrigger
+                value="all"
+                role="tab"
+                aria-label={`All Questions, ${
+                  submission?.answers?.length || 0
+                } total`}
+              >
+                All Questions ({submission?.answers?.length || 0})
               </TabsTrigger>
-              <TabsTrigger value="manual">
-                Needs Grading (
-                {
-                  submission?.answers?.filter((a) => a.requiresManualCheck)
-                    .length
-                }
-                )
+              <TabsTrigger
+                value="manual"
+                role="tab"
+                aria-label={`Questions needing grading, ${manualCheckCount} total`}
+              >
+                Needs Grading ({manualCheckCount})
               </TabsTrigger>
-              <TabsTrigger value="auto">
-                Graded (
-                {
-                  submission?.answers?.filter((a) => !a.requiresManualCheck)
-                    .length
-                }
-                )
+              <TabsTrigger
+                value="auto"
+                role="tab"
+                aria-label={`Auto-graded questions, ${autoGradedCount} total`}
+              >
+                Graded ({autoGradedCount})
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="all">
+            <TabsContent value="all" role="tabpanel" aria-label="All questions">
               <div className="space-y-6">
                 {submission?.answers?.map((answer, index) => (
                   <QuestionCard
@@ -217,12 +263,18 @@ const AssessmentReview = () => {
                     index={index}
                     manualGrades={manualGrades}
                     onGradeChange={handleGradeChange}
+                    setError={setError}
+                    error={error}
                   />
                 ))}
               </div>
             </TabsContent>
 
-            <TabsContent value="manual">
+            <TabsContent
+              value="manual"
+              role="tabpanel"
+              aria-label="Questions requiring manual grading"
+            >
               <div className="space-y-6">
                 {submission?.answers
                   ?.filter((a) => a.requiresManualCheck)
@@ -233,12 +285,18 @@ const AssessmentReview = () => {
                       index={index}
                       manualGrades={manualGrades}
                       onGradeChange={handleGradeChange}
+                      setError={setError}
+                      error={error}
                     />
                   ))}
               </div>
             </TabsContent>
 
-            <TabsContent value="auto">
+            <TabsContent
+              value="auto"
+              role="tabpanel"
+              aria-label="Auto-graded questions"
+            >
               <div className="space-y-6">
                 {submission?.answers
                   ?.filter((a) => !a.requiresManualCheck)
@@ -261,14 +319,20 @@ const AssessmentReview = () => {
         {/* Footer */}
         <CardFooter className="flex flex-col sm:flex-row justify-end items-center gap-4 border-t p-6">
           <Button
-            className="bg-green-500 hover:bg-green-600 text-white"
+            className="bg-green-500 hover:bg-green-600 text-white focus:ring-2 focus:ring-green-400 focus:ring-offset-2"
             onClick={handleSubmitGrades}
-            disabled={
-              submission?.answers?.filter((a) => a.requiresManualCheck)
-                .length === 0
-            }
+            disabled={manualCheckCount === 0 || loading}
+            aria-label="Submit all grades and notify student"
+            aria-busy={loading}
           >
-            {loading ? <Loader className="animate-spin" /> : "Submit Grades"}
+            {loading ? (
+              <>
+                <Loader className="animate-spin mr-2" aria-hidden="true" />
+                <span>Submitting...</span>
+              </>
+            ) : (
+              "Submit Grades"
+            )}
           </Button>
         </CardFooter>
       </Card>
@@ -300,6 +364,21 @@ const QuestionCard = ({
     });
   };
 
+  const getQuestionTypeLabel = () => {
+    switch (questionType) {
+      case "mcq":
+        return "Multiple Choice";
+      case "truefalse":
+        return "True/False";
+      case "qa":
+        return "Question & Answer";
+      case "file":
+        return "File Upload";
+      default:
+        return "Unknown Type";
+    }
+  };
+
   return (
     <Card className="w-full border shadow-sm">
       <CardHeader className="pb-4">
@@ -309,13 +388,7 @@ const QuestionCard = ({
               Question {index + 1}
             </CardTitle>
             <CardDescription className="capitalize text-sm text-gray-500">
-              {questionType === "mcq"
-                ? "Multiple Choice"
-                : questionType === "truefalse"
-                ? "True/False"
-                : questionType === "qa"
-                ? "Question & Answer"
-                : "Unknown Type"}
+              {getQuestionTypeLabel()}
             </CardDescription>
           </div>
 
@@ -324,22 +397,37 @@ const QuestionCard = ({
               <Badge
                 variant="warning"
                 className="bg-yellow-100 text-yellow-800"
+                aria-label="Status: Needs Manual Grading"
               >
-                <AlertCircle className="w-4 h-4 mr-1" />
+                <AlertCircle className="w-4 h-4 mr-1" aria-hidden="true" />
                 Needs Manual Grading
               </Badge>
             ) : answer?.isCorrect ? (
-              <Badge variant="success" className="bg-green-100 text-green-800">
-                <CheckCircle className="w-4 h-4 mr-1" />
+              <Badge
+                variant="success"
+                className="bg-green-100 text-green-800"
+                aria-label="Status: Answer is correct"
+              >
+                <CheckCircle className="w-4 h-4 mr-1" aria-hidden="true" />
                 Correct
               </Badge>
             ) : (
-              <Badge variant="destructive" className="bg-red-100 text-red-800">
-                <XCircle className="w-4 h-4 mr-1" />
+              <Badge
+                variant="destructive"
+                className="bg-red-100 text-red-800"
+                aria-label="Status: Answer is incorrect"
+              >
+                <XCircle className="w-4 h-4 mr-1" aria-hidden="true" />
                 Incorrect
               </Badge>
             )}
-            <Badge variant="outline" className="text-sm">
+            <Badge
+              variant="outline"
+              className="text-sm"
+              aria-label={`Points awarded: ${
+                answer?.pointsAwarded || 0
+              } out of ${maxPoints}`}
+            >
               {`${answer?.pointsAwarded || 0}/${maxPoints} pts`}
             </Badge>
           </div>
@@ -349,8 +437,11 @@ const QuestionCard = ({
       <CardContent className="space-y-6">
         {/* Question */}
         {answer.questionDetails?.type !== "file" ? (
-          <div>
-            <h4 className="font-medium text-sm text-gray-700 mb-1">
+          <section aria-labelledby={`question-${index}-text`}>
+            <h4
+              id={`question-${index}-text`}
+              className="font-medium text-sm text-gray-700 mb-1"
+            >
               Question:
             </h4>
             <div
@@ -359,45 +450,69 @@ const QuestionCard = ({
                 __html:
                   answer?.questionDetails?.question || "<i>No question</i>",
               }}
+              role="region"
+              aria-label="Question text"
             />
-          </div>
+          </section>
         ) : (
           <div className="space-y-2">
-            <h4 className="font-medium text-sm text-gray-700 mb-1">
-              Instruction:
-            </h4>
-            <div
-              className="p-3 rounded-md bg-gray-50 border text-sm text-gray-800"
-              dangerouslySetInnerHTML={{
-                __html:
-                  answer?.questionDetails?.question || "<i>No instruction</i>",
-              }}
-            />
+            <section aria-labelledby={`instruction-${index}`}>
+              <h4
+                id={`instruction-${index}`}
+                className="font-medium text-sm text-gray-700 mb-1"
+              >
+                Instruction:
+              </h4>
+              <div
+                className="p-3 rounded-md bg-gray-50 border text-sm text-gray-800"
+                dangerouslySetInnerHTML={{
+                  __html:
+                    answer?.questionDetails?.question ||
+                    "<i>No instruction</i>",
+                }}
+                role="region"
+                aria-label="Instruction text"
+              />
+            </section>
 
-            <section>
-              <h4 className="font-medium text-sm text-gray-700 mb-1">Files:</h4>
-              <div className="p-3 rounded-md bg-gray-50 border text-sm text-gray-800 flex items-center space-x-2">
-                {answer?.questionDetails?.file?.map((file, i) => (
-                  <div key={i} className="flex items-center space-x-2">
-                    <FileText className="h-4 w-4 text-gray-500" />
-                    <a
-                      href={file.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-500 hover:underline"
-                    >
-                      {file.filename}
-                    </a>
-                  </div>
-                ))}
+            <section aria-labelledby={`files-${index}`}>
+              <h4
+                id={`files-${index}`}
+                className="font-medium text-sm text-gray-700 mb-1"
+              >
+                Files:
+              </h4>
+              <div className="p-3 rounded-md bg-gray-50 border text-sm text-gray-800">
+                <ul className="flex flex-wrap items-center gap-3" role="list">
+                  {answer?.questionDetails?.file?.map((file, i) => (
+                    <li key={i} className="flex items-center space-x-2">
+                      <FileText
+                        className="h-4 w-4 text-gray-500"
+                        aria-hidden="true"
+                      />
+                      <a
+                        href={file.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-500 hover:underline focus:outline-none focus:ring-2 focus:ring-blue-400 rounded"
+                        aria-label={`Download file: ${file.filename}`}
+                      >
+                        {file.filename}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
               </div>
             </section>
           </div>
         )}
 
         {/* Answer */}
-        <div>
-          <h4 className="font-medium text-sm text-gray-700 mb-1">
+        <section aria-labelledby={`answer-${index}`}>
+          <h4
+            id={`answer-${index}`}
+            className="font-medium text-sm text-gray-700 mb-1"
+          >
             Student's Answer:
           </h4>
           <div className="p-3 rounded-md bg-gray-50 border text-sm text-gray-800">
@@ -410,39 +525,56 @@ const QuestionCard = ({
                 Option: {answer?.selectedAnswer}
               </span>
             ) : questionType === "file" ? (
-              <div className="flex items-center space-x-2">
+              <ul className="flex flex-wrap items-center gap-3" role="list">
                 {answer?.questionDetails.file?.map((file, i) => (
-                  <div key={i} className="flex items-center space-x-2">
-                    <FileText className="h-4 w-4 text-gray-500" />
+                  <li key={i} className="flex items-center space-x-2">
+                    <FileText
+                      className="h-4 w-4 text-gray-500"
+                      aria-hidden="true"
+                    />
                     <a
                       href={file.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-gray-700 hover:text-gray-900"
+                      className="text-gray-700 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-400 rounded"
+                      aria-label={`View submitted file: ${file.filename}`}
                     >
                       {file.filename}
                     </a>
-                  </div>
+                  </li>
                 ))}
-              </div>
+              </ul>
             ) : (
               <div
                 dangerouslySetInnerHTML={{
                   __html: answer?.selectedAnswer || "<i>No answer provided</i>",
                 }}
+                role="region"
+                aria-label="Student answer text"
               />
             )}
           </div>
-        </div>
+        </section>
 
         {/* Manual Grading */}
         {answer.requiresManualCheck && (
-          <div>
-            <h4 className="font-medium text-sm text-gray-700 mb-1">
+          <section aria-labelledby={`grading-${index}`}>
+            <h4
+              id={`grading-${index}`}
+              className="font-medium text-sm text-gray-700 mb-1"
+            >
               Assign Points:
             </h4>
             <div className="flex flex-wrap items-center gap-3">
+              <label
+                htmlFor={`points-input-${answer?.questionId}`}
+                className="sr-only"
+              >
+                Enter points for question {index + 1}, maximum {maxPoints}{" "}
+                points
+              </label>
               <Input
+                id={`points-input-${answer?.questionId}`}
                 type="number"
                 min="0"
                 max={maxPoints}
@@ -463,24 +595,39 @@ const QuestionCard = ({
                     );
                     return;
                   } else {
-                    handleError(answer?.questionId, null); // Clear error
+                    handleError(answer?.questionId, null);
                   }
 
                   onGradeChange(answer?.questionId, value, maxPoints);
                 }}
-                className="w-24"
+                className="w-24 focus:ring-2 focus:ring-blue-400"
+                aria-required="true"
+                aria-invalid={!!error?.[answer?.questionId]}
+                aria-describedby={
+                  error?.[answer?.questionId]
+                    ? `error-${answer?.questionId}`
+                    : `points-max-${answer?.questionId}`
+                }
               />
-              <span className="text-sm text-muted-foreground">
+              <span
+                id={`points-max-${answer?.questionId}`}
+                className="text-sm text-muted-foreground"
+              >
                 / {maxPoints} pts
               </span>
 
               {error?.[answer?.questionId] && (
-                <p className="text-sm text-red-600">
+                <p
+                  id={`error-${answer?.questionId}`}
+                  className="text-sm text-red-600"
+                  role="alert"
+                  aria-live="polite"
+                >
                   {error[answer?.questionId]}
                 </p>
               )}
             </div>
-          </div>
+          </section>
         )}
       </CardContent>
     </Card>

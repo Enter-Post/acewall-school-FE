@@ -18,15 +18,26 @@ export default function DateRangePicker({ name = "courseDate" }) {
     watch,
     formState: { errors },
   } = useFormContext();
-
   const [openStart, setOpenStart] = useState(false);
   const [openEnd, setOpenEnd] = useState(false);
 
   const startDate = watch(`${name}.start`);
   const endDate = watch(`${name}.end`);
 
+  // Set default start and end dates to today if not set
   useEffect(() => {
-    if (startDate && endDate && isAfter(new Date(endDate), new Date(startDate))) {
+    const todayISO = new Date().toISOString();
+    if (!startDate) setValue(`${name}.start`, todayISO);
+    if (!endDate) setValue(`${name}.end`, todayISO);
+  }, [startDate, endDate, setValue, name]);
+
+  // Update the combined range
+  useEffect(() => {
+    if (
+      startDate &&
+      endDate &&
+      !isAfter(new Date(startDate), new Date(endDate))
+    ) {
       setValue(`${name}.range`, {
         start: new Date(startDate).toISOString(),
         end: new Date(endDate).toISOString(),
@@ -36,115 +47,108 @@ export default function DateRangePicker({ name = "courseDate" }) {
     }
   }, [startDate, endDate, setValue, name]);
 
-// Set default start and end date to today if not set
-useEffect(() => {
-    const todayISO = new Date().toISOString();
-    if (!startDate) {
-        setValue(`${name}.start`, todayISO);
-    }
-    // if (!endDate) {
-    //     setValue(`${name}.end`, todayISO);
-    // }
-}, [startDate, endDate, setValue, name]);
-
-return (
+  return (
     <div className="space-y-4 p-4 rounded-xl shadow-md border">
-        <div className="space-y-2">
-            <Label>Start Date</Label>
-            <Controller
-                name={`${name}.start`}
-                control={control}
-                render={({ field }) => (
-                    <Popover open={openStart} onOpenChange={setOpenStart}>
-                        <PopoverTrigger asChild>
-                            <Button
-                                variant="outline"
-                                className={cn(
-                                    "w-full justify-start text-left font-normal",
-                                    !field.value && "text-muted-foreground"
-                                )}
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    setOpenStart(true);
-                                }}
-                            >
-                                {field.value ? format(new Date(field.value), "PPP") : "Pick a start date"}
-                            </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                                mode="single"
-                                selected={field.value ? new Date(field.value) : undefined}
-                                onSelect={(date) => {
-                                    if (date) {
-                                        field.onChange(date.toISOString());
-                                        setOpenStart(false);
-                                    }
-                                }}
-                                disabled={(date) => date < new Date().setHours(0, 0, 0, 0)}
-                                initialFocus
-                            />
-                        </PopoverContent>
-                    </Popover>
-                )}
-            />
-            {errors?.[name]?.start && (
-                <p className="text-sm text-red-500">{errors[name].start.message}</p>
-            )}
-        </div>
-
-        <div className="space-y-2">
-            <Label>End Date</Label>
-            <Controller
-                name={`${name}.end`}
-                control={control}
-                render={({ field }) => (
-                    <Popover open={openEnd} onOpenChange={setOpenEnd}>
-                        <PopoverTrigger asChild>
-                            <Button
-                                variant="outline"
-                                className={cn(
-                                    "w-full justify-start text-left font-normal",
-                                    !field.value && "text-muted-foreground"
-                                )}
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    setOpenEnd(true);
-                                }}
-                            >
-                                {field.value ? format(new Date(field.value), "PPP") : "Pick an end date"}
-                            </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                                mode="single"
-                                selected={field.value ? new Date(field.value) : undefined}
-                                onSelect={(date) => {
-                                    if (date && (!startDate || !isBefore(date, new Date(startDate)))) {
-                                        field.onChange(date.toISOString());
-                                        setOpenEnd(false);
-                                    }
-                                }}
-                                disabled={(date) =>
-                                    !startDate || isBefore(date, new Date(startDate))
-                                }
-                                initialFocus
-                            />
-                        </PopoverContent>
-                    </Popover>
-                )}
-            />
-            {errors?.[name]?.end && (
-                <p className="text-sm text-red-500">{errors[name].end.message}</p>
-            )}
-        </div>
-
-        {startDate && endDate && (
-            <div className="text-green-600 font-medium text-center">
-                Selected Range: {format(new Date(startDate), "PPP")} to{" "}
-                {format(new Date(endDate), "PPP")}
-            </div>
+      {/* Start Date */}
+      <div className="space-y-2">
+        <Label>Start Date</Label>
+        <Controller
+          name={`${name}.start`}
+          control={control}
+          render={({ field }) => (
+            <Popover open={openStart} onOpenChange={setOpenStart}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-full justify-start text-left font-normal",
+                    !field.value && "text-muted-foreground"
+                  )}
+                  aria-label="Select start date"
+                >
+                  {field.value
+                    ? format(new Date(field.value), "PPP")
+                    : "Pick a start date"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={field.value ? new Date(field.value) : undefined}
+                  onSelect={(date) => {
+                    if (date) {
+                      field.onChange(date.toISOString());
+                      setOpenStart(false);
+                    }
+                  }}
+                  disabled={(date) => date < new Date().setHours(0, 0, 0, 0)}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+          )}
+        />
+        {errors?.[name]?.start && (
+          <p className="text-sm text-red-500">{errors[name].start.message}</p>
         )}
+      </div>
+
+      {/* End Date */}
+      <div className="space-y-2">
+        <Label>End Date</Label>
+        <Controller
+          name={`${name}.end`}
+          control={control}
+          render={({ field }) => (
+            <Popover open={openEnd} onOpenChange={setOpenEnd}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-full justify-start text-left font-normal",
+                    !field.value && "text-muted-foreground"
+                  )}
+                  aria-label="Select end date"
+                >
+                  {field.value
+                    ? format(new Date(field.value), "PPP")
+                    : "Pick an end date"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={field.value ? new Date(field.value) : undefined}
+                  onSelect={(date) => {
+                    if (
+                      date &&
+                      (!startDate || !isBefore(date, new Date(startDate)))
+                    ) {
+                      field.onChange(date.toISOString());
+                      setOpenEnd(false);
+                    }
+                  }}
+                  disabled={(date) =>
+                    !startDate || isBefore(date, new Date(startDate))
+                  }
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+          )}
+        />
+        {errors?.[name]?.end && (
+          <p className="text-sm text-red-500">{errors[name].end.message}</p>
+        )}
+      </div>
+
+      {/* Display Range */}
+      {startDate && endDate && (
+        <div className="text-green-600 font-medium text-center">
+          Selected Range: {format(new Date(startDate), "PPP")} to{" "}
+          {format(new Date(endDate), "PPP")}
+        </div>
+      )}
     </div>
-);
+  );
 }

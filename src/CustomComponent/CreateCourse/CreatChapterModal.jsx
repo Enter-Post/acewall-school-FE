@@ -13,12 +13,11 @@ import {
   DialogFooter,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
+import { toast } from "sonner";
 import { CourseContext } from "@/Context/CoursesProvider";
 import { axiosInstance } from "@/lib/AxiosInstance";
-import { toast } from "sonner";
 
-// Zod Schema with length limits
+// Zod Schema with limits
 const chapterSchema = z.object({
   title: z
     .string()
@@ -33,12 +32,10 @@ const chapterSchema = z.object({
 export default function ChapterCreationModal({
   courseId,
   quarterId,
-  setChapters,
   fetchQuarterDetail,
 }) {
   const [isOpen, setIsOpen] = useState(false);
-  const { course, setCourse } = useContext(CourseContext);
-  const [isLoading, setIsLoading] = useState(false); // Add this state
+  const [isLoading, setIsLoading] = useState(false);
 
   const {
     register,
@@ -54,30 +51,30 @@ export default function ChapterCreationModal({
     },
   });
 
-  // Watching inputs for live character count
   const titleValue = watch("title", "");
   const descriptionValue = watch("description", "");
 
   const onSubmit = async (data) => {
-    if (isLoading) return; // Prevent multiple submissions
+    if (isLoading) return;
     setIsLoading(true);
 
-    const formdata = new FormData();
-    formdata.append("title", data.title);
-    formdata.append("description", data.description);
-
     try {
+      const formData = new FormData();
+      formData.append("title", data.title);
+      formData.append("description", data.description);
+
       const res = await axiosInstance.post(
         `/chapter/create/${courseId}/${quarterId}`,
-        formdata
+        formData
       );
+
       toast.success(res.data.message);
       fetchQuarterDetail();
-      setIsOpen(false);
       reset();
+      setIsOpen(false);
     } catch (err) {
-      console.log(err);
-      toast.error(err.response?.data?.message || "Something went wrong");
+      console.error(err);
+      toast.error(err.response?.data?.message || "Something went wrong.");
     } finally {
       setIsLoading(false);
     }
@@ -86,7 +83,9 @@ export default function ChapterCreationModal({
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button className="bg-green-500 text-white">Create New Chapter</Button>
+        <Button className="bg-green-500 text-white hover:bg-green-600">
+          Create New Chapter
+        </Button>
       </DialogTrigger>
 
       <DialogContent className="max-h-[90vh] overflow-y-auto">
@@ -100,27 +99,32 @@ export default function ChapterCreationModal({
             <Input
               placeholder="Chapter Title"
               {...register("title")}
-              className=""
+              aria-invalid={!!errors.title}
+              aria-describedby="title-error"
             />
             <div className="flex justify-between text-sm mt-1">
               <p className="text-gray-500">{titleValue.length}/100</p>
               {errors.title && (
-                <p className="text-red-500 text-xs">{errors.title.message}</p>
+                <p id="title-error" className="text-red-500 text-xs">
+                  {errors.title.message}
+                </p>
               )}
             </div>
           </div>
 
           {/* Chapter Description */}
-          <div className="">
+          <div>
             <Textarea
               placeholder="Chapter Description"
-              className="w-full"
               {...register("description")}
+              className="w-full"
+              aria-invalid={!!errors.description}
+              aria-describedby="description-error"
             />
             <div className="flex justify-between text-sm mt-1">
               <p className="text-gray-500">{descriptionValue.length}/500</p>
               {errors.description && (
-                <p className="text-red-500 text-xs">
+                <p id="description-error" className="text-red-500 text-xs">
                   {errors.description.message}
                 </p>
               )}
@@ -129,12 +133,16 @@ export default function ChapterCreationModal({
 
           {/* Footer */}
           <DialogFooter className="justify-between">
-            <Button variant="outline" type="button" onClick={() => setIsOpen(false)}>
+            <Button
+              variant="outline"
+              type="button"
+              onClick={() => setIsOpen(false)}
+            >
               Cancel
             </Button>
             <Button
               type="submit"
-              className="bg-green-500 text-white"
+              className="bg-green-500 text-white hover:bg-green-600"
               disabled={isLoading}
             >
               {isLoading ? "Creating..." : "Create Chapter"}

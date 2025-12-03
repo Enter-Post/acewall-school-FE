@@ -3,41 +3,39 @@ import PostReactions from "./PostReactions";
 import PostComments from "./PostComments";
 import { axiosInstance } from "@/lib/AxiosInstance";
 import DeleteConfirmDialog from "./DeletePostModal";
+import avatar from "../../../assets/avatar.png";
 
 const PostCard = ({ post, setPosts }) => {
   const [showComments, setShowComments] = useState(false);
   const [showFullText, setShowFullText] = useState(false);
-
   const location = window.location.pathname;
 
   const TEXT_LIMIT = 150;
 
-  // ✅ Extract author info safely
+  // Author info safely
   const author = post?.author || {};
   const authorName = `${author.firstName || ""} ${author.middleName || ""} ${
     author.lastName || ""
   }`.trim();
-
-  const profilePic =
-    author?.profileImg?.url ||
-    author?.profileImg ||
-    "https://imgs.search.brave.com/F09pGxti9Zp8AhLyRRrgNIfE6cmyTUR3aeyqv7kLJ6E/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9pLnBp/bmltZy5jb20vb3Jp/Z2luYWxzLzVhL2Jk/Lzk4LzVhYmQ5ODU3/MzVhOGZkNGFkY2Iw/ZTc5NWRlNmExMDA1/LmpwZw";
+  const profilePic = author?.profileImg?.includes("placeholder")
+    ? avatar
+    : author?.profileImg;
 
   const postTime = post?.createdAt
     ? new Date(post.createdAt).toLocaleString()
     : "Just now";
 
-  // ✅ Strip HTML from post.text
+  const assets = Array.isArray(post?.assets) ? post.assets : [];
+
+  // Strip HTML tags from text
   const stripHtml = (html) => {
     const div = document.createElement("div");
     div.innerHTML = html;
     return div.textContent || div.innerText || "";
   };
-
   const text = stripHtml(post?.text || "");
-  const assets = Array.isArray(post?.assets) ? post.assets : [];
 
-  // ✅ Handle post deletion (includes backend + UI update)
+  // Handle post deletion
   const handleDeletePost = async () => {
     try {
       await axiosInstance.delete(`/posts/deletePost/${post._id}`);
@@ -49,46 +47,59 @@ const PostCard = ({ post, setPosts }) => {
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-sm p-3 hover:shadow-md transition-all">
-      {/* 🧑‍💻 Header */}
-      <div className="flex items-center justify-between mb-2">
+    <article
+      className="bg-white rounded-xl shadow-sm p-3 hover:shadow-md transition-all"
+      aria-label={`Post by ${authorName || "Unknown User"}`}
+    >
+      {/* Header */}
+      <header className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-3">
           <img
-            src={profilePic}
-            alt={authorName}
+            src={profilePic || avatar}
+            alt={authorName || "Unknown User"}
             className="w-9 h-9 rounded-full object-cover"
           />
           <div>
-            <h3 className="font-semibold text-gray-900 text-[15px]">
+            <h2 className="font-semibold text-gray-900 text-[15px]">
               {authorName || "Unknown User"}
-            </h3>
-            <p className="text-xs text-gray-500">{postTime}</p>
+            </h2>
+            <time
+              dateTime={post?.createdAt || new Date().toISOString()}
+              className="text-xs text-gray-500"
+            >
+              {postTime}
+            </time>
           </div>
         </div>
 
-        {location.includes("/socialprofile/") ? (
+        {location.includes("/socialprofile/") && (
           <DeleteConfirmDialog onDelete={handleDeletePost} />
-        ) : null}
-      </div>
+        )}
+      </header>
 
-      {/* 📝 Text */}
+      {/* Text */}
       {text && (
-        <div className="text-gray-800 text-[14px] py-4 leading-relaxed whitespace-pre-line">
+        <p
+          className="text-gray-800 text-[14px] py-4 leading-relaxed whitespace-pre-line"
+          aria-label="Post content"
+        >
           {showFullText || text.length <= TEXT_LIMIT
             ? text
             : `${text.slice(0, TEXT_LIMIT)}...`}
           {text.length > TEXT_LIMIT && (
             <button
               onClick={() => setShowFullText(!showFullText)}
-              className="text-blue-600 text-sm ml-1 hover:underline"
+              className="text-blue-600 text-sm ml-1 hover:underline focus:outline-none focus:ring-2 focus:ring-blue-500 rounded"
+              aria-expanded={showFullText}
+              aria-controls={`post-text-${post._id}`}
             >
               {showFullText ? "Show less" : "Read more"}
             </button>
           )}
-        </div>
+        </p>
       )}
 
-      {/* 📸 Media */}
+      {/* Media */}
       {assets.length > 0 && (
         <div className="grid grid-cols-1 gap-2 mt-2">
           {assets.map((asset, index) => {
@@ -99,6 +110,7 @@ const PostCard = ({ post, setPosts }) => {
                 key={index}
                 controls
                 className="w-full rounded-lg max-h-[300px] object-cover"
+                aria-label={`Video post media ${index + 1}`}
               >
                 <source src={asset.url} type="video/mp4" />
               </video>
@@ -106,7 +118,7 @@ const PostCard = ({ post, setPosts }) => {
               <img
                 key={index}
                 src={asset.url}
-                alt={`Post media ${index}`}
+                alt={`Post media ${index + 1}`}
                 className="w-full rounded-lg object-contain max-h-[300px]"
               />
             );
@@ -114,16 +126,24 @@ const PostCard = ({ post, setPosts }) => {
         </div>
       )}
 
-      {/* ❤️ Reactions + 💬 Comments */}
+      {/* Reactions + Comments toggle */}
       <PostReactions
         post={post}
         setPosts={setPosts}
         onToggleComments={() => setShowComments((prev) => !prev)}
       />
 
-      {/* 💬 Comments Section */}
-      {showComments && <PostComments postId={post._id} setPosts={setPosts} />}
-    </div>
+      {/* Comments Section */}
+      {showComments && (
+        <section
+          id={`comments-${post._id}`}
+          aria-label="Comments section"
+          tabIndex={-1} // focusable for screen readers
+        >
+          <PostComments postId={post._id} setPosts={setPosts} />
+        </section>
+      )}
+    </article>
   );
 };
 

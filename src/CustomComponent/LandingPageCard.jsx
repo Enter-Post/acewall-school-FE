@@ -1,28 +1,45 @@
 import React from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
 import { AspectRatio } from "../components/ui/aspect-ratio";
 
 const LandingPageCard = ({ name, description, imageUrl, buttonUrl }) => {
   return (
-
-    <Card className="h-full w-full overflow-hidden cursor-pointer">
+    <Card
+      className="h-full w-full overflow-hidden cursor-pointer"
+      role="region"
+      aria-labelledby={`${name}-title`}
+    >
+      {/* Image with Aspect Ratio */}
       <AspectRatio ratio={16 / 9}>
         <img
-          src={imageUrl} alt={name}
+          src={imageUrl}
+          alt={`Illustration for ${name}`} // descriptive alt text
           className="object-cover w-full h-full"
         />
-      </AspectRatio>  
+      </AspectRatio>
+
+      {/* Card Header */}
       <CardHeader>
-        <CardTitle> {name}</CardTitle>
+        <CardTitle id={`${name}-title`} className="text-lg font-bold">
+          {name}
+        </CardTitle>
       </CardHeader>
+
+      {/* Card Content */}
       <CardContent>
-        <div className="space-y-7  ">
-          <p className="text-sm  text-muted-foreground">
-            {description}
-          </p>
+        <div className="space-y-4">
+          <p className="text-sm text-muted-foreground">{description}</p>
+
+          {/* Accessible Learn More Button */}
           <a
             href={buttonUrl}
-            className="inline-flex  items-center w-full justify-center px-3 py-2 text-sm font-medium text-center text-white bg-green-700 rounded-lg hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
+            className="inline-flex items-center w-full justify-center px-3 py-2 text-sm font-medium text-center text-white bg-green-700 rounded-lg hover:bg-green-800 focus:ring-4 focus:outline-none focus:ring-green-300 dark:bg-green-600 dark:hover:bg-green-700 dark:focus:ring-green-800"
+            aria-label={`Learn more about ${name}`}
           >
             Learn more
             <svg

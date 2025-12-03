@@ -21,7 +21,7 @@ const GeneralCourses = () => {
     setLoading(true);
     const delayDebounce = setTimeout(() => {
       const getCourses = async () => {
-        try {``
+        try {
           const response = await axiosInstance.get("/course/get", {
             params: { search: searchQuery },
           });
@@ -39,24 +39,27 @@ const GeneralCourses = () => {
     return () => clearTimeout(delayDebounce); // cleanup
   }, [searchQuery]);
 
-
   return (
     <section className="    ">
       <div>
-        <p className="text-xl py-4 mb-8 pl-6 font-semibold bg-acewall-main text-white ">
+        <h1 className="text-xl py-4 mb-8 pl-6 font-semibold bg-acewall-main text-white">
           All Courses
-        </p>
+        </h1>
       </div>
       <div className="px-10">
-
         <div className="flex flex-col pb-8  md:px-10 gap-4  rounded-lg ">
           <SearchBox query={searchQuery} setQuery={setSearchQuery} />
         </div>
 
         {loading ? (
-          <div className="flex justify-center items-center py-10 ">
+          <div
+            role="status"
+            aria-live="polite"
+            className="flex justify-center items-center py-10 "
+          >
             <section className="flex justify-center items-center h-full w-full">
               <Loader size={48} className={"animate-spin"} />
+              <span className="sr-only">Loading courses...</span>
             </section>
           </div>
         ) : allCourses?.length === 0 ? (
@@ -65,12 +68,13 @@ const GeneralCourses = () => {
               <>
                 <img
                   src="https://img.freepik.com/free-vector/no-results-concept-illustration_114360-746.jpg?t=st=1745438134~exp=1745441734~hmac=0ad993dd85db23d3cdb0f0a9d208e591e764f1c7ef9f6bb8f7d384e05015d7aa&w=900"
-                  alt="No search results"
+                  alt=""
+                  aria-hidden="true"
                   className="w-72 h-72 object-contain mb-6"
                 />
-                <h1 className="text-2xl font-semibold text-muted-foreground">
+                <p className="text-2xl font-semibold text-gray-900">
                   No course found for "{searchQuery}"
-                </h1>
+                </p>
                 <p className="text-md mt-4 text-muted-foreground">
                   Try a different keyword or explore all your courses.
                 </p>
@@ -104,12 +108,16 @@ const GeneralCourses = () => {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {allCourses?.map((course) => (
-              <Link key={course._id} to={`/courses/detail/${course._id}`}>
+              <Link
+                class="card block focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2"
+                key={course._id}
+                to={`/courses/detail/${course._id}`}
+              >
                 <Card className="h-full pt-0 w-full overflow-hidden cursor-pointer">
                   <AspectRatio ratio={16 / 9}>
                     <img
                       src={course.basics.thumbnail || "/placeholder.svg"}
-                      alt={`${course.thumbnail} image`}
+                      alt={`${course.basics.courseTitle} thumbnail`}
                       className="object-cover w-full h-full"
                     />
                   </AspectRatio>
@@ -120,11 +128,8 @@ const GeneralCourses = () => {
                       </div>
                       <div className="uppercase text-orange-500 text-xs font-bold h-fit mb-2 w-fit px-2">
                         {course.averageRating >= 4.7 ? (
-                          <span>
-                            <span className="font-bold text-xs text-green-500 ">
-                              Top Rated
-                            </span>{" "}
-                            : {course.averageRating.toFixed(1)}
+                          <span className="font-bold text-xs text-green-500">
+                            Top Rated: {course.averageRating.toFixed(1)}
                           </span>
                         ) : course.averageRating > 0 ? (
                           course.averageRating.toFixed(1)

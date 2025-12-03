@@ -1,13 +1,11 @@
-import { Button } from "@/components/ui/button";
+import { TabsContent } from "@/components/ui/tabs";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { TabsContent } from "@/components/ui/tabs";
 import { axiosInstance } from "@/lib/AxiosInstance";
-import { Trash2 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 
 const PagesTablist = ({ chapter, lesson }) => {
@@ -20,7 +18,6 @@ const PagesTablist = ({ chapter, lesson }) => {
       const response = await axiosInstance.get(
         `pages/getChapterPages/${chapter._id}`
       );
-
       setChapterPages(response.data.pages);
     } catch (error) {
       console.error("Error fetching pages:", error);
@@ -30,12 +27,10 @@ const PagesTablist = ({ chapter, lesson }) => {
   const getPagesForLesson = async () => {
     if (!lesson) return;
     try {
-      await axiosInstance
-        .get(`/pages/getLessonPages/${lesson._id}`)
-        .then((res) => {
-          console.log(res, "page for lesson");
-          setLessonPages(res.data.pages);
-        });
+      const res = await axiosInstance.get(
+        `/pages/getLessonPages/${lesson._id}`
+      );
+      setLessonPages(res.data.pages);
     } catch (error) {
       console.error("Error fetching pages:", error);
     }
@@ -45,69 +40,52 @@ const PagesTablist = ({ chapter, lesson }) => {
     getPagesForChapter();
     getPagesForLesson();
   }, [lesson]);
+
+  // Handle keyboard activation for cards
+  const handleCardKeyDown = (event, post) => {
+    if (event.key === "Enter" || event.key === " ") {
+      setSelectedPost(post);
+    }
+  };
+
   return (
-    <section>
-      <TabsContent value="Pages" className="p-6 bg-white rounded-lg shadow-md">
-        <p className="text-lg font-semibold text-gray-700 mb-4">
-          Chapter Pages
-        </p>
-        {chapterPages?.length === 0 ? (
-          <p className="text-sm text-gray-500 mt-4">
-            No pages found for this chapter
-          </p>
-        ) : (
-          <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {chapterPages.map((post) => (
-              <div
-                key={post._id}
-                id={`page-${post._id}`}
-                className="bg-white border rounded-lg shadow-sm p-4 space-y-4 hover:shadow-md cursor-pointer"
-                onClick={() => setSelectedPost(post)}
-              >
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold truncate max-w-[80%]">
-                    {post.title}
-                  </h3>
-                 
-                </div>
-                <p className="text-sm text-gray-600 line-clamp-3 whitespace-pre-line">
-                  {post.description}
-                </p>
-                {post.image?.url && (
-                  <img
-                    src={post.image.url}
-                    alt="Post visual"
-                    className="w-full h-48 object-cover rounded-md border"
-                  />
-                )}
-              </div>
-            ))}
-          </div>
-        )}
+    <section aria-labelledby="pages-section-title">
+      <TabsContent
+        value="Pages"
+        className="p-6 bg-white rounded-lg shadow-md"
+        role="tabpanel"
+        aria-labelledby="pages-tab"
+      >
+        {/* Chapter Pages */}
+        <section aria-labelledby="chapter-pages-title">
+          <h2
+            id="chapter-pages-title"
+            className="text-lg font-semibold text-gray-700 mb-4"
+          >
+            Chapter Pages
+          </h2>
 
-        <div className="mt-8 pt-6 border-t border-gray-200">
-          <p className="text-lg font-semibold text-gray-700 mb-4">
-            Lesson Pages
-          </p>
-
-          {lessonPages?.length === 0 || !lesson ? (
+          {chapterPages.length === 0 ? (
             <p className="text-sm text-gray-500 mt-4">
-              No pages found for this Lesson
+              No pages found for this chapter
             </p>
           ) : (
             <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {lessonPages.map((post) => (
+              {chapterPages.map((post) => (
                 <div
                   key={post._id}
                   id={`page-${post._id}`}
-                  className="bg-white border rounded-lg shadow-sm p-4 space-y-4 hover:shadow-md cursor-pointer"
+                  role="button"
+                  tabIndex={0}
                   onClick={() => setSelectedPost(post)}
+                  onKeyDown={(e) => handleCardKeyDown(e, post)}
+                  className="bg-white border rounded-lg shadow-sm p-4 space-y-4 hover:shadow-md cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                  aria-label={`Open page: ${post.title}`}
                 >
                   <div className="flex items-center justify-between">
                     <h3 className="text-lg font-semibold truncate max-w-[80%]">
                       {post.title}
                     </h3>
-                    
                   </div>
                   <p className="text-sm text-gray-600 line-clamp-3 whitespace-pre-line">
                     {post.description}
@@ -115,7 +93,7 @@ const PagesTablist = ({ chapter, lesson }) => {
                   {post.image?.url && (
                     <img
                       src={post.image.url}
-                      alt="Post visual"
+                      alt={post.image.alt || `Visual for ${post.title}`}
                       className="w-full h-48 object-cover rounded-md border"
                     />
                   )}
@@ -123,18 +101,70 @@ const PagesTablist = ({ chapter, lesson }) => {
               ))}
             </div>
           )}
-        </div>
+        </section>
+
+        {/* Lesson Pages */}
+        <section
+          aria-labelledby="lesson-pages-title"
+          className="mt-8 pt-6 border-t border-gray-200"
+        >
+          <h2
+            id="lesson-pages-title"
+            className="text-lg font-semibold text-gray-700 mb-4"
+          >
+            Lesson Pages
+          </h2>
+
+          {!lesson || lessonPages.length === 0 ? (
+            <p className="text-sm text-gray-500 mt-4">
+              No pages found for this lesson
+            </p>
+          ) : (
+            <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {lessonPages.map((post) => (
+                <div
+                  key={post._id}
+                  id={`page-${post._id}`}
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => setSelectedPost(post)}
+                  onKeyDown={(e) => handleCardKeyDown(e, post)}
+                  className="bg-white border rounded-lg shadow-sm p-4 space-y-4 hover:shadow-md cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+                  aria-label={`Open page: ${post.title}`}
+                >
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-semibold truncate max-w-[80%]">
+                      {post.title}
+                    </h3>
+                  </div>
+                  <p className="text-sm text-gray-600 line-clamp-3 whitespace-pre-line">
+                    {post.description}
+                  </p>
+                  {post.image?.url && (
+                    <img
+                      src={post.image.url}
+                      alt={post.image.alt || `Visual for ${post.title}`}
+                      className="w-full h-48 object-cover rounded-md border"
+                    />
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
       </TabsContent>
 
+      {/* Modal for Selected Page */}
       {selectedPost && (
         <Dialog
           open={!!selectedPost}
           onOpenChange={() => setSelectedPost(null)}
+          aria-labelledby="page-dialog-title"
         >
-          <DialogContent className=" !max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="!max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle className="text-xl">
-                {selectedPost?.title}
+              <DialogTitle id="page-dialog-title" className="text-xl">
+                {selectedPost.title}
               </DialogTitle>
             </DialogHeader>
 
@@ -142,18 +172,20 @@ const PagesTablist = ({ chapter, lesson }) => {
               {selectedPost.image?.url && (
                 <img
                   src={selectedPost.image.url}
-                  alt="Page visual"
+                  alt={
+                    selectedPost.image.alt || `Visual for ${selectedPost.title}`
+                  }
                   className="w-full object-contain rounded-md border max-h-[70vh]"
                 />
               )}
 
               <p className="text-sm text-gray-700 whitespace-pre-line">
-                {selectedPost?.description}
+                {selectedPost.description}
               </p>
 
               {selectedPost.files?.length > 0 && (
                 <div className="space-y-2">
-                  <h4 className="font-semibold text-sm">Attachments:</h4>
+                  <h3 className="font-semibold text-sm">Attachments:</h3>
                   <ul className="list-disc pl-5 text-sm text-blue-600">
                     {selectedPost.files.map((file, idx) => (
                       <li key={idx}>
@@ -161,7 +193,7 @@ const PagesTablist = ({ chapter, lesson }) => {
                           href={file.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="underline"
+                          className="underline focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded"
                         >
                           {file.filename}
                         </a>

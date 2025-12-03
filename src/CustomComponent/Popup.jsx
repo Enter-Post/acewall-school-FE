@@ -16,16 +16,16 @@ const LMSPopup = ({ onClose }) => {
     "Income opportunities for schools and teachers just through signing-up",
     "Switch and save up to 30% off current LMS",
     "Social Community Feed – Share posts, pictures, and videos just like social media, but safe and private for your school.",
-    "Upcoming Standards Based Learning Integration"
+    "Upcoming Standards Based Learning Integration",
   ];
 
+  // Show popup after a short delay
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsVisible(true);
-    }, 800);
+    const timer = setTimeout(() => setIsVisible(true), 800);
     return () => clearTimeout(timer);
   }, []);
 
+  // Animate popup and backdrop
   useEffect(() => {
     if (isVisible) {
       gsap.fromTo(
@@ -55,21 +55,56 @@ const LMSPopup = ({ onClose }) => {
     }
   }, [isVisible]);
 
+  // Trap focus inside modal for accessibility
+  useEffect(() => {
+    const focusableElements = modalRef.current?.querySelectorAll(
+      'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
+    );
+    const firstEl = focusableElements?.[0];
+    const lastEl = focusableElements?.[focusableElements.length - 1];
+
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        setIsVisible(false);
+        onClose?.();
+      }
+      if (e.key === "Tab") {
+        if (e.shiftKey && document.activeElement === firstEl) {
+          e.preventDefault();
+          lastEl.focus();
+        } else if (!e.shiftKey && document.activeElement === lastEl) {
+          e.preventDefault();
+          firstEl.focus();
+        }
+      }
+    };
+
+    if (isVisible) {
+      firstEl?.focus();
+      window.addEventListener("keydown", handleKeyDown);
+    }
+
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isVisible, onClose]);
+
   if (!isVisible) return null;
 
   return (
     <div
       ref={backdropRef}
       className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-md z-50 px-3 sm:px-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="lms-popup-heading"
+      aria-describedby="lms-popup-description"
     >
       <div
         ref={modalRef}
         className="relative bg-white rounded-2xl shadow-2xl p-6 sm:p-10 
-             w-full max-w-lg sm:max-w-2xl 
-             max-h-[95vh] sm:max-h-[90vh] 
-             overflow-y-auto transform"
+               w-full max-w-lg sm:max-w-2xl 
+               max-h-[95vh] sm:max-h-[90vh] 
+               overflow-y-auto transform"
       >
-
         {/* Close button */}
         <button
           onClick={() => {
@@ -77,12 +112,16 @@ const LMSPopup = ({ onClose }) => {
             onClose?.();
           }}
           className="absolute top-3 right-3 text-gray-500 hover:text-gray-900 text-lg sm:text-xl transition-transform hover:scale-110"
+          aria-label="Close popup"
         >
           ✕
         </button>
 
         {/* Heading */}
-        <h2 className="text-xl sm:text-3xl font-extrabold text-center text-green-700 mb-3 sm:mb-4 leading-snug">
+        <h2
+          id="lms-popup-heading"
+          className="text-xl sm:text-3xl font-extrabold text-center text-green-700 mb-3 sm:mb-4 leading-snug"
+        >
           Save up to{" "}
           <span className="text-orange-400 drop-shadow-[0_0_8px_#bef264] animate-pulse">
             30%
@@ -91,7 +130,10 @@ const LMSPopup = ({ onClose }) => {
         </h2>
 
         {/* Subtitle */}
-        <p className="text-gray-600 text-center mb-4 sm:mb-5 text-sm sm:text-base">
+        <p
+          id="lms-popup-description"
+          className="text-gray-600 text-center mb-4 sm:mb-5 text-sm sm:text-base"
+        >
           Empower your institution with a smarter, more affordable learning
           platform.
         </p>
@@ -99,8 +141,14 @@ const LMSPopup = ({ onClose }) => {
         {/* Feature list */}
         <ul className="grid grid-cols-1 gap-2 sm:gap-3 mb-5 sm:mb-6">
           {points.map((point, idx) => (
-            <li key={idx} className="feature-item flex items-start gap-2 sm:gap-3">
-              <CheckCircle className="text-green-600 mt-0.5 w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
+            <li
+              key={idx}
+              className="feature-item flex items-start gap-2 sm:gap-3"
+            >
+              <CheckCircle
+                className="text-green-600 mt-0.5 w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0"
+                aria-hidden="true"
+              />
               <span className="text-gray-800 text-sm sm:text-base font-medium">
                 {point}
               </span>
@@ -117,7 +165,6 @@ const LMSPopup = ({ onClose }) => {
               bg-gradient-to-r from-green-700/90 to-green-800/90 hover:from-green-600 hover:to-green-700 
               transition-all duration-300"
           >
-            {/* Shine effect */}
             <span className="absolute inset-0 overflow-hidden">
               <span className="absolute w-[200%] h-full bg-gradient-to-r from-transparent via-white/40 to-transparent animate-shine" />
             </span>

@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -13,23 +15,19 @@ export default function ContactUs() {
     subject: "",
     message: "",
   });
-
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState(null);
 
   const socialLinks = [
-    {name: "Mail", icon: <Mail/>, url: "contact@acewallscholars.org"},
-    {name: "Facebook", icon: <Facebook/>, url: "https://www.facebook.com/acewallscholars"},
-    // {name: "Twitter", icon: <Twitter/>, url: "#"},
-    {name: "Instagram", icon: <Instagram/>, url: "https://www.instagram.com/acewallscholarsonline/"},
-    {name: "Youtube", icon: <Youtube/>, url: "https://www.youtube.com/channel/UCR7GG6Dvnuf6ckhTo3wqSIQ"},
-  ]
+    { name: "Mail", icon: <Mail />, url: "mailto:contact@acewallscholars.org" },
+    { name: "Facebook", icon: <Facebook />, url: "https://www.facebook.com/acewallscholars" },
+    { name: "Instagram", icon: <Instagram />, url: "https://www.instagram.com/acewallscholarsonline/" },
+    { name: "Youtube", icon: <Youtube />, url: "https://www.youtube.com/channel/UCR7GG6Dvnuf6ckhTo3wqSIQ" },
+  ];
 
   const handleChange = (e) => {
-    setFormData((prev) => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -40,18 +38,9 @@ export default function ContactUs() {
     try {
       const res = await axiosInstance.post("/support/sendcontactmail", formData);
       setMessage(res.data.message);
-      setFormData({
-        name: "",
-        email: "",
-        phone: "",
-        subject: "",
-        message: "",
-      });
-      console.log(res.data.message);
+      setFormData({ name: "", email: "", phone: "", subject: "", message: "" });
     } catch (error) {
-      setMessage(
-        error.response?.data?.message || "Something went wrong. Try again later."
-      );
+      setMessage(error.response?.data?.message || "Something went wrong. Try again later.");
     } finally {
       setLoading(false);
     }
@@ -84,7 +73,8 @@ export default function ContactUs() {
               <a
                 key={index}
                 href={social.url}
-                target="#"
+                target="_blank"
+                rel="noopener noreferrer"
                 className="bg-green-600 p-2 rounded-full hover:bg-green-500 transition-colors"
               >
                 {social.icon}
@@ -104,6 +94,7 @@ export default function ContactUs() {
             onChange={handleChange}
             placeholder="John Doe"
             required
+            aria-label="Name"
             className="border-gray-300 focus:border-green-500"
           />
           <Input
@@ -113,6 +104,7 @@ export default function ContactUs() {
             type="email"
             placeholder="johndoe001@gmail.com"
             required
+            aria-label="Email"
             className="border-gray-300 focus:border-green-500"
           />
           <Input
@@ -120,7 +112,9 @@ export default function ContactUs() {
             value={formData.phone}
             onChange={handleChange}
             type="tel"
+            pattern="^[0-9\s()+-]*$"
             placeholder="(123) 456-7890"
+            aria-label="Phone Number"
             className="border-gray-300 focus:border-green-500"
           />
           <Input
@@ -129,6 +123,7 @@ export default function ContactUs() {
             onChange={handleChange}
             placeholder="Subject"
             required
+            aria-label="Subject"
             className="border-gray-300 focus:border-green-500"
           />
           <Textarea
@@ -137,6 +132,7 @@ export default function ContactUs() {
             onChange={handleChange}
             placeholder="Your message"
             required
+            aria-label="Message"
             className="min-h-[120px] border-gray-300 focus:border-green-500"
           />
 
