@@ -12,17 +12,9 @@ export default function RightPanel({
   onFollowUpQuestion,
   onDownloadPDF,
   onDownloadWord,
+  suggestions = [], // ✅ Accept dynamic suggestions from parent
 }) {
   const [isExpanded, setIsExpanded] = useState(true)
-
-  const followUpQuestions = [
-    "Can you provide more examples?",
-    "How does this apply in real life?",
-    "What are the key takeaways?",
-    "Can you explain this differently?",
-    "What are common mistakes?",
-    "How is this related to other topics?",
-  ]
 
   if (!isExpanded) {
     return (
@@ -66,10 +58,13 @@ export default function RightPanel({
           <DifficultyBadge difficulty={difficulty} onDifficultyChange={onDifficultyChange} />
         </section>
 
-        {/* Follow-up Questions */}
+        {/* Follow-up / Suggested Questions */}
         <section aria-labelledby="followup-heading">
           <h3 id="followup-heading" className="sr-only">Follow-up Questions</h3>
-          <FollowUpCard questions={followUpQuestions} onSelectQuestion={onFollowUpQuestion} />
+          <FollowUpCard
+            questions={suggestions.length > 0 ? suggestions : ["Ask a question to see suggestions!"]}
+            onSelectQuestion={onFollowUpQuestion}
+          />
         </section>
 
         {/* Export Buttons */}
