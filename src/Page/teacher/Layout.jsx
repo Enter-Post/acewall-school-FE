@@ -85,7 +85,7 @@ const sideBarTabs = [
     id: 13,
     name: "Students",
     icon: <GraduationCap aria-hidden="true" />,
-    path: "/teacher/allStudent",
+    path: "/teacher/coursesstd",
   },
   {
     id: 14,

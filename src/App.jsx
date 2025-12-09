@@ -88,6 +88,8 @@ import SocialProfilePage from "./Page/teacher/socialProfilePage";
 import EditParentEmail from "./Page/Account/EditParentEmail";
 import StudentWhoNeedAssistance from "./Page/teacher/StudentNeedAssistancePage";
 import GradingScales from "./Page/teacher/GradingScales";
+import AllStdCourses from "./Page/teacher/AllStdCourses";
+import CourseStudents from "./Page/teacher/CourseStudents";
 
 function App() {
   const {
@@ -319,6 +321,14 @@ function App() {
 
             <Route path="allStudent" element={<AllStudent />} />
             <Route path="studentProfile/:id" element={<StudentProfile />} />
+            <Route path="coursesstd" element={<AllStdCourses />} />
+            <Route
+              path="course/:courseId"
+              element={<CourseStudents />}
+            />
+
+
+            
             <Route
               path="courseGrades/:studentId/:courseId"
               element={<StudentCourseGrades />}
