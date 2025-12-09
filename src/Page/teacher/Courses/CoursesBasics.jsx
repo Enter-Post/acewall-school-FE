@@ -173,8 +173,6 @@ export default function CoursesBasis() {
    * Form Submit
    */
   const onSubmit = async (data) => {
-    setLoading(true);
-
     const formData = new FormData();
     formData.append("thumbnail", data.thumbnail);
     formData.append("courseTitle", data.courseTitle);
@@ -193,9 +191,11 @@ export default function CoursesBasis() {
       JSON.stringify(data.requirements.map((r) => r.value))
     );
     formData.append("syllabus", data.syllabus);
-
+ 
     try {
-      const res = await axiosInstance.post("/course/create", formData);
+      const res = await axiosInstance.post("/course/create", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
       toast.success(res.data.message || "Course created!");
       reset();
       navigate("/teacher/courses");

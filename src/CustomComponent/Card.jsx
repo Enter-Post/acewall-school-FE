@@ -281,55 +281,7 @@ function AnnouncementCard({ data }) {
     </Card>
   );
 }
-function CoursesCard({ course, link }) {
-  return (
-    <Link key={course.id} to={link}>
-      <Card className="w-full overflow-hidden cursor-pointer gap-0 py-0">
-        <AspectRatio ratio={16 / 9}>
-          <img
-            src={course.image || "/placeholder.svg"}
-            alt={`${course.course} image`}
-            className="object-cover w-full h-full"
-          />
-        </AspectRatio>
-        <div className="p-4">
-          <div className="uppercase text-indigo-600 bg-indigo-100 text-xs font-medium mb-2 w-fit px-2">
-            {course.category || "Developments"}
-          </div>
-          <h3 className="text-xl font-bold text-gray-900 mb-4">
-            {course.course}
-          </h3>
-          <div className="text-xl font-bold text-green-500 mb-3">
-            ${course.Prise || "24.00"}
-          </div>
 
-          <div className="flex items-center gap-4 mb-4">
-            <div className="flex items-center">
-              <span className="text-yellow-500 mr-1">★</span>
-              <span className="font-medium">{course.rating || "4.9"}</span>
-            </div>
-            <div className="flex items-center text-gray-500">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-4 w-4 mr-1"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" />
-              </svg>
-              <span>{course.students || "982,941"} students</span>
-            </div>
-          </div>
-
-          {/* Add to cart button */}
-          <Button className="w-full bg-green-500 hover:bg-green-600 text-white">
-            Add To Cart
-          </Button>
-        </div>
-      </Card>
-    </Link>
-  );
-}
 
 const StudentCard = ({ student }) => (
   <Card className="overflow-hidden rounded-2xl shadow-sm hover:shadow-xl transition-shadow duration-300 bg-white">
@@ -694,7 +646,6 @@ export {
   DeshBoardCourseCard,
   Assignment,
   AnnouncementCard,
-  CoursesCard,
   StudentCard,
   TransactionCard,
   EarningStateCard,
