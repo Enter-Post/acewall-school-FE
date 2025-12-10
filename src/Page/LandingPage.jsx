@@ -1,10 +1,8 @@
 import { Link } from "react-router-dom";
-import { Dot } from "lucide-react";
-
+import { Dot, ArrowRight } from "lucide-react";
 import { GlobalContext } from "@/Context/GlobalProvider";
 import { LandingPageCard } from "@/CustomComponent/Card";
-import { useContext } from "react";
-
+import { useContext, useId } from "react";
 
 const cardData = [
   {
@@ -26,7 +24,7 @@ const cardData = [
   {
     name: "Parent Aide",
     description:
-      "Acewall Scholars’ parent aide program offers a holistic approach to developing effective parenting skills. This program provides education on supporting children through their emotional, physical, mental, and spiritual development.",
+      "Acewall Scholars' parent aide program offers a holistic approach to developing effective parenting skills. This program provides education on supporting children through their emotional, physical, mental, and spiritual development.",
     imageUrl:
       "https://lirp.cdn-website.com/6602115c/dms3rep/multi/opt/shutterstock_2329065089-1920w.jpg",
     buttonUrl: "https://www.acewallscholars.org/parent-aide",
@@ -58,50 +56,78 @@ const cardData = [
 ];
 
 const LandingPage = () => {
-  // const navigate = useNavigate();
-  const { user, } = useContext(GlobalContext);
+  const { user } = useContext(GlobalContext);
 
- 
-
-
+  const heroHeadingId = useId();
+  const pathSectionId = useId();
+  const servicesHeadingId = useId();
 
   return (
-    <div className="flex flex-col">
+    <main className="flex flex-col" role="main">
       {/* Hero Section */}
-      <div className="h-[50vh] sm:h-[70vh] md:h-[60vh] lg:h-[70vh] bg-cover bg-start bg-no-repeat bg-[url('assets/hero.webp')]">
+      <section
+        className="h-[50vh] sm:h-[70vh] md:h-[60vh] lg:h-[70vh] bg-cover bg-start bg-no-repeat bg-[url('assets/hero.webp')]"
+        aria-labelledby={heroHeadingId}
+      >
         <div className="h-full w-full bg-black/50 flex items-start justify-start">
           <div className="flex flex-col mt-10 justify-center items-center px-2 md:px-10 md:mt-16 text-center">
-            <h1 className="text-white text-lg sm:text-3xl font-semibold tracking-wide">
+            <h1
+              id={heroHeadingId}
+              className="text-white text-lg sm:text-3xl font-semibold tracking-wide"
+            >
               Where the vision is realized. Where the dream is achieved.
             </h1>
-            <div className="flex items-center justify-center flex-wrap sm:flex-row flex-col gap-x-2 text-white ml-2">
+            <div
+              className="flex items-center justify-center flex-wrap sm:flex-row flex-col gap-x-2 text-white ml-2 mt-4"
+              aria-label="Core values: Imagine, Believe, Create"
+            >
               <div className="flex items-center text-md whitespace-nowrap">
                 <p>Imagine</p>
-                <Dot size={28} strokeWidth={3} className="-mx-1.5" />
+                <Dot
+                  size={28}
+                  strokeWidth={3}
+                  className="-mx-1.5"
+                  aria-hidden="true"
+                />
                 <p>Believe</p>
-                <Dot size={28} strokeWidth={3} className="-mx-1.5" />
+                <Dot
+                  size={28}
+                  strokeWidth={3}
+                  className="-mx-1.5"
+                  aria-hidden="true"
+                />
                 <p>Create</p>
               </div>
             </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* New Buttons Section */}
+      {/* Authentication Buttons Section */}
       {!user && (
-        <div className="bg-black flex flex-col lg:flex-row flex-wrap items-center justify-center gap-6 p-10 w-full">
-          <div className="w-full lg:w-auto text-center lg:text-left">
-            <h1 className="text-white text-xl font-semibold whitespace-nowrap">
-              Choose Your Path
-            </h1>
-          </div>
+        <section
+          id={pathSectionId}
+          className="bg-black flex flex-col lg:flex-row flex-wrap items-center justify-center gap-6 p-10 w-full"
+          aria-labelledby="path-heading"
+        >
+          <h2
+            id="path-heading"
+            className="w-full lg:w-auto text-center lg:text-left text-white text-xl font-semibold whitespace-nowrap"
+          >
+            Choose Your Path
+          </h2>
 
           {/* Login as Teacher Button */}
           <div className="w-full lg:w-[200px]">
-            <Link to="/TeacherLogin">
+            <Link
+              to="/TeacherLogin"
+              className="inline-block w-full focus:ring-2 focus:ring-green-700 focus:outline-none rounded-lg"
+              aria-label="Login as Teacher"
+            >
               <button
                 type="button"
-                className="text-white bg-green-500 hover:bg-green-600 font-medium rounded-lg text-sm px-4 py-2 w-full"
+                className="text-white bg-green-500 hover:bg-green-600 focus:ring-2 focus:ring-green-700 focus:outline-none font-medium rounded-lg text-sm px-4 py-2 w-full transition-colors"
+                aria-label="Login as Teacher to access course creation tools"
               >
                 Login as Teacher
               </button>
@@ -110,10 +136,15 @@ const LandingPage = () => {
 
           {/* Login as Student Button */}
           <div className="w-full lg:w-[200px]">
-            <Link to="/login">
+            <Link
+              to="/login"
+              className="inline-block w-full focus:ring-2 focus:ring-green-700 focus:outline-none rounded-lg"
+              aria-label="Login as Student"
+            >
               <button
                 type="button"
-                className="text-white bg-green-500 hover:bg-green-600 font-medium rounded-lg text-sm px-4 py-2 w-full"
+                className="text-white bg-green-500 hover:bg-green-600 focus:ring-2 focus:ring-green-700 focus:outline-none font-medium rounded-lg text-sm px-4 py-2 w-full transition-colors"
+                aria-label="Login as Student to access your courses"
               >
                 Login as Student
               </button>
@@ -122,37 +153,75 @@ const LandingPage = () => {
 
           {/* Getting Started Button */}
           <div className="w-full lg:w-[200px]">
-            <Link to="/contact">
+            <Link
+              to="/contact"
+              className="inline-block w-full focus:ring-2 focus:ring-green-700 focus:outline-none rounded-lg"
+              aria-label="Get Started"
+            >
               <button
                 type="button"
-                className="text-white bg-green-500 hover:bg-green-600 font-medium rounded-lg text-sm px-4 py-2 w-full"
+                className="text-white bg-green-500 hover:bg-green-600 focus:ring-2 focus:ring-green-700 focus:outline-none font-medium rounded-lg text-sm px-4 py-2 w-full transition-colors flex items-center justify-center gap-2"
+                aria-label="Get Started Today with Acewall Scholars"
               >
                 Get Started Today
+                <ArrowRight size={16} aria-hidden="true" />
               </button>
             </Link>
           </div>
-        </div>
+        </section>
       )}
 
-      {/* Services Cards */}
-      <section className="flex justify-center mt-10">
-        <div
-          id="additionalServices"
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 p-3 w-[95%] md:w-[80%]"
-        >
-          {cardData.map((card, index) => (
-            <div key={index} className="h-full">
-              <LandingPageCard
-                name={card.name}
-                description={card.description}
-                imageUrl={card.imageUrl}
-                buttonUrl={card.buttonUrl}
-              />
-            </div>
-          ))}
+      {/* Services Cards Section */}
+      <section
+        className="flex justify-center mt-10 mb-10 px-4"
+        aria-labelledby={servicesHeadingId}
+      >
+        <div className="w-full">
+          <h2
+            id={servicesHeadingId}
+            className="text-3xl font-bold text-gray-900 mb-8 text-center"
+          >
+            Our Services
+          </h2>
+          <div
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-7xl mx-auto p-3"
+            role="list"
+            aria-label="Acewall Scholars services"
+          >
+            {cardData.map((card, index) => (
+              <div
+                key={`${card.name}-${index}`}
+                role="listitem"
+                className="h-full"
+              >
+                <LandingPageCard
+                  name={card.name}
+                  description={card.description}
+                  imageUrl={card.imageUrl}
+                  buttonUrl={card.buttonUrl}
+                  aria-label={`${card.name}. ${card.description}`}
+                />
+              </div>
+            ))}
+          </div>
         </div>
       </section>
-    </div>
+
+      {/* Screen Reader Summary */}
+      <div className="sr-only" role="complementary">
+        <h2>Page Summary</h2>
+        <p>
+          Welcome to Acewall Scholars. This page provides an overview of our
+          services including Academic Tutoring, Mentoring and Mental Health
+          Support, Parent Aide, Test Prep, Internship Support, and College
+          Counseling.
+        </p>
+        <p>
+          If you are not logged in, you can choose to login as a teacher or
+          student, or get started today by contacting us.
+        </p>
+      </div>
+    </main>
   );
 };
 

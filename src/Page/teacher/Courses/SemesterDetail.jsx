@@ -2,17 +2,21 @@ import { CourseContext } from "@/Context/CoursesProvider";
 import BackButton from "@/CustomComponent/BackButton";
 import { axiosInstance } from "@/lib/AxiosInstance";
 import { format } from "date-fns";
-import React, { use, useEffect, useState } from "react";
-import { useContext } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { Link, useParams } from "react-router-dom";
 
 const SemesterDetail = () => {
   const { id, courseId } = useParams();
   const { quarters } = useContext(CourseContext);
   const [allQuarter, setallQuarter] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchQuarters = async () => {
+      setIsLoading(true);
+      setError(null);
+      
       try {
         const res = await axiosInstance.get(`quarter/get/${id}`);
         const fetchedQuarters = res.data.quarters;
@@ -29,6 +33,9 @@ const SemesterDetail = () => {
         setallQuarter(selectedQuarters);
       } catch (err) {
         console.error(err);
+        setError("Failed to load quarters");
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -36,32 +43,74 @@ const SemesterDetail = () => {
   }, [id, quarters]);
 
   return (
-    <div className="space-y-4">
-      <BackButton className="mb-10"/>
-      <div className="w-full ">
-        <p className="text-lg font-semibold text-black">Quarters</p>
+    <main className="space-y-4" aria-labelledby="page-heading">
+      <BackButton className="mb-10" aria-label="Go back to previous page" />
+      
+      <div className="w-full">
+        <h1 id="page-heading" className="text-lg font-semibold text-black">
+          Quarters
+        </h1>
       </div>
-      {allQuarter?.length > 0 ? (
-        allQuarter.map((quarter, index) => (
-          <Link to={`/teacher/courses/${courseId}/quarter/${quarter._id}`}>
-            <div
-              key={quarter._id}
-              className="mb-4 border border-gray-200 p-5 rounded-lg bg-blue-50 hover:bg-blue-100 cursor-pointer"
-            >
-              <h3 className="font-semibold text-md">
-                Quarter: {quarter.title}
-              </h3>
-              <p className="text-xs text-muted-foreground">
-                {format(new Date(quarter.startDate), "MMMM do, yyyy")} -{" "}
-                {format(new Date(quarter.endDate), "MMMM do, yyyy")}
-              </p>
-            </div>
-          </Link>
-        ))
+
+      {isLoading ? (
+        <div 
+          className="text-sm text-gray-500 py-4"
+          role="status"
+          aria-live="polite"
+        >
+          Loading quarters...
+        </div>
+      ) : error ? (
+        <div 
+          className="text-sm text-red-500 py-4"
+          role="alert"
+          aria-live="assertive"
+        >
+          {error}
+        </div>
+      ) : allQuarter?.length > 0 ? (
+        <nav aria-label="Quarter list">
+          <ul className="space-y-4" role="list">
+            {allQuarter.map((quarter, index) => {
+              const startDate = format(new Date(quarter.startDate), "MMMM do, yyyy");
+              const endDate = format(new Date(quarter.endDate), "MMMM do, yyyy");
+              
+              return (
+                <li key={quarter._id} role="listitem">
+                  <Link 
+                    to={`/teacher/courses/${courseId}/quarter/${quarter._id}`}
+                    className="block mb-4 border border-gray-200 p-5 rounded-lg bg-blue-50 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+                    aria-label={`View ${quarter.title}, from ${startDate} to ${endDate}`}
+                  >
+                    <article>
+                      <h2 className="font-semibold text-md">
+                        Quarter: {quarter.title}
+                      </h2>
+                      <p className="text-xs text-muted-foreground">
+                        <time dateTime={quarter.startDate}>
+                          {startDate}
+                        </time>
+                        {" - "}
+                        <time dateTime={quarter.endDate}>
+                          {endDate}
+                        </time>
+                      </p>
+                    </article>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
       ) : (
-        <p className="text-sm text-muted-foreground">No quarters selected.</p>
+        <p 
+          className="text-sm text-muted-foreground py-4"
+          role="status"
+        >
+          No quarters selected for this semester.
+        </p>
       )}
-    </div>
+    </main>
   );
 };
 

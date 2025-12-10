@@ -30,8 +30,6 @@ import SelectQuarter from "@/CustomComponent/CreateCourse/SelectQuarter";
 import { set } from "lodash";
 import ConfirmationModal from "@/CustomComponent/CreateCourse/ConfirmationModal";
 
-// Define the form schema with Zod
-
 const courseFormSchema = z.object({
   courseTitle: z
     .string()
@@ -92,7 +90,6 @@ export default function EditCourse() {
 
   const [categories, setCategories] = useState([]);
   const [subcategories, setSubcategories] = useState([]);
-  // const { user } = useContext(GlobalContext);
   const [selectedCategory, setSelectedCategory] = useState("");
   const [prevCategory, setPrevCategory] = useState(null);
   const [prevSubCategory, setPrevSubCategory] = useState("");
@@ -121,8 +118,6 @@ export default function EditCourse() {
   const watchedLanguage = watch("language");
   const watchedCategory = watch("category");
   const watchedSubCategory = watch("subcategory");
-
-  // console.log(errors, "errors");
 
   useEffect(() => {
     const fetchCourseBasics = async () => {
@@ -158,7 +153,6 @@ export default function EditCourse() {
     fetchCourseBasics();
   }, [reset, subcategories, courseId, categories]);
 
-  // Set up field arrays for teaching points and requirements,
   const {
     fields: teachingPointsFields,
     append: appendTeachingPoint,
@@ -222,14 +216,12 @@ export default function EditCourse() {
         "requirements",
         JSON.stringify(data.requirements.map((req) => req.value))
       );
-      // formData.append("courseDate", JSON.stringify(data.courseDate));
 
       const res = await axiosInstance.put(
         `course/editCourseBasics/${courseId}`,
-        formData,
+        formData
       );
 
-      // Dismiss loading toast and show success
       toast.success(res.data.message || "Course updated successfully!");
 
       reset();
@@ -247,10 +239,13 @@ export default function EditCourse() {
   };
 
   return (
-    <div>
-      <p className="text-xl py-4 mb-8 pl-6 font-semibold bg-acewall-main text-white rounded-lg">
+    <main aria-labelledby="page-title">
+      <h1
+        id="page-title"
+        className="text-xl py-4 mb-8 pl-6 font-semibold bg-acewall-main text-white rounded-lg"
+      >
         Edit Course Info
-      </p>
+      </h1>
       <FormProvider
         {...{
           register,
@@ -262,32 +257,46 @@ export default function EditCourse() {
           watch,
         }}
       >
-        <form onSubmit={handleSubmit(onSubmit, onError)} className="space-y-8">
-          <section>
+        <form
+          onSubmit={handleSubmit(onSubmit, onError)}
+          className="space-y-8"
+          aria-label="Edit course information"
+          noValidate
+        >
+          <section aria-labelledby="basic-info-heading">
+            <h2 id="basic-info-heading" className="sr-only">
+              Basic Course Information
+            </h2>
             <div className="space-y-6">
-              
-
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <Label htmlFor="courseTitle" className="block mb-2">
-                    Course Title
+                    Course Title <span aria-label="required">*</span>
                   </Label>
                   <Input
                     id="courseTitle"
                     maxLength={50}
                     className={`bg-gray-50 ${
-                      errors.courseTitle ? "border border-red-500" : ""
+                      errors.courseTitle ? "border-red-500" : ""
                     }`}
+                    aria-required="true"
+                    aria-invalid={errors.courseTitle ? "true" : "false"}
+                    aria-describedby={
+                      errors.courseTitle ? "courseTitle-error" : undefined
+                    }
                     {...register("courseTitle")}
                   />
                   {errors.courseTitle && (
-                    <p className="text-xs text-red-500 mt-1">
+                    <p
+                      id="courseTitle-error"
+                      className="text-xs text-red-500 mt-1"
+                      role="alert"
+                    >
                       {errors.courseTitle.message}
                     </p>
                   )}
                 </div>
 
-                {/* Category */}
                 <CategorySelect
                   register={register}
                   errors={errors}
@@ -310,10 +319,10 @@ export default function EditCourse() {
                   selectedCategory={selectedCategory}
                 />
               </div>
-              
+
               <div>
                 <Label htmlFor="language" className="block mb-2">
-                  Language
+                  Language <span aria-label="required">*</span>
                 </Label>
                 <Select
                   onValueChange={(value) => {
@@ -321,6 +330,12 @@ export default function EditCourse() {
                   }}
                   value={watchedLanguage}
                   className="max-w-xs"
+                  aria-label="Select course language"
+                  aria-required="true"
+                  aria-invalid={errors.language ? "true" : "false"}
+                  aria-describedby={
+                    errors.language ? "language-error" : undefined
+                  }
                 >
                   <SelectTrigger className="bg-gray-50">
                     <SelectValue
@@ -336,55 +351,99 @@ export default function EditCourse() {
                   </SelectContent>
                 </Select>
                 {errors.language && (
-                  <p className="text-xs text-red-500 mt-1">
+                  <p
+                    id="language-error"
+                    className="text-xs text-red-500 mt-1"
+                    role="alert"
+                  >
                     {errors.language.message}
                   </p>
                 )}
               </div>
 
-              <div className="">
+              <div>
                 <Label htmlFor="courseDescription" className="block mb-2">
-                  Course Description
+                  Course Description <span aria-label="required">*</span>
                 </Label>
                 <Textarea
                   id="courseDescription"
-                  className={`min-h-[100px] bg-gray-50  ${
-                    errors.courseDescription ? "border border-red-500" : ""
+                  className={`min-h-[100px] bg-gray-50 ${
+                    errors.courseDescription ? "border-red-500" : ""
                   }`}
                   maxLength={4000}
+                  aria-required="true"
+                  aria-invalid={errors.courseDescription ? "true" : "false"}
+                  aria-describedby={
+                    errors.courseDescription
+                      ? "courseDescription-error"
+                      : "courseDescription-hint"
+                  }
                   {...register("courseDescription")}
                 />
+                <p
+                  id="courseDescription-hint"
+                  className="text-xs text-gray-500 mt-1"
+                >
+                  Maximum 4000 characters
+                </p>
                 {errors.courseDescription && (
-                  <p className="text-xs text-red-500 mt-1">
+                  <p
+                    id="courseDescription-error"
+                    className="text-xs text-red-500 mt-1"
+                    role="alert"
+                  >
                     {errors.courseDescription.message}
                   </p>
                 )}
               </div>
             </div>
+          </section>
 
-            <div className="mt-10 mb-6">
-              <h2 className="text-xl font-semibold">Make The Course</h2>
-            </div>
-            <section className="my-4">
-              <h3 className="text-lg font-medium mb-4">
+          <section aria-labelledby="course-content-heading">
+            <h2
+              id="course-content-heading"
+              className="text-xl font-semibold mb-6"
+            >
+              Make The Course
+            </h2>
+
+            <div aria-labelledby="teaching-points-heading" className="my-4">
+              <h3
+                id="teaching-points-heading"
+                className="text-lg font-medium mb-4"
+              >
                 What you will teach in this course{" "}
-                <span className="text-gray-500 text-xs">(max 6)</span>
+                <span
+                  className="text-gray-500 text-xs"
+                  aria-label="maximum 6 teaching points"
+                >
+                  (max 6)
+                </span>
               </h3>
-              {teachingPointsFields.map((field, index) => (
-                <TeachingPointInput
-                  key={field.id}
-                  field={field}
-                  index={index}
-                  teachingPointsFields={teachingPointsFields}
-                  remove={removeTeachingPoint}
-                  error={errors.teachingPoints?.[index]?.value}
-                  control={control}
-                  register={register}
-                />
-              ))}
+              <div
+                role="list"
+                aria-label="Teaching points"
+                aria-live="polite"
+                aria-relevant="additions removals"
+              >
+                {teachingPointsFields.map((field, index) => (
+                  <div key={field.id} role="listitem">
+                    <TeachingPointInput
+                      field={field}
+                      index={index}
+                      teachingPointsFields={teachingPointsFields}
+                      remove={removeTeachingPoint}
+                      error={errors.teachingPoints?.[index]?.value}
+                      control={control}
+                      register={register}
+                    />
+                  </div>
+                ))}
+              </div>
               <div className="flex justify-end">
-                <button
+                <Button
                   type="button"
+                  variant="outline"
                   disabled={teachingPointsFields.length >= 6}
                   onClick={() => appendTeachingPoint({ value: "" })}
                   className={`mt-2 text-blue-500 text-sm border border-gray-300 px-4 py-2 rounded-lg hover:bg-blue-50 ${
@@ -392,32 +451,51 @@ export default function EditCourse() {
                       ? "opacity-50 cursor-not-allowed"
                       : ""
                   }`}
+                  aria-label="Add teaching point"
+                  aria-disabled={teachingPointsFields.length >= 6}
                 >
                   + Add Teaching Point
-                </button>
+                </Button>
               </div>
-            </section>
+            </div>
 
-            <section>
-              <h3 className="text-lg font-medium mb-4">
+            <div aria-labelledby="requirements-heading">
+              <h3
+                id="requirements-heading"
+                className="text-lg font-medium mb-4"
+              >
                 Course Requirements{" "}
-                <span className="text-gray-500 text-xs">(max 6)</span>
+                <span
+                  className="text-gray-500 text-xs"
+                  aria-label="maximum 6 requirements"
+                >
+                  (max 6)
+                </span>
               </h3>
-              {requirementsFields.map((field, index) => (
-                <RequirementInput
-                  key={field.id}
-                  field={field}
-                  index={index}
-                  requirementsFields={requirementsFields}
-                  remove={removeRequirement}
-                  error={errors.requirements?.[index]?.value}
-                  register={register}
-                />
-              ))}
+              <div
+                role="list"
+                aria-label="Course requirements"
+                aria-live="polite"
+                aria-relevant="additions removals"
+              >
+                {requirementsFields.map((field, index) => (
+                  <div key={field.id} role="listitem">
+                    <RequirementInput
+                      field={field}
+                      index={index}
+                      requirementsFields={requirementsFields}
+                      remove={removeRequirement}
+                      error={errors.requirements?.[index]?.value}
+                      register={register}
+                    />
+                  </div>
+                ))}
+              </div>
 
               <div className="flex justify-end">
-                <button
+                <Button
                   type="button"
+                  variant="outline"
                   onClick={() => appendRequirement({ value: "" })}
                   className={`mt-2 text-blue-500 text-sm border border-gray-300 px-4 py-2 rounded-lg hover:bg-blue-50 ${
                     requirementsFields.length >= 6
@@ -425,24 +503,32 @@ export default function EditCourse() {
                       : ""
                   }`}
                   disabled={requirementsFields.length >= 6}
+                  aria-label="Add requirement"
+                  aria-disabled={requirementsFields.length >= 6}
                 >
                   + Add Requirement
-                </button>
+                </Button>
               </div>
-            </section>
+            </div>
           </section>
 
           <div className="flex justify-end mt-25">
             <Button
               type="submit"
-              className="bg-green-500 hover:bg-green-600 disabled:opacity-50 "
+              className="bg-green-500 hover:bg-green-600 disabled:opacity-50"
               disabled={loading}
+              aria-label={
+                loading
+                  ? "Updating course, please wait"
+                  : "Update course information"
+              }
+              aria-busy={loading}
             >
-              {loading ? "Creating..." : "Update Course Info"}
+              {loading ? "Updating..." : "Update Course Info"}
             </Button>
           </div>
         </form>
       </FormProvider>
-    </div>
+    </main>
   );
 }

@@ -1,8 +1,7 @@
 import { useContext, useEffect, useState } from "react";
-import { MoreHorizontal, Send, Edit, Loader } from "lucide-react";
+import { Loader, Send } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { getContactByName, messages as initialMessages } from "@/lib/data";
 import MessageList from "./messages-list";
 import { axiosInstance } from "@/lib/AxiosInstance";
 import { useParams } from "react-router-dom";
@@ -36,10 +35,9 @@ export default function ChatWindow() {
         `/messeges/get_updated/${activeConversation}?page=${page}&limit=${limit}`
       );
       const initialMessages = res.data.messages;
-
       setMessages(initialMessages);
-      setHasMore(initialMessages.length === limit); // ✅ correct comparison
-      setPage(page); // reset to 1
+      setHasMore(initialMessages.length === limit);
+      setPage(page);
     } catch (err) {
       console.error("Error fetching messages:", err);
     }
@@ -47,68 +45,73 @@ export default function ChatWindow() {
 
   useEffect(() => {
     if (activeConversation) {
-      setHasMore(true); // ✅ reset
-      setPage(1); // ✅ reset
+      setHasMore(true);
+      setPage(1);
       getMessages();
       subscribeToMessages();
     }
-
-    return () => unsubscripteToMessages(); // cleanup
-  }, [loading]);
+    return () => unsubscripteToMessages();
+  }, [activeConversation]);
 
   useEffect(() => {
     if (activeConversation) {
       axiosInstance.post(`messeges/markAsRead_updated/${activeConversation}`);
       axiosInstance.patch(`conversation/lastSeen/${activeConversation}`);
     }
-  }, [getMessages]);
+  }, [activeConversation]);
 
-  // return;
   const handleSendMessage = async () => {
+    if (!newMessage.trim()) return;
     setLoading(true);
-    await axiosInstance
-      .post(`/messeges/create_updated/${activeConversation}`, {
+    try {
+      await axiosInstance.post(
+        `/messeges/create_updated/${activeConversation}`,
+        {
+          text: newMessage,
+        }
+      );
+      getMessages();
+      setNewMessage("");
+      socket.emit("sendMessage", {
+        senderId: user._id,
+        receiverId: activeConversation,
         text: newMessage,
-      })
-      .then((res) => {
-        console.log(res, "res.datares.data");
-        setLoading(false);
-        getMessages();
-        setNewMessage("");
-      })
-      .catch((err) => {
-        setLoading(false);
-        console.log(err);
       });
-
-    /// real time functinality
-    socket.emit("sendMessage", {
-      senderId: user._id,
-      receiverId: activeConversation,
-      text: newMessage,
-    });
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="flex flex-col h-[500px] overflow-auto hide-scrollbar border-red-600">
+    <div
+      className="flex flex-col h-[500px] overflow-auto hide-scrollbar border-gray-200"
+      role="region"
+      aria-label={`Chat window with ${currentConversation?.otherMember.name}`}
+    >
+      {" "}
       <div className="flex items-center justify-between p-4 border-b border-gray-200">
+        {" "}
         <div className="flex items-center gap-3">
+          {" "}
           <Avatar className="h-10 w-10">
             <AvatarImage
               src={currentConversation?.otherMember.profileImg?.url || avatar}
-            />
+              alt={`Profile image of ${currentConversation?.otherMember.name}`}
+            />{" "}
             <AvatarFallback>
-              {currentConversation?.otherMember.name}
-            </AvatarFallback>
-          </Avatar>
+              {currentConversation?.otherMember.name[0]}{" "}
+            </AvatarFallback>{" "}
+          </Avatar>{" "}
           <div>
+            {" "}
             <h3 className="font-medium">
               {currentConversation?.otherMember.name}
-            </h3>
-          </div>
-        </div>
+            </h3>{" "}
+          </div>{" "}
+        </div>{" "}
       </div>
-
       <MessageList
         messages={messages}
         setMessages={setMessages}
@@ -123,8 +126,11 @@ export default function ChatWindow() {
         loading={loading}
         setLoading={setLoading}
       />
-
-      <div className="p-4 border-t border-gray-200">
+      <div
+        className="p-4 border-t border-gray-200"
+        role="region"
+        aria-label="Message input area"
+      >
         <div className="flex items-center gap-2">
           <div className="relative flex-1">
             <input
@@ -134,15 +140,20 @@ export default function ChatWindow() {
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSendMessage()}
+              aria-label="Type your message"
             />
           </div>
           <Button
-            className="bg-green-600 hover:bg-green-700 rounded-full h-12 w-12 flex items-center justify-center"
+            className="bg-green-600 hover:bg-green-700 rounded-full h-12 w-12 flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-green-500"
             onClick={handleSendMessage}
             disabled={loading || !newMessage.trim()}
+            aria-label="Send message"
           >
             {loading ? (
-              <Loader className="h-6 w-6 animate-spin text-white" />
+              <Loader
+                className="h-6 w-6 animate-spin text-white"
+                aria-label="Sending message"
+              />
             ) : (
               <Send className="h-6 w-6 text-white" />
             )}

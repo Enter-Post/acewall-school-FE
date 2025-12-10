@@ -39,9 +39,9 @@ const Announcement = () => {
   return (
     <section className="p-3 md:p-0">
       <div className="flex flex-col pb-2 gap-5">
-        <p className="text-xl py-4 mb-8 pl-6 font-semibold bg-acewall-main text-white rounded-lg">
+        <h1 className="text-xl py-4 mb-8 pl-6 font-semibold bg-acewall-main text-white rounded-lg">
           Announcements
-        </p>
+        </h1>
       </div>
 
       {loading ? (

@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 import { axiosInstance } from "@/lib/AxiosInstance";
@@ -15,9 +15,6 @@ export default function MessageList({
   hasMore,
   setHasMore,
   loadingMessage,
-  setLoadingMessage,
-  loading,
-  setLoading,
 }) {
   const { user } = useContext(GlobalContext);
   const myId = user._id;
@@ -46,25 +43,31 @@ export default function MessageList({
   };
 
   return (
-    <div className="flex-1 overflow-y-auto p-4 space-y-6 overflow-y-scroll">
+    <div
+      className="flex-1 overflow-y-auto p-4 space-y-6"
+      role="log"
+      aria-live="polite"
+      aria-label="Chat messages"
+    >
       {hasMore && (
         <div className="flex justify-center p-2">
           <Button
             variant="outline"
             onClick={loadMoreMessages}
             disabled={loadingMessage}
-            className="text-gray-600"
+            className="text-gray-600 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-blue-500"
+            aria-label={
+              loadingMessage ? "Loading more messages" : "Load more messages"
+            }
           >
             {loadingMessage ? "Loading..." : "See More"}
           </Button>
         </div>
       )}
 
-      <div className="space-y-4">
+      <ul className="space-y-4" role="list">
         {messages.length === 0 ? (
-          <div className="text-center">
-            <p className="text-gray-500">No messages yet</p>
-          </div>
+          <li className="text-center text-gray-500">No messages yet</li>
         ) : (
           messages
             ?.slice()
@@ -73,12 +76,15 @@ export default function MessageList({
               const isMyMessage = message?.sender._id === myId;
 
               return (
-                <div
+                <li
                   key={message._id}
                   className={cn(
                     "flex gap-3",
                     isMyMessage ? "justify-end" : "justify-start"
                   )}
+                  aria-label={`Message from ${
+                    isMyMessage ? "you" : message.sender.name
+                  } at ${message.createdAt.split("T")[1].split(".")[0]}`}
                 >
                   {!isMyMessage && (
                     <div className="flex-shrink-0 mt-1">
@@ -87,6 +93,9 @@ export default function MessageList({
                           src={message.sender.profileImg?.url || avatar}
                           alt={message.sender.name}
                         />
+                        <AvatarFallback>
+                          {message.sender.name}
+                        </AvatarFallback>
                       </Avatar>
                     </div>
                   )}
@@ -99,8 +108,9 @@ export default function MessageList({
                         : "bg-gray-100 text-gray-800"
                     )}
                   >
-                    {message.text}
-                    <div
+                    <p>{message.text}</p>
+                    <time
+                      dateTime={message.createdAt}
                       className={cn(
                         "text-xs mt-1",
                         isMyMessage
@@ -109,13 +119,13 @@ export default function MessageList({
                       )}
                     >
                       {message.createdAt.split("T")[1].split(".")[0]}
-                    </div>
+                    </time>
                   </div>
-                </div>
+                </li>
               );
             })
         )}
-      </div>
+      </ul>
     </div>
   );
 }

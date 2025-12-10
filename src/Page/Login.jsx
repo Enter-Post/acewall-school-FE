@@ -16,12 +16,8 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
-  // Validation schema using zod
   const schema = z.object({
-    email: z
-      .string()
-      .min(1, "This field is required")
-      .email("Invalid email format"),
+    email: z.string().min(1, "This field is required").email("Invalid email format"),
     password: z
       .string()
       .min(1, "This field is required")
@@ -58,16 +54,15 @@ const Login = () => {
       {/* Header */}
       <header className="bg-green-600 text-white py-6 px-4">
         <div className="container mx-auto flex justify-between items-center">
-          <Link to={"/"} className="text-sm md:text-base">
+          <Link to={"/"} className="text-sm md:text-base" aria-label="Return to homepage">
             Return to Home
           </Link>
-          <Link to={"/home"} className="text-sm md:text-base">
+          <Link to={"/home"} className="text-sm md:text-base" aria-label="Create an account">
             Create Account
           </Link>
         </div>
       </header>
 
-      {/* Main Content */}
       <main className="flex-grow bg-gray-50">
         <div className="container mx-auto px-4 py-8">
           <h1 className="text-center text-2xl md:text-3xl text-gray-800 font-normal mb-8">
@@ -77,20 +72,25 @@ const Login = () => {
           <div className="flex flex-col md:flex-row gap-8 max-w-6xl mx-auto">
             {/* Login Form */}
             <div className="w-full md:w-1/2 bg-white p-6 rounded-lg">
-              <form onSubmit={handleSubmit(onSubmit)}>
+              <form onSubmit={handleSubmit(onSubmit)} noValidate>
+                
                 {/* Email Field */}
                 <div className="mb-6">
                   <label htmlFor="email" className="block text-gray-600 mb-2">
                     Email *
                   </label>
+
                   <input
                     type="email"
                     id="email"
                     className="w-full p-2 border border-gray-300 rounded"
+                    aria-invalid={!!errors.email}
+                    aria-describedby={errors.email ? "email-error" : undefined}
                     {...register("email")}
                   />
+
                   {errors?.email && (
-                    <p className="text-xs text-red-600 inline-block">
+                    <p id="email-error" className="text-xs text-red-600 inline-block">
                       {errors.email.message}
                     </p>
                   )}
@@ -98,34 +98,34 @@ const Login = () => {
 
                 {/* Password Field */}
                 <div className="mb-8">
-                  <label
-                    htmlFor="password"
-                    className="block text-gray-600 mb-2"
-                  >
+                  <label htmlFor="password" className="block text-gray-600 mb-2">
                     Password *
                   </label>
+
                   <div className="relative">
                     <input
                       type={showPassword ? "text" : "password"}
                       id="password"
                       className="w-full p-2 border border-gray-300 rounded pr-10"
+                      aria-invalid={!!errors.password}
+                      aria-describedby={errors.password ? "password-error" : undefined}
                       {...register("password")}
                     />
+
                     {watchedPassword && (
-                      <div
-                        className="absolute inset-y-0 right-2 flex items-center cursor-pointer"
+                      <button
+                        type="button"
                         onClick={() => setShowPassword((prev) => !prev)}
+                        aria-label={showPassword ? "Hide password" : "Show password"}
+                        className="absolute inset-y-0 right-2 flex items-center"
                       >
-                        {showPassword ? (
-                          <Eye size={20} />
-                        ) : (
-                          <EyeClosed size={20} />
-                        )}
-                      </div>
+                        {showPassword ? <Eye size={20} /> : <EyeClosed size={20} />}
+                      </button>
                     )}
                   </div>
+
                   {errors?.password && (
-                    <p className="text-xs text-red-600 inline-block">
+                    <p id="password-error" className="text-xs text-red-600 inline-block">
                       {errors.password.message}
                     </p>
                   )}
@@ -133,21 +133,24 @@ const Login = () => {
 
                 {/* Login Error */}
                 {loginError && (
-                  <p className="text-sm text-red-500 mb-4">{loginError}</p>
+                  <p className="text-sm text-red-500 mb-4" role="alert">
+                    {loginError}
+                  </p>
                 )}
 
-                {/* Submit Button and Links */}
+                {/* Submit + Links */}
                 <div className="space-y-8">
                   <div className="flex justify-between items-center">
                     <div className="flex flex-col gap-3">
                       <Link
                         to="/TeacherLogin"
                         className="text-sm font-semibold text-green-600 hover:underline"
+                        aria-label="Login as a Teacher"
                       >
                         Login as a Teacher
                       </Link>
-                    
                     </div>
+
                     <button
                       type="submit"
                       className="bg-green-500 hover:bg-green-600 text-white text-sm font-medium px-6 py-2 rounded transition-colors duration-200"
@@ -160,6 +163,7 @@ const Login = () => {
                     <Link
                       to="/forgetPassword"
                       className="text-xs font-semibold text-green-600 hover:underline"
+                      aria-label="Forgot your password? Reset it"
                     >
                       Forgot Password?
                     </Link>

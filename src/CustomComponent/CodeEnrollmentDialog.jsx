@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Dialog,
   DialogContent,
@@ -10,7 +10,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { axiosInstance } from "@/lib/AxiosInstance";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import avatar from "../assets/avatar.png";
 import { toast } from "sonner";
@@ -22,6 +22,13 @@ export default function SearchCourseDialog() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    if (open && inputRef.current) {
+      inputRef.current.focus(); // Focus input on dialog open
+    }
+  }, [open]);
 
   const handleSearch = async () => {
     if (!courseCode.trim()) {
@@ -34,15 +41,11 @@ export default function SearchCourseDialog() {
     setCourse(null);
 
     try {
-      // ✅ Call your updated API route
       const res = await axiosInstance.get(
         `/course/searchCoursebycode/${courseCode}`
       );
-
-      console.log(res, "course search by code response");
       setCourse(res.data.course);
     } catch (err) {
-      console.log(err, "course search by code response");
       setError(err.response?.data?.message || "Course not found.");
     } finally {
       setLoading(false);
@@ -50,24 +53,22 @@ export default function SearchCourseDialog() {
   };
 
   const handleEnrollment = async (courseID) => {
-    await axiosInstance
-      .post(`enrollment/create/${courseID}`)
-      .then((res) => {
-        console.log(res);
-        toast.success(res.data.message);
-        navigate("/student/mycourses");
-      })
-      .catch((err) => {
-        console.log(err);
-        toast.error(err.response.data.message || "Something went wrong");
-      });
-    setOpen(false);
+    try {
+      const res = await axiosInstance.post(`enrollment/create/${courseID}`);
+      toast.success(res.data.message);
+      navigate("/student/mycourses");
+      setOpen(false);
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Something went wrong");
+    }
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="default">Search Course by Code</Button>
+        <Button aria-haspopup="dialog" aria-expanded={open}>
+          Search Course by Code
+        </Button>
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-md">
@@ -80,9 +81,11 @@ export default function SearchCourseDialog() {
 
         <div className="flex gap-2 mt-4">
           <Input
+            ref={inputRef}
             placeholder="Enter course code (e.g. ENG101)"
             value={courseCode}
             onChange={(e) => setCourseCode(e.target.value)}
+            aria-label="Course code input"
           />
           <Button onClick={handleSearch} disabled={loading}>
             {loading ? "Searching..." : "Search"}
@@ -92,12 +95,10 @@ export default function SearchCourseDialog() {
         {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
 
         {course && (
-          //   <Link to={`/student/course/detail/${course._id}`}>
-          <div
-            className="mt-4 border rounded-lg p-3 bg-gray-50"
-            onClick={() => {
-              handleEnrollment(course._id);
-            }}
+          <button
+            onClick={() => handleEnrollment(course._id)}
+            className="mt-4 border rounded-lg p-3 bg-gray-50 w-full text-left focus:outline-none focus:ring-2 focus:ring-blue-500"
+            aria-label={`Enroll in course ${course.courseTitle}`}
           >
             <h3 className="font-semibold text-lg">{course.courseTitle}</h3>
             <p className="text-sm text-gray-600">Code: {course.courseCode}</p>
@@ -117,12 +118,10 @@ export default function SearchCourseDialog() {
               <Avatar>
                 <AvatarImage
                   src={course.createdby.profileImg?.url || avatar}
-                  alt=""
+                  alt={`Instructor: ${course.createdby.firstName} ${course.createdby.lastName}`}
                 />
                 <AvatarFallback>
-                  <p className="text-sm text-gray-600">
-                    {`${course.createdby.firstName} ${course.createdby.lastName}`}
-                  </p>
+                  {`${course.createdby.firstName} ${course.createdby.lastName}`}
                 </AvatarFallback>
               </Avatar>
               <p className="text-sm text-gray-600">
@@ -132,8 +131,7 @@ export default function SearchCourseDialog() {
             <p className="text-sm text-gray-600 mt-2">
               {course.courseDescription}
             </p>
-          </div>
-          //   </Link>
+          </button>
         )}
       </DialogContent>
     </Dialog>

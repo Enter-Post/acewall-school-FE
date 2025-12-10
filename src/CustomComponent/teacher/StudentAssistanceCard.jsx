@@ -76,6 +76,13 @@ const StudentAssistanceCard = ({ title }) => {
                         variant="ghost"
                         size="icon"
                         onClick={() => toggleExpand(student.studentId)}
+                        aria-expanded={expanded[student.studentId] || false}
+                        aria-controls={`student-details-${student.studentId}`}
+                        aria-label={
+                          expanded[student.studentId]
+                            ? `Collapse details for ${student.studentName}`
+                            : `Expand details for ${student.studentName}`
+                        }
                       >
                         {expanded[student.studentId] ? (
                           <ChevronDown className="h-4 w-4" />
@@ -101,7 +108,7 @@ const StudentAssistanceCard = ({ title }) => {
                   </TableRow>
 
                   {expanded[student.studentId] && (
-                    <TableRow>
+                    <TableRow id={`student-details-${student.studentId}`}>
                       <TableCell colSpan={5} className="bg-muted/20 px-6 py-4">
                         <div className="space-y-4">
                           <p className="text-sm font-medium text-muted-foreground mb-3">
@@ -123,7 +130,19 @@ const StudentAssistanceCard = ({ title }) => {
                                       semester.semesterId
                                     )
                                   }
-                                  className="p-1 h-6 w-6"
+                                  aria-expanded={
+                                    semesterExpanded[
+                                      `${student.studentId}-${semester.semesterId}`
+                                    ] || false
+                                  }
+                                  aria-controls={`semester-details-${student.studentId}-${semester.semesterId}`}
+                                  aria-label={
+                                    semesterExpanded[
+                                      `${student.studentId}-${semester.semesterId}`
+                                    ]
+                                      ? `Collapse ${semester.semesterTitle}`
+                                      : `Expand ${semester.semesterTitle}`
+                                  }
                                 >
                                   {semesterExpanded[
                                     `${student.studentId}-${semester.semesterId}`
@@ -141,7 +160,10 @@ const StudentAssistanceCard = ({ title }) => {
                               {semesterExpanded[
                                 `${student.studentId}-${semester.semesterId}`
                               ] && (
-                                <div className="ml-6 space-y-3">
+                                <div
+                                  id={`semester-details-${student.studentId}-${semester.semesterId}`}
+                                  className="ml-6 space-y-3"
+                                >
                                   {semester?.quarters?.map((quarter) => (
                                     <div
                                       key={quarter.quarterId}
@@ -158,7 +180,19 @@ const StudentAssistanceCard = ({ title }) => {
                                               quarter.quarterId
                                             )
                                           }
-                                          className="p-1 h-5 w-5"
+                                          aria-expanded={
+                                            quarterExpanded[
+                                              `${student.studentId}-${semester.semesterId}-${quarter.quarterId}`
+                                            ] || false
+                                          }
+                                          aria-controls={`quarter-details-${student.studentId}-${semester.semesterId}-${quarter.quarterId}`}
+                                          aria-label={
+                                            quarterExpanded[
+                                              `${student.studentId}-${semester.semesterId}-${quarter.quarterId}`
+                                            ]
+                                              ? `Collapse ${quarter.quarterTitle}`
+                                              : `Expand ${quarter.quarterTitle}`
+                                          }
                                         >
                                           {quarterExpanded[
                                             `${student.studentId}-${semester.semesterId}-${quarter.quarterId}`
@@ -187,7 +221,10 @@ const StudentAssistanceCard = ({ title }) => {
                                       {quarterExpanded[
                                         `${student.studentId}-${semester.semesterId}-${quarter.quarterId}`
                                       ] && (
-                                        <div className="mt-3">
+                                        <div
+                                          id={`quarter-details-${student.studentId}-${semester.semesterId}-${quarter.quarterId}`}
+                                          className="mt-3"
+                                        >
                                           <Table>
                                             <TableHeader>
                                               <TableRow>

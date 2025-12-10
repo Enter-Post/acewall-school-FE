@@ -41,7 +41,7 @@ const AssessmentSubmissionPage = () => {
   const [error, setError] = useState(null);
   const [submitted, setSubmitted] = useState(false);
   const [result, setResult] = useState(null);
-  const [ submitting, setSubmitting] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [files, setFiles] = useState([]);
   const [totalFileSize, setTotalFileSize] = useState(0);
   const navigate = useNavigate();
@@ -126,72 +126,71 @@ const AssessmentSubmissionPage = () => {
     defaultValues: { studentId: "" },
   });
 
-const onSubmit = async (data) => {
-  if (submitting) return;
-  setSubmitting(true); // ✅ Disable the button right away
+  const onSubmit = async (data) => {
+    if (submitting) return;
+    setSubmitting(true); // ✅ Disable the button right away
 
-  let answers;
-  const formData = new FormData();
+    let answers;
+    const formData = new FormData();
 
-  if (assessment.assessmentType === "file") {
-    if (files.length === 0) {
-      toast.error("Please upload at least one file");
-      setSubmitting(false); // Reset on error
-      return;
-    }
-
-    files.forEach((file) => {
-      formData.append("files", file);
-    });
-
-    const questionIds = assessment.questions.map((question) => question._id);
-    formData.append("questionId", questionIds);
-  } else {
-    answers = assessment.questions.map((question) => ({
-      questionId: question._id,
-      selectedAnswer: data[`question-${question._id}`],
-    }));
-  }
-
-  try {
-    const res = await axiosInstance.post(
-      `/assessmentSubmission/submission/${assessment._id}`,
-      assessment.assessmentType === "file" ? formData : { answers },
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
+    if (assessment.assessmentType === "file") {
+      if (files.length === 0) {
+        toast.error("Please upload at least one file");
+        setSubmitting(false); // Reset on error
+        return;
       }
-    );
 
-    const submission = res.data.submission;
-    const isGraded = submission.graded;
+      files.forEach((file) => {
+        formData.append("files", file);
+      });
 
-    setSubmitted(true);
-    setResult(submission);
-
-    if (isGraded) {
-      toast.success("Assessment graded and submitted successfully!");
+      const questionIds = assessment.questions.map((question) => question._id);
+      formData.append("questionId", questionIds);
     } else {
-      toast.success("Submission recorded. Awaiting manual review.");
+      answers = assessment.questions.map((question) => ({
+        questionId: question._id,
+        selectedAnswer: data[`question-${question._id}`],
+      }));
     }
 
-    navigate(`/student/assessment`);
-  } catch (err) {
-    toast.error(err.response?.data?.message || "Submission failed");
-    setSubmitting(false); // Reset on failure
-  }
-};
+    try {
+      const res = await axiosInstance.post(
+        `/assessmentSubmission/submission/${assessment._id}`,
+        assessment.assessmentType === "file" ? formData : { answers },
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
 
+      const submission = res.data.submission;
+      const isGraded = submission.graded;
 
+      setSubmitted(true);
+      setResult(submission);
 
+      if (isGraded) {
+        toast.success("Assessment graded and submitted successfully!");
+      } else {
+        toast.success("Submission recorded. Awaiting manual review.");
+      }
 
+      navigate(`/student/assessment`);
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Submission failed");
+      setSubmitting(false); // Reset on failure
+    }
+  };
 
   // Show loading state
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <Loader className="h-8 w-8 animate-spin text-primary" />
+        <Loader
+          aria-hidden="true"
+          className="h-8 w-8 animate-spin text-primary"
+        />
       </div>
     );
   }
@@ -234,7 +233,7 @@ const onSubmit = async (data) => {
               <section>
                 {assessment.files && assessment.files.length > 0 && (
                   <div className="flex items-center gap-2 mb-4 border rounded-lg w-40 p-4 ml-5">
-                    <FileText className="text-green-500" />
+                    <FileText aria-hidden="true" className="text-green-500" />
                     <span className="text-sm font-medium text-gray-800">
                       {assessment.files.map((file, index) => (
                         <a
@@ -257,7 +256,7 @@ const onSubmit = async (data) => {
                     <Card key={question._id} className="border shadow-sm">
                       <CardHeader className="">
                         <div className="flex justify-between items-start">
-                          <CardTitle className="text-base">
+                          <CardTitle asChild className="text-base">
                             Question {index + 1}
                           </CardTitle>
                           <span className="text-sm text-muted-foreground">
@@ -285,24 +284,27 @@ const onSubmit = async (data) => {
                                   <RadioGroup
                                     onValueChange={field.onChange}
                                     value={field.value}
+                                    aria-labelledby={`question-${question._id}-label`}
                                     className="space-y-2"
                                   >
-                                    {question.options.map((option, optIndex) => (
-                                      <div
-                                        key={optIndex}
-                                        className="flex items-center space-x-2"
-                                      >
-                                        <RadioGroupItem
-                                          value={option}
-                                          id={`q${question._id}-opt${optIndex}`}
-                                        />
-                                        <Label
-                                          htmlFor={`q${question._id}-opt${optIndex}`}
+                                    {question.options.map(
+                                      (option, optIndex) => (
+                                        <div
+                                          key={optIndex}
+                                          className="flex items-center space-x-2"
                                         >
-                                          {option}
-                                        </Label>
-                                      </div>
-                                    ))}
+                                          <RadioGroupItem
+                                            value={option}
+                                            id={`q${question._id}-opt${optIndex}`}
+                                          />
+                                          <Label
+                                            htmlFor={`q${question._id}-opt${optIndex}`}
+                                          >
+                                            {option}
+                                          </Label>
+                                        </div>
+                                      )
+                                    )}
                                   </RadioGroup>
                                 </FormControl>
                                 <FormMessage />
@@ -378,7 +380,10 @@ const onSubmit = async (data) => {
                                     key={index}
                                     className="flex items-center gap-2 mb-1 border p-2 w-fit rounded-lg bg-blue-50"
                                   >
-                                    <FileText className="text-blue-500" />
+                                    <FileText
+                                      aria-hidden="true"
+                                      className="text-blue-500"
+                                    />
                                     <a
                                       href={file.url}
                                       target="_blank"
@@ -390,12 +395,17 @@ const onSubmit = async (data) => {
                                 ))}
                                 <FormControl>
                                   <section>
+                                    <label
+                                      className="sr-only"
+                                      htmlFor="assessment-files"
+                                    >
+                                      Upload your answer files
+                                    </label>
                                     <Input
-                                      type={"file"}
-                                      onChange={(e) => {
-                                        handleFileChange(e);
-                                      }}
+                                      id="assessment-files"
+                                      type="file"
                                       multiple
+                                      onChange={handleFileChange}
                                     />
 
                                     {files.length > 0 && (
@@ -405,12 +415,24 @@ const onSubmit = async (data) => {
                                             key={index}
                                             className="flex items-center gap-2 mb-1 border p-2 w-fit rounded-lg bg-blue-50"
                                           >
-                                            <FileText className="text-red-500" />
-                                            <span>{file.name}</span>
-                                            <X
-                                              size={16}
-                                              onClick={() => handleRemove(index)}
+                                            <FileText
+                                              aria-hidden="true"
+                                              className="text-red-500"
                                             />
+                                            <span>{file.name}</span>
+                                            <button
+                                              type="button"
+                                              aria-label={`Remove file ${file.name}`}
+                                              onClick={() =>
+                                                handleRemove(index)
+                                              }
+                                              onKeyDown={(e) =>
+                                                e.key === "Enter" &&
+                                                handleRemove(index)
+                                              }
+                                            >
+                                              <X size={16} />
+                                            </button>
                                           </div>
                                         ))}
                                       </div>
@@ -428,23 +450,34 @@ const onSubmit = async (data) => {
                 </div>
               </CardContent>
               {error && (
-                <Alert variant="destructive" className="mx-6 mb-4">
+                <Alert variant="destructive" role="alert" className="mx-6 mb-4">
                   <AlertDescription>{error}</AlertDescription>
                 </Alert>
               )}
               <CardFooter className="flex justify-end">
+                {submitting && (
+                  <span className="sr-only">Submitting assessment...</span>
+                )}
+
                 <Button
                   type="submit"
                   disabled={submitting}
-                  className="bg-green-500 hover:bg-green-600"
+                  aria-disabled={submitting} // ADA: communicates disabled state
+                  aria-busy={submitting} // ADA: indicates a task is in progress
+                  aria-live="polite" // ADA: announces text changes to screen readers
+                  className="bg-green-500 hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-700 focus:ring-offset-2"
                 >
                   {submitting ? (
                     <>
-                      <Loader className="mr-2 h-4 w-4 animate-spin" />
-                      Submitting...
+                      <Loader
+                        className="mr-2 h-4 w-4 animate-spin"
+                        role="status"
+                        aria-label="Submitting"
+                      />
+                      <span>Submitting...</span>
                     </>
                   ) : (
-                    "Submit Assessment"
+                    <span>Submit Assessment</span>
                   )}
                 </Button>
               </CardFooter>

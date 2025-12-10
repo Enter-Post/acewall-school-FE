@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   Select,
   SelectContent,
@@ -7,18 +7,30 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-const SelectCmp = ({ data, title, className, onChange, value }) => {
-  const handleChange = (value) => {
-    onChange && onChange(value);
+const SelectCmp = ({ data, title, className, onChange, value, id }) => {
+  const handleChange = (val) => {
+    onChange && onChange(val);
   };
 
-  // Check if data is empty or not
+  // Check if data exists
   const hasData = data && data.length > 0;
+
+  // Use provided id or fallback for accessibility
+  const selectId = id || "select-course";
 
   return (
     <div className={className}>
-      <Select value={value} onValueChange={handleChange} aria-labelledby="select-course">
-        <SelectTrigger className="w-full" id="select-course">
+      {/* Hidden label for screen readers */}
+      <label htmlFor={selectId} className="sr-only">
+        {title}
+      </label>
+
+      <Select
+        value={value}
+        onValueChange={handleChange}
+        aria-labelledby={selectId}
+      >
+        <SelectTrigger className="w-full" id={selectId}>
           <SelectValue placeholder={title} />
         </SelectTrigger>
         <SelectContent>
@@ -29,7 +41,9 @@ const SelectCmp = ({ data, title, className, onChange, value }) => {
               </SelectItem>
             ))
           ) : (
-            <SelectItem disabled>No options available</SelectItem> // Handle case of no data
+            <SelectItem disabled aria-disabled="true">
+              No options available
+            </SelectItem>
           )}
         </SelectContent>
       </Select>

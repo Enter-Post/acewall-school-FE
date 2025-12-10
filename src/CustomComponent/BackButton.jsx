@@ -10,8 +10,9 @@ const BackButton = ({ label = "Back", className = "" }) => {
       variant="outline"
       onClick={() => navigate(-1)}
       className={`flex items-center gap-2 ${className}`}
+      aria-label={label} // For screen readers
     >
-      <ArrowLeft size={16} />
+      <ArrowLeft size={16} aria-hidden="true" />
       {label}
     </Button>
   );

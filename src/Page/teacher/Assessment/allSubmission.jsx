@@ -38,8 +38,15 @@ const AllSubmission = () => {
 
   if (!submission) {
     return (
-      <div className="flex items-center justify-center w-full h-screen">
-        <Loader className="w-6 h-6 animate-spin text-muted-foreground" />
+      <div
+        className="flex items-center justify-center w-full h-screen"
+        role="status"
+        aria-live="polite"
+      >
+        <Loader
+          className="w-6 h-6 animate-spin text-muted-foreground"
+          aria-label="Loading submissions"
+        />
       </div>
     );
   }
@@ -59,10 +66,18 @@ const AllSubmission = () => {
         <div>
           <BackButton />
         </div>
-        <div className="flex flex-col items-center justify-center w-full h-screen space-y-4">
+        <div className="flex flex-col items-center justify-center w-full h-screen space-y-6">
           <div className="flex gap-4">
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-[180px]">
+            {/* Status Filter */}
+            <label className="sr-only" htmlFor="statusFilter">
+              Filter by submission status
+            </label>
+            <Select
+              value={statusFilter}
+              onValueChange={setStatusFilter}
+              aria-label="Filter by submission status"
+            >
+              <SelectTrigger id="statusFilter" className="w-[180px]">
                 {statusFilter === "all" ? "All Statuses" : statusFilter}
               </SelectTrigger>
               <SelectContent>
@@ -72,8 +87,16 @@ const AllSubmission = () => {
               </SelectContent>
             </Select>
 
-            <Select value={gradedFilter} onValueChange={setGradedFilter}>
-              <SelectTrigger className="w-[180px]">
+            {/* Graded Filter */}
+            <label className="sr-only" htmlFor="gradedFilter">
+              Filter by grading status
+            </label>
+            <Select
+              value={gradedFilter}
+              onValueChange={setGradedFilter}
+              aria-label="Filter by graded status"
+            >
+              <SelectTrigger id="gradedFilter" className="w-[180px]">
                 {gradedFilter === "all"
                   ? "All Grading"
                   : gradedFilter === "graded"
@@ -87,6 +110,7 @@ const AllSubmission = () => {
               </SelectContent>
             </Select>
           </div>
+
           <h1 className="text-2xl font-bold text-gray-800">
             No submissions found
           </h1>
@@ -100,56 +124,87 @@ const AllSubmission = () => {
       <div>
         <BackButton />
       </div>
+
       <div className="p-6 space-y-6">
         {/* Filters */}
-        <div className="flex flex-col md:flex-row gap-4">
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-[180px]">
-              {statusFilter === "all" ? "All Statuses" : statusFilter}
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Statuses</SelectItem>
-              <SelectItem value="before due date">Before Due Date</SelectItem>
-              <SelectItem value="after due date">After Due Date</SelectItem>
-            </SelectContent>
-          </Select>
+        <div className="flex flex-col md:flex-row gap-4" role="region" aria-label="Submission filters">
+          
+          {/* Status Filter */}
+          <div>
+            <label htmlFor="statusFilter" className="sr-only">
+              Filter submissions by status
+            </label>
+            <Select
+              value={statusFilter}
+              onValueChange={setStatusFilter}
+              aria-label="Filter by status"
+            >
+              <SelectTrigger id="statusFilter" className="w-[180px]">
+                {statusFilter === "all" ? "All Statuses" : statusFilter}
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Statuses</SelectItem>
+                <SelectItem value="before due date">Before Due Date</SelectItem>
+                <SelectItem value="after due date">After Due Date</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
-          <Select value={gradedFilter} onValueChange={setGradedFilter}>
-            <SelectTrigger className="w-[180px]">
-              {gradedFilter === "all"
-                ? "All Grading"
-                : gradedFilter === "graded"
-                ? "Graded"
-                : "Not Graded"}
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Grading</SelectItem>
-              <SelectItem value="graded">Graded</SelectItem>
-              <SelectItem value="not_graded">Not Graded</SelectItem>
-            </SelectContent>
-          </Select>
+          {/* Graded Filter */}
+          <div>
+            <label htmlFor="gradedFilter" className="sr-only">
+              Filter submissions by grading status
+            </label>
+            <Select
+              value={gradedFilter}
+              onValueChange={setGradedFilter}
+              aria-label="Filter by graded status"
+            >
+              <SelectTrigger id="gradedFilter" className="w-[180px]">
+                {gradedFilter === "all"
+                  ? "All Grading"
+                  : gradedFilter === "graded"
+                  ? "Graded"
+                  : "Not Graded"}
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Grading</SelectItem>
+                <SelectItem value="graded">Graded</SelectItem>
+                <SelectItem value="not_graded">Not Graded</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         {/* Submissions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          role="list"
+        >
           {filteredSubmissions.map((item) => (
             <Link
               key={item._id}
-              className="w-full"
               to={`/teacher/assessments/${item._id}`}
+              role="listitem"
+              className="focus:outline focus:outline-2 focus:outline-green-600 rounded-xl"
             >
-              <Card className="p-4 space-y-4">
+              <Card
+                className="p-4 space-y-4 hover:shadow-md transition-shadow"
+                role="group"
+                aria-label={`Submission from ${item?.studentId?.firstName} ${item?.studentId?.lastName}`}
+              >
                 <div className="flex items-center gap-4">
                   <Avatar>
                     <AvatarImage
                       src={item?.studentId?.profileImg?.url || avatar}
-                      alt="Profile Picture"
+                      alt={`${item?.studentId?.firstName} ${item?.studentId?.lastName} profile image`}
                     />
-                    <AvatarFallback>
+                    <AvatarFallback aria-hidden="true">
                       {item?.studentId?.firstName?.charAt(0)}
                       {item?.studentId?.lastName?.charAt(0)}
                     </AvatarFallback>
                   </Avatar>
+
                   <div>
                     <h2 className="text-lg font-semibold">
                       {item?.studentId?.firstName} {item?.studentId?.lastName}
@@ -159,35 +214,48 @@ const AllSubmission = () => {
                     </p>
                   </div>
                 </div>
-                <CardContent className="space-y-2 px-0">
-                  <p>
-                    <span className="text-sm">Status:</span>
-                    <p
-                      className={`${
+
+                <CardContent className="space-y-3 px-0">
+
+                  {/* Status */}
+                  <div>
+                    <span className="text-sm font-semibold text-gray-700">
+                      Status:
+                    </span>
+                    <span
+                      className={`block mt-1 ${
                         item?.status === "before due date"
-                          ? "text-green-500"
-                          : "text-red-500"
+                          ? "text-green-600"
+                          : "text-red-600"
                       } text-sm font-medium`}
                     >
                       {item?.status}
-                    </p>
-                  </p>
-                  <p>
-                    <span className="text-sm">Grading:</span>{" "}
-                    <p
-                      className={`${
-                        item?.graded ? "text-green-600" : "text-yellow-500"
+                    </span>
+                  </div>
+
+                  {/* Graded */}
+                  <div>
+                    <span className="text-sm font-semibold text-gray-700">
+                      Grading:
+                    </span>
+                    <span
+                      className={`block mt-1 ${
+                        item?.graded ? "text-green-600" : "text-yellow-600"
                       } text-sm font-medium`}
                     >
                       {item?.graded ? "Graded" : "Not Graded"}
-                    </p>
-                  </p>
-                  <p>
-                    <span className="text-sm">Submitted At:</span>{" "}
-                    <p className="text-sm">
+                    </span>
+                  </div>
+
+                  {/* Submitted At */}
+                  <div>
+                    <span className="text-sm font-semibold text-gray-700">
+                      Submitted At:
+                    </span>
+                    <span className="block mt-1 text-sm">
                       {new Date(item?.submittedAt).toLocaleString()}
-                    </p>
-                  </p>
+                    </span>
+                  </div>
                 </CardContent>
               </Card>
             </Link>

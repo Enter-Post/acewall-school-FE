@@ -10,10 +10,7 @@ import { Eye, EyeClosed } from "lucide-react";
 
 // Validation Schema using Zod
 const schema = z.object({
-  email: z
-    .string()
-    .min(1, "Email is required")
-    .email("Invalid email format"),
+  email: z.string().min(1, "Email is required").email("Invalid email format"),
   password: z
     .string()
     .min(1, "Password is required")
@@ -25,7 +22,7 @@ const TeacherLogin = () => {
   const [loginError, setLoginError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-  // React Hook Form setup with Zod Resolver
+  // React Hook Form with Zod Resolver
   const {
     register,
     handleSubmit,
@@ -37,7 +34,6 @@ const TeacherLogin = () => {
 
   const watchedPassword = watch("password");
 
-  // Handle form submission
   const onSubmit = async (formData) => {
     try {
       await login(formData);
@@ -56,10 +52,15 @@ const TeacherLogin = () => {
       {/* Header */}
       <header className="bg-green-600 text-white py-6 px-4">
         <div className="container mx-auto flex justify-between items-center">
-          <Link to={"/"} className="text-sm md:text-base">
+          <Link to="/" aria-label="Return to homepage" className="text-sm md:text-base">
             Return to Home
           </Link>
-          <Link to={"/home"} className="text-sm md:text-base">
+
+          <Link
+            to="/home"
+            aria-label="Create an account"
+            className="text-sm md:text-base"
+          >
             Create Account
           </Link>
         </div>
@@ -68,27 +69,35 @@ const TeacherLogin = () => {
       {/* Main Content */}
       <main className="flex-grow bg-gray-50">
         <div className="container mx-auto px-4 py-8">
-          <h1 className="text-center text-2xl md:text-3xl text-gray-800 font-normal mb-8">
+          <h1
+            className="text-center text-2xl md:text-3xl text-gray-800 font-normal mb-8"
+            id="teacher-login-heading"
+          >
             Teacher Login Page
           </h1>
 
           <div className="flex flex-col md:flex-row gap-8 max-w-6xl mx-auto">
             {/* Login Form */}
             <div className="w-full md:w-1/2 bg-white p-6 rounded-lg">
-              <form onSubmit={handleSubmit(onSubmit)}>
+              <form onSubmit={handleSubmit(onSubmit)} noValidate aria-labelledby="teacher-login-heading">
+
                 {/* Email Field */}
                 <div className="mb-6">
                   <label htmlFor="email" className="block text-gray-600 mb-2">
                     Email *
                   </label>
+
                   <input
                     type="email"
                     id="email"
                     className="w-full p-2 border border-gray-300 rounded"
+                    aria-invalid={!!errors.email}
+                    aria-describedby={errors.email ? "email-error" : undefined}
                     {...register("email")}
                   />
-                  {errors?.email && (
-                    <p className="text-xs text-red-600 inline-block">
+
+                  {errors.email && (
+                    <p id="email-error" className="text-xs text-red-600 inline-block">
                       {errors.email.message}
                     </p>
                   )}
@@ -99,28 +108,31 @@ const TeacherLogin = () => {
                   <label htmlFor="password" className="block text-gray-600 mb-2">
                     Password *
                   </label>
+
                   <div className="relative">
                     <input
                       type={showPassword ? "text" : "password"}
                       id="password"
                       className="w-full p-2 border border-gray-300 rounded pr-10"
+                      aria-invalid={!!errors.password}
+                      aria-describedby={errors.password ? "password-error" : undefined}
                       {...register("password")}
                     />
+
                     {watchedPassword && (
-                      <div
-                        className="absolute inset-y-0 right-2 flex items-center cursor-pointer"
+                      <button
+                        type="button"
+                        className="absolute inset-y-0 right-2 flex items-center"
                         onClick={() => setShowPassword((prev) => !prev)}
+                        aria-label={showPassword ? "Hide password" : "Show password"}
                       >
-                        {showPassword ? (
-                          <Eye size={20} />
-                        ) : (
-                          <EyeClosed size={20} />
-                        )}
-                      </div>
+                        {showPassword ? <Eye size={20} /> : <EyeClosed size={20} />}
+                      </button>
                     )}
                   </div>
-                  {errors?.password && (
-                    <p className="text-xs text-red-600 inline-block">
+
+                  {errors.password && (
+                    <p id="password-error" className="text-xs text-red-600 inline-block">
                       {errors.password.message}
                     </p>
                   )}
@@ -128,20 +140,22 @@ const TeacherLogin = () => {
 
                 {/* Login Error */}
                 {loginError && (
-                  <p className="text-sm text-red-500 mb-4">{loginError}</p>
+                  <p className="text-sm text-red-500 mb-4" role="alert">
+                    {loginError}
+                  </p>
                 )}
 
-                {/* Submit Button and Links */}
+                {/* Buttons and Links */}
                 <div className="space-y-12">
                   <div className="flex justify-between items-center">
                     <div className="flex flex-col gap-3">
                       <Link
                         to="/Login"
                         className="text-sm font-semibold text-green-600 hover:underline"
+                        aria-label="Login as a student instead"
                       >
                         Login as a Student
                       </Link>
-                     
                     </div>
 
                     <button
@@ -152,11 +166,11 @@ const TeacherLogin = () => {
                     </button>
                   </div>
 
-                  {/* Forgot Password link */}
                   <div className="text-right">
                     <Link
                       to="/forgetPassword"
                       className="text-xs font-semibold text-green-600 hover:underline"
+                      aria-label="Forgot your password? Reset it"
                     >
                       Forgot Password?
                     </Link>
@@ -169,20 +183,21 @@ const TeacherLogin = () => {
             <div className="w-full md:w-1/2 flex flex-col justify-center">
               <div className="flex justify-center mb-4">
                 <div className="w-32 h-32">
-                  <img src={acewallshort} alt="Acewall" />
+                  <img src={acewallshort} alt="Acewall Scholars logo" />
                 </div>
               </div>
+
               <h2 className="text-xl text-gray-800 font-medium mb-2 text-center md:text-left">
                 Teachers Love Acewall Scholars
               </h2>
+
               <blockquote className="text-gray-600 mb-4 text-center md:text-left">
-                <span>
-                  "This is one of the best Learning Management Platforms. Their
-                  support team is top-notch. The platform also supports various
-                  integrations as resources for classroom setup. I really enjoy
-                  making residual income from the classes I create."
-                </span>
+                "This is one of the best Learning Management Platforms. Their support team is
+                top-notch. The platform also supports various integrations as resources for
+                classroom setup. I really enjoy making residual income from the classes I
+                create."
               </blockquote>
+
               <div className="text-center md:text-left">
                 <p className="font-medium text-gray-800">- Regina</p>
                 <p className="text-gray-600 font-medium">Teacher</p>

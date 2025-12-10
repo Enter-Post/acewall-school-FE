@@ -1,5 +1,5 @@
-import React, { useContext, useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom"; // <-- import useNavigate
+import React, { useContext, useEffect, useState, useRef } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import { GlobalContext } from "@/Context/GlobalProvider";
 import ChatBox from "@/CustomComponent/Discussion/ChatBox";
 import { axiosInstance } from "@/lib/AxiosInstance";
@@ -8,14 +8,18 @@ import BackButton from "@/CustomComponent/BackButton";
 
 const TeacherDiscussionChat = () => {
   const { id } = useParams();
-  const navigate = useNavigate(); // <-- initialize navigate
+  const navigate = useNavigate();
   const [discussion, setDiscussion] = useState([]);
   const [loading, setLoading] = useState(true);
   const { user } = useContext(GlobalContext);
 
-  // New state for modal
+  // Modal state
   const [modalOpen, setModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState(null);
+
+  // Refs for focus management
+  const modalCloseButtonRef = useRef(null);
+  const triggerElementRef = useRef(null);
 
   useEffect(() => {
     const fetchdiscussion = async () => {
@@ -32,17 +36,61 @@ const TeacherDiscussionChat = () => {
     fetchdiscussion();
   }, [id]);
 
+  // Focus management for modal
+  useEffect(() => {
+    if (modalOpen && modalCloseButtonRef.current) {
+      modalCloseButtonRef.current.focus();
+    }
+  }, [modalOpen]);
+
+  // Handle escape key to close modal
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === "Escape" && modalOpen) {
+        closeModal();
+      }
+    };
+
+    if (modalOpen) {
+      document.addEventListener("keydown", handleEscape);
+      // Prevent body scroll when modal is open
+      document.body.style.overflow = "hidden";
+    }
+
+    return () => {
+      document.removeEventListener("keydown", handleEscape);
+      document.body.style.overflow = "unset";
+    };
+  }, [modalOpen]);
+
   // Open modal with file content
-  const openModal = (file) => {
+  const openModal = (file, buttonRef) => {
+    triggerElementRef.current = buttonRef;
     setModalContent(file);
     setModalOpen(true);
   };
 
-  // Close modal
+  // Close modal and return focus
   const closeModal = () => {
     setModalOpen(false);
     setModalContent(null);
+    // Return focus to the trigger element
+    if (triggerElementRef.current) {
+      triggerElementRef.current.focus();
+    }
   };
+
+  if (loading) {
+    return (
+      <div
+        className="flex justify-center items-center h-64"
+        role="status"
+        aria-live="polite"
+      >
+        <p className="text-lg">Loading discussion...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-2">
@@ -50,93 +98,124 @@ const TeacherDiscussionChat = () => {
         <BackButton />
       </section>
 
-      <section className="w-full p-6 bg-white rounded-xl shadow-md">
-        <div className="py-4 mb-6 pl-6 rounded-lg bg-green-600 text-white">
-          <p className="text-2xl font-bold">Discussion</p>
-        </div>
-        <section className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-4">
+      <main className="w-full p-6 bg-white rounded-xl shadow-md">
+        <header className="py-4 mb-6 pl-6 rounded-lg bg-green-600 text-white">
+          <h1 className="text-2xl font-bold">Discussion</h1>
+        </header>
+
+        <section
+          className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-4"
+          aria-label="Discussion metadata"
+        >
           <div className="flex items-center gap-2 text-xs">
-            <p className="text-gray-600 font-bold">Due Date:</p>
+            <span className="text-gray-600 font-bold">Due Date:</span>
             <div className="flex items-center gap-2">
-              <p className="text-gray-500">
+              <time
+                dateTime={discussion?.dueDate?.date}
+                className="text-gray-500"
+              >
                 {new Date(discussion?.dueDate?.date).toLocaleDateString()}
-              </p>
-              <p className="text-gray-500">
+              </time>
+              <span className="text-gray-500" aria-label="Due time">
                 {discussion?.dueDate?.time?.slice(0, 5)}
-              </p>
+              </span>
             </div>
           </div>
           <div className="flex items-center gap-2 text-xs">
-            <p className="text-gray-600 font-bold">Total Marks:</p>
-            <p className="text-gray-500">{discussion.totalMarks}</p>
+            <span className="text-gray-600 font-bold">Total Marks:</span>
+            <span className="text-gray-500">{discussion.totalMarks}</span>
           </div>
         </section>
 
-        <p className="text-2xl font-semibold mb-2">{discussion.topic}</p>
+        <h2 className="text-2xl font-semibold mb-2">{discussion.topic}</h2>
         <p className="text-lg text-gray-600 mb-6">{discussion.description}</p>
 
-        <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {discussion?.files?.map((file, index) => (
-            <button
-              key={index}
-              onClick={() => openModal(file)}
-              className="flex items-center gap-4 p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow bg-gray-50 hover:bg-white"
-              type="button"
-            >
-              {file.type === "application/pdf" ? (
-                <>
-                  <Files className="h-6 w-6 text-red-500" />
-                  <span className="text-sm font-medium text-blue-700 truncate">
-                    {file.filename}
-                  </span>
-                </>
-              ) : (
-                <>
-                  <img
-                    src={file.url}
-                    alt={`File ${index}`}
-                    className="h-10 w-10 object-cover rounded-md"
-                  />
-                  <span className="text-sm font-medium text-blue-700 truncate">
-                    {file.filename}
-                  </span>
-                </>
-              )}
-            </button>
-          ))}
-        </section>
-      </section>
+        {discussion?.files && discussion.files.length > 0 && (
+          <section aria-label="Discussion files">
+            <h3 className="sr-only">Attached Files</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+              {discussion.files.map((file, index) => (
+                <button
+                  key={index}
+                  onClick={(e) => openModal(file, e.currentTarget)}
+                  className="flex items-center gap-4 p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow bg-gray-50 hover:bg-white focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2"
+                  type="button"
+                  aria-label={`View ${file.filename}, ${
+                    file.type === "application/pdf" ? "PDF file" : "image file"
+                  }`}
+                >
+                  {file.type === "application/pdf" ? (
+                    <>
+                      <Files
+                        className="h-6 w-6 text-red-500"
+                        aria-hidden="true"
+                      />
+                      <span className="text-sm font-medium text-blue-700 truncate">
+                        {file.filename}
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <img
+                        src={file.url}
+                        alt=""
+                        className="h-10 w-10 object-cover rounded-md"
+                        aria-hidden="true"
+                      />
+                      <span className="text-sm font-medium text-blue-700 truncate">
+                        {file.filename}
+                      </span>
+                    </>
+                  )}
+                </button>
+              ))}
+            </div>
+          </section>
+        )}
+      </main>
 
       <ChatBox discussionId={id} discussion={discussion} />
 
       {/* Modal */}
-      {modalOpen && (
+      {modalOpen && modalContent && (
         <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="modal-title"
           onClick={closeModal}
           className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50"
         >
           <div
             onClick={(e) => e.stopPropagation()}
             className="bg-white rounded-lg p-4 max-w-3xl max-h-[90vh] overflow-auto"
+            role="document"
           >
-            <button
-              onClick={closeModal}
-              className="text-gray-600 hover:text-gray-900 float-right text-xl font-bold mb-2"
-              aria-label="Close modal"
-            >
-              ×
-            </button>
+            <div className="flex justify-between items-center mb-4">
+              <h2 id="modal-title" className="text-lg font-semibold">
+                {modalContent.filename}
+              </h2>
+              <button
+                ref={modalCloseButtonRef}
+                onClick={closeModal}
+                className="text-gray-600 hover:text-gray-900 text-xl font-bold focus:outline-none focus:ring-2 focus:ring-green-600 rounded p-1"
+                aria-label="Close dialog"
+                type="button"
+              >
+                ×
+              </button>
+            </div>
 
             {modalContent.type === "application/pdf" ? (
               <iframe
                 src={modalContent.url}
-                title={modalContent.filename}
+                title={`PDF viewer: ${modalContent.filename}`}
                 className="w-full h-[80vh]"
+                aria-label={`PDF document: ${modalContent.filename}`}
               />
             ) : (
               <img
                 src={modalContent.url}
-                alt={modalContent.filename}
+                alt={`Full view of ${modalContent.filename}`}
                 className="max-w-full max-h-[80vh] object-contain"
               />
             )}

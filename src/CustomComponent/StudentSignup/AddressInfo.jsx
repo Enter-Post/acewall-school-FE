@@ -1,9 +1,7 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useFormContext } from "react-hook-form";
-import PhoneInput from "react-phone-input-2";
 import { useEffect } from "react";
-import "react-phone-input-2/lib/style.css";
 
 const AddressInfo = () => {
   const {
@@ -51,106 +49,188 @@ const AddressInfo = () => {
   return (
     <>
       {/* Home Address Section */}
-      <div className="mb-6">
-        <Label>Home Address</Label>
+      <fieldset className="mb-6">
+        <legend className="font-medium text-gray-700 mb-2">Home Address</legend>
 
-        <Input
-          {...register("homeAddressLine1", {
-            required: "Address Line 1 is required",
-          })}
-          placeholder="Address Line 1"
-          className="mt-2"
-        />
-        <p className="text-xs text-red-600">
-          {errors?.homeAddressLine1?.message}
-        </p>
+        <div className="mb-2">
+          <Label htmlFor="homeAddressLine1">Address Line 1 *</Label>
+          <Input
+            id="homeAddressLine1"
+            {...register("homeAddressLine1", {
+              required: "Address Line 1 is required",
+            })}
+            placeholder="Address Line 1"
+            aria-required="true"
+            aria-invalid={errors?.homeAddressLine1 ? "true" : "false"}
+            aria-describedby="homeAddressLine1-error"
+            className="mt-2"
+          />
+          {errors?.homeAddressLine1 && (
+            <p
+              id="homeAddressLine1-error"
+              className="text-xs text-red-600 mt-1"
+            >
+              {errors.homeAddressLine1.message}
+            </p>
+          )}
+        </div>
 
-        <Input
-          {...register("homeAddressLine2")}
-          placeholder="Address Line 2 (Optional)"
-          className="mt-2"
-        />
+        <div className="mb-2">
+          <Label htmlFor="homeAddressLine2">Address Line 2 (Optional)</Label>
+          <Input
+            id="homeAddressLine2"
+            {...register("homeAddressLine2")}
+            placeholder="Address Line 2"
+            className="mt-2"
+          />
+        </div>
 
         <div className="flex gap-2 mt-2">
           <div className="flex-1">
+            <Label htmlFor="homeCity">City / Town *</Label>
             <Input
+              id="homeCity"
               {...register("homeCity", { required: "City is required" })}
               placeholder="City / Town"
+              aria-required="true"
+              aria-invalid={errors?.homeCity ? "true" : "false"}
+              aria-describedby="homeCity-error"
             />
-            <p className="text-xs text-red-600">{errors?.homeCity?.message}</p>
+            {errors?.homeCity && (
+              <p id="homeCity-error" className="text-xs text-red-600 mt-1">
+                {errors.homeCity.message}
+              </p>
+            )}
           </div>
 
           <div className="flex-1">
+            <Label htmlFor="homeState">State / Province *</Label>
             <Input
+              id="homeState"
               {...register("homeState", { required: "State is required" })}
               placeholder="State / Province"
+              aria-required="true"
+              aria-invalid={errors?.homeState ? "true" : "false"}
+              aria-describedby="homeState-error"
             />
-            <p className="text-xs text-red-600">{errors?.homeState?.message}</p>
+            {errors?.homeState && (
+              <p id="homeState-error" className="text-xs text-red-600 mt-1">
+                {errors.homeState.message}
+              </p>
+            )}
           </div>
 
           <div className="flex-1">
+            <Label htmlFor="homeZip">ZIP / Postal *</Label>
             <Input
+              id="homeZip"
               {...register("homeZip", { required: "ZIP Code is required" })}
               placeholder="ZIP / Postal"
+              aria-required="true"
+              aria-invalid={errors?.homeZip ? "true" : "false"}
+              aria-describedby="homeZip-error"
             />
-            <p className="text-xs text-red-600">{errors?.homeZip?.message}</p>
+            {errors?.homeZip && (
+              <p id="homeZip-error" className="text-xs text-red-600 mt-1">
+                {errors.homeZip.message}
+              </p>
+            )}
           </div>
         </div>
-      </div>
+      </fieldset>
 
       {/* Mailing Address Section */}
-      <div className="mb-6">
-        <Label>Mailing Address (if different)</Label>
+      <fieldset className="mb-6">
+        <legend className="font-medium text-gray-700 mb-2">
+          Mailing Address (if different)
+        </legend>
 
-        <Input
-          {...register("mailingAddressLine1", {
-            required: "Address Line 1 is required",
-          })}
-          placeholder="Address Line 1"
-          className="mt-2"
-        />
-        <p className="text-xs text-red-600">
-          {errors?.mailingAddressLine1?.message}
-        </p>
+        <div className="mb-2">
+          <Label htmlFor="mailingAddressLine1">Address Line 1 *</Label>
+          <Input
+            id="mailingAddressLine1"
+            {...register("mailingAddressLine1", {
+              required: "Address Line 1 is required",
+            })}
+            placeholder="Address Line 1"
+            aria-required="true"
+            aria-invalid={errors?.mailingAddressLine1 ? "true" : "false"}
+            aria-describedby="mailingAddressLine1-error"
+            className="mt-2"
+          />
+          {errors?.mailingAddressLine1 && (
+            <p
+              id="mailingAddressLine1-error"
+              className="text-xs text-red-600 mt-1"
+            >
+              {errors.mailingAddressLine1.message}
+            </p>
+          )}
+        </div>
 
-        <Input
-          {...register("mailingAddressLine2")}
-          placeholder="Address Line 2 (Optional)"
-          className="mt-2"
-        />
+        <div className="mb-2">
+          <Label htmlFor="mailingAddressLine2">Address Line 2 (Optional)</Label>
+          <Input
+            id="mailingAddressLine2"
+            {...register("mailingAddressLine2")}
+            placeholder="Address Line 2"
+            className="mt-2"
+          />
+        </div>
 
         <div className="flex gap-2 mt-2">
           <div className="flex-1">
+            <Label htmlFor="mailingCity">City / Town *</Label>
             <Input
+              id="mailingCity"
               {...register("mailingCity", { required: "City is required" })}
               placeholder="City / Town"
+              aria-required="true"
+              aria-invalid={errors?.mailingCity ? "true" : "false"}
+              aria-describedby="mailingCity-error"
             />
-            <p className="text-xs text-red-600">
-              {errors?.mailingCity?.message}
-            </p>
+            {errors?.mailingCity && (
+              <p id="mailingCity-error" className="text-xs text-red-600 mt-1">
+                {errors.mailingCity.message}
+              </p>
+            )}
           </div>
 
           <div className="flex-1">
+            <Label htmlFor="mailingState">State / Province *</Label>
             <Input
+              id="mailingState"
               {...register("mailingState", { required: "State is required" })}
               placeholder="State / Province"
+              aria-required="true"
+              aria-invalid={errors?.mailingState ? "true" : "false"}
+              aria-describedby="mailingState-error"
             />
-            <p className="text-xs text-red-600">
-              {errors?.mailingState?.message}
-            </p>
+            {errors?.mailingState && (
+              <p id="mailingState-error" className="text-xs text-red-600 mt-1">
+                {errors.mailingState.message}
+              </p>
+            )}
           </div>
 
           <div className="flex-1">
+            <Label htmlFor="mailingZip">ZIP / Postal *</Label>
             <Input
+              id="mailingZip"
               {...register("mailingZip", { required: "ZIP Code is required" })}
               placeholder="ZIP / Postal"
+              aria-required="true"
+              aria-invalid={errors?.mailingZip ? "true" : "false"}
+              aria-describedby="mailingZip-error"
             />
-            <p className="text-xs text-red-600">
-              {errors?.mailingZip?.message}
-            </p>
+            {errors?.mailingZip && (
+              <p id="mailingZip-error" className="text-xs text-red-600 mt-1">
+                {errors.mailingZip.message}
+              </p>
+            )}
           </div>
         </div>
-      </div>
+      </fieldset>
     </>
   );
 };

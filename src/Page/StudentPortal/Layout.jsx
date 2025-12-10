@@ -6,6 +6,7 @@ import acewallshort from "../../assets/acewallshort.png";
 import avatar from "../../assets/avatar.png";
 
 import {
+  Bot,
   Coffee,
   GitGraph,
   Menu,
@@ -41,73 +42,77 @@ const sideBarTabs = [
   {
     id: 1,
     name: "Dashboard",
-    icon: <DashboardCircleAddIcon />,
+    icon: <DashboardCircleAddIcon aria-hidden="true" />,
     path: "/student",
     allowedAsPreview: true,
   },
   {
     id: 2,
     name: "My Courses",
-    icon: <Book02Icon />,
+    icon: <Book02Icon aria-hidden="true" />,
     path: "/student/mycourses",
     allowedAsPreview: true,
   },
   {
     id: 3,
     name: "My Assessment",
-    icon: <AssessmentIcon />,
+    icon: <AssessmentIcon aria-hidden="true" />,
     path: "/student/assessment",
     allowedAsPreview: true,
   },
   {
     id: 4,
     name: "Gradebook",
-    icon: <Target02Icon />,
+    icon: <Target02Icon aria-hidden="true" />,
     path: "/student/gradebook",
     allowedAsPreview: true,
   },
   {
     id: 5,
     name: "Announcements",
-    icon: <Megaphone02Icon />,
+    icon: <Megaphone02Icon aria-hidden="true" />,
     path: "/student/announcements",
     allowedAsPreview: true,
   },
   {
     name: "Discussion Rooms",
-    icon: <MessagesSquareIcon />,
+    icon: <MessagesSquareIcon aria-hidden="true" />,
     path: "/student/discussions",
     allowedAsPreview: true,
   },
-   {
+  {
     id: 6,
     name: "Pages",
-    icon: <StickyNote />,
+    icon: <StickyNote aria-hidden="true" />,
     path: "/student/stdPages",
     allowedAsPreview: true,
   },
   {
     id: 7,
     name: "Spill the Tea",
-    icon: <Coffee />,
+    icon: <Coffee aria-hidden="true" />,
     path: "/Student/social",
   },
-
-   {
+  {
     id: 8,
     name: "Grading Graphs",
-    icon: <GitGraph />,
+    icon: <GitGraph aria-hidden="true" />,
     path: "/Student/graphs",
-
   },
   {
     id: 9,
     name: "Messages",
-    icon: <MessageCircleDashed />,
+    icon: <MessageCircleDashed aria-hidden="true" />,
     path: "/student/messages",
     allowedAsPreview: false,
   },
- 
+  {
+    id: 10,
+    name: "AI Assistant",
+    icon: <Bot />,
+    path: "/student/ai",
+    allowedAsPreview: false,
+  },
 ];
 
 export default function Layout() {
@@ -145,8 +150,24 @@ export default function Layout() {
     }
   };
 
+  // Close sidebar on route change (mobile)
+  React.useEffect(() => {
+    setIsSidebarOpen(false);
+  }, [location]);
+
   return (
     <div className="flex flex-col">
+      {/* Skip link - visible when focused (you'll need small CSS to make visible on focus) */}
+      <a
+        href="#main-content"
+        className="skip-link sr-only focus:not-sr-only"
+        // recommended CSS (add to your global stylesheet):
+        // .skip-link { position: absolute; left: -9999px; }
+        // .skip-link:focus { position: static; left: 0; top: 0; z-index: 9999; }
+      >
+        Skip to main content
+      </a>
+
       {/* Top header */}
       <header className="sticky top-0 z-10 bg-white">
         <div className="h-8 bg-green-600 flex justify-end items-center px-5">
@@ -154,7 +175,9 @@ export default function Layout() {
             <div className="flex items-center justify-between space-x-4 w-full">
               <div>
                 <p className="text-white text-sm">
-                  {`Viewing as Student - ${user.firstName} ${user.lastName}`}
+                  {`Viewing as Student - ${user.firstName || ""} ${
+                    user.lastName || ""
+                  }`}
                 </p>
               </div>
               <Button
@@ -167,6 +190,7 @@ export default function Layout() {
                     navigate("/teacher");
                   });
                 }}
+                aria-label="Switch to teacher view"
               >
                 Switch to Teacher
               </Button>
@@ -175,10 +199,6 @@ export default function Layout() {
             <TopNavbarDropDown />
           )}
         </div>
-        {/* <div>
-          <div className="h-6 bg-yellow-200 flex justify-end items-end px-5">
-          </div>
-        </div> */}
 
         <div className="flex h-16 items-center justify-between px-4 border">
           {/* Sidebar toggle (mobile) */}
@@ -187,23 +207,35 @@ export default function Layout() {
             size="icon"
             className="md:hidden"
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            aria-expanded={isSidebarOpen}
+            aria-controls="primary-sidebar"
+            aria-label={isSidebarOpen ? "Close sidebar" : "Open sidebar"}
           >
             <Menu className="h-6 w-6" />
             <span className="sr-only">Toggle Sidebar</span>
           </Button>
 
           {/* Logos */}
-          <Link className="block md:hidden" to="/student">
+          <Link
+            className="block md:hidden"
+            to="/student"
+            aria-label="Home - Acewall Scholars"
+          >
             <img
               src={acewallshort}
-              alt="Mobile Logo"
+              alt="Acewall Scholars logo — mobile"
+              aria-hidden="false"
               className="w-8 h-auto rounded-full"
             />
           </Link>
-          <Link className="hidden md:block" to="/student">
+          <Link
+            className="hidden md:block"
+            to="/student"
+            aria-label="Home - Acewall Scholars"
+          >
             <img
               src={acewallscholarslogo}
-              alt="Desktop Logo"
+              alt="Acewall Scholars — Learn and grow with Acewall Scholars"
               className="w-40 h-auto"
             />
           </Link>
@@ -226,27 +258,37 @@ export default function Layout() {
           </div>
 
           {/* Search bar (desktop only) */}
-          <div className="relative w-64 hidden md:flex flex-col">
+          <div
+            className="relative w-64 hidden md:flex flex-col"
+            aria-live="polite"
+          >
             <DropdownMenu
               open={openDropdown}
               onOpenChange={setOpenDropdown}
               modal={false}
             >
               <DropdownMenuTrigger asChild>
-                <div className="relative flex gap-2 w-full">
+                <div
+                  className="relative flex gap-2 w-full"
+                  role="search"
+                  aria-label="Course search"
+                >
                   <Input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && handleSearch()}
                     placeholder="Search courses and lessons"
+                    aria-label="Search courses and lessons"
                     className="w-full "
                   />
                   <button
+                    type="button"
                     onClick={handleSearch}
                     className="bg-green-500 hover:bg-green-600 text-white rounded-full p-2"
+                    aria-label="Search"
                   >
-                    <Search className="w-5 h-5" />
+                    <Search className="w-5 h-5" aria-hidden="true" />
                   </button>
                 </div>
               </DropdownMenuTrigger>
@@ -254,7 +296,13 @@ export default function Layout() {
               <DropdownMenuContent className="bg-white border mt-2 max-h-60 overflow-y-auto z-50 w-64">
                 {loading ? (
                   <DropdownMenuItem disabled>
-                    <span className="text-sm text-gray-700">Searching...</span>
+                    <span
+                      className="text-sm text-gray-700"
+                      role="status"
+                      aria-live="polite"
+                    >
+                      Searching...
+                    </span>
                   </DropdownMenuItem>
                 ) : dropdownCourses.length > 0 ? (
                   dropdownCourses.map((enrollment) => (
@@ -262,7 +310,8 @@ export default function Layout() {
                       key={enrollment._id}
                       asChild
                       onSelect={(e) => {
-                        e.preventDefault(); // prevent dropdown closing from being interrupted
+                        // Prevent automatic close if a user needs to keyboard-navigate
+                        e.preventDefault();
                       }}
                     >
                       <Link
@@ -270,7 +319,7 @@ export default function Layout() {
                         className="w-full text-sm text-gray-800 hover:bg-gray-100 px-2 py-1 block"
                         onClick={() => setOpenDropdown(false)}
                       >
-                        {enrollment.course.courseTitle || "Untitled Course"}
+                        {enrollment.course?.courseTitle || "Untitled Course"}
                       </Link>
                     </DropdownMenuItem>
                   ))
@@ -291,23 +340,34 @@ export default function Layout() {
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar */}
         <aside
-          className={`bg-white ${isSidebarOpen ? "block" : "hidden"
-            } w-screen md:w-64 flex-shrink-0 overflow-y-auto md:block`}
+          id="primary-sidebar"
+          className={`bg-white ${
+            isSidebarOpen ? "block" : "hidden"
+          } w-screen md:w-64 flex-shrink-0 overflow-y-auto md:block`}
+          aria-labelledby="sidebar-heading"
         >
           <div className="p-4">
             {/* User Info */}
             <div className="flex items-center space-x-3 pb-4">
-              <Link to="/student/account" className="block">
+              <Link
+                to="/student/account"
+                className="block"
+                aria-label="Open account settings"
+              >
                 <div className="h-12 w-12 rounded-full overflow-hidden">
                   <img
                     src={UpdatedUser?.profileImg?.url || avatar}
-                    alt={UpdatedUser?.firstName || "User Avatar"}
+                    alt={`Profile picture of ${
+                      UpdatedUser?.firstName || "User"
+                    }`}
                     className="h-full w-full object-cover rounded-full"
                   />
                 </div>
               </Link>
               <div>
-                <p className="font-medium">{UpdatedUser?.firstName || "User"}</p>
+                <p className="font-medium">
+                  {UpdatedUser?.firstName || "User"}
+                </p>
                 <p
                   className="text-sm text-gray-600 w-full max-w-[150px]  break-words"
                   title={UpdatedUser?.email || "N/A"}
@@ -319,58 +379,67 @@ export default function Layout() {
 
             {/* Mobile search */}
             <div className="flex md:hidden items-center space-x-4 mb-5">
-              <Input type="text" placeholder="Search" className="flex-grow" />
-              <div className="bg-green-200 hover:bg-green-300 rounded-full p-2 cursor-pointer">
-                <Search className="rounded-full" />
-              </div>
+              <Input
+                type="text"
+                placeholder="Search"
+                aria-label="Search courses"
+                className="flex-grow"
+              />
+              <button
+                type="button"
+                className="bg-green-200 hover:bg-green-300 rounded-full p-2"
+                aria-label="Search"
+              >
+                <Search className="rounded-full" aria-hidden="true" />
+              </button>
             </div>
 
             {/* Sidebar navigation */}
-            <nav className="space-y-2">
+            <nav className="space-y-2" role="navigation" aria-label="Primary">
               {sideBarTabs.map((tab) => {
-                return user.role === "teacherAsStudent" ? (
-                  <div
-                    key={tab.id}
-                    className={`${tab.allowedAsPreview === false
-                        ? "pointer-events-none opacity-50"
-                        : ""
-                      }`}
-                  >
-                    <Link
-                      to={tab.path}
-                      onClick={() => setIsSidebarOpen(false)}
-                      className={`flex items-center space-x-3 rounded-lg px-3 py-2 ${location === tab.path ? "bg-green-500" : "text-black"
-                        }`}
-                    >
-                      <p>{tab.icon}</p>
-                      <span
-                        className={`${location === tab.path
-                            ? "text-white"
-                            : "text-green-600"
-                          }`}
+                const isCurrent = location === tab.path;
+                const unavailable =
+                  tab.allowedAsPreview === false &&
+                  user?.role === "teacherAsStudent";
+
+                // If preview-disabled and user is teacherAsStudent, mark as aria-disabled and don't allow tab focus
+                const commonLinkProps = {
+                  to: tab.path,
+                  onClick: () => setIsSidebarOpen(false),
+                  className: `flex items-center space-x-3 rounded-lg px-3 py-2 ${
+                    isCurrent ? "bg-green-500" : "text-black"
+                  }`,
+                };
+
+                return (
+                  <div key={tab.id ?? tab.name}>
+                    {unavailable ? (
+                      <div
+                        // non-interactive wrapper for preview-disabled tabs
+                        className="flex items-center space-x-3 rounded-lg px-3 py-2 opacity-50 pointer-events-none"
+                        aria-disabled="true"
+                        role="group"
+                        title="Not available in preview mode"
                       >
-                        {tab.name}
-                      </span>
-                    </Link>
-                  </div>
-                ) : (
-                  <div key={tab.id}>
-                    <Link
-                      to={tab.path}
-                      onClick={() => setIsSidebarOpen(false)}
-                      className={`flex items-center space-x-3 rounded-lg px-3 py-2 ${location === tab.path ? "bg-green-500" : "text-black"
-                        }`}
-                    >
-                      <p>{tab.icon}</p>
-                      <span
-                        className={`${location === tab.path
-                            ? "text-white"
-                            : "text-green-600"
-                          }`}
+                        <span aria-hidden="true">{tab.icon}</span>
+                        <span className="text-green-600">{tab.name}</span>
+                      </div>
+                    ) : (
+                      <Link
+                        {...commonLinkProps}
+                        // communicate current page to assistive tech
+                        aria-current={isCurrent ? "page" : undefined}
                       >
-                        {tab.name}
-                      </span>
-                    </Link>
+                        <span aria-hidden="true">{tab.icon}</span>
+                        <span
+                          className={
+                            isCurrent ? "text-white" : "text-green-600"
+                          }
+                        >
+                          {tab.name}
+                        </span>
+                      </Link>
+                    )}
                   </div>
                 );
               })}
@@ -378,7 +447,11 @@ export default function Layout() {
 
             {/* Promo image */}
             <div className="flex flex-col items-center justify-between mt-10 w-full">
-              <img src={acewallshort} alt="Acewall" className="w-1/2" />
+              <img
+                src={acewallshort}
+                alt="Acewall shortmark"
+                className="w-1/2"
+              />
               <Link
                 to="https://www.acewallscholars.org/contact-Us"
                 className="text-center font-semibold text-sm mt-4 text-acewall-main"
@@ -390,7 +463,7 @@ export default function Layout() {
         </aside>
 
         {/* Main Outlet */}
-        <main className="flex-1 p-2 md:p-4">
+        <main id="main-content" className="flex-1 p-2 md:p-4" tabIndex={-1}>
           <Outlet />
         </main>
       </div>

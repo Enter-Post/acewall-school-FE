@@ -17,6 +17,7 @@ export const GlobalProvider = ({ children }) => {
   const [currentConversation, setCurrentConversation] = useState(null);
   const [selectedSubcategoryId, setSelectedSubcategoryId] = useState(null);
   const [UpdatedUser, setUpdatedUser] = useState(null);
+  const [taggedMessage, setTaggedMessage] = useState(null);
 
   const disconnectsocket = () => {
     if (socket && socket.connected) {
@@ -25,7 +26,6 @@ export const GlobalProvider = ({ children }) => {
       setSocket(null);
     }
   };
-
 
   const login = async (formdata) => {
     await axiosInstance
@@ -100,6 +100,8 @@ export const GlobalProvider = ({ children }) => {
         setUser,
         UpdatedUser,
         setUpdatedUser,
+        taggedMessage,
+        setTaggedMessage,
       }}
     >
       {children}

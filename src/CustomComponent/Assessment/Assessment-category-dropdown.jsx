@@ -49,8 +49,7 @@ export default function CategoryDropdown({
     },
   });
 
-  // Fetch categories when component mounts or courseId changes
-
+  // Fetch categories
   const fetchCategories = async () => {
     setIsLoading(true);
     try {
@@ -58,9 +57,9 @@ export default function CategoryDropdown({
         `assessmentCategory/${courseId}`
       );
       setCategories(response.data.categories || []);
-    } catch (error) {
-      console.error("Error fetching categories:", error);
-      if (error.response?.status !== 404) {
+    } catch (err) {
+      console.error("Error fetching categories:", err);
+      if (err.response?.status !== 404) {
         toast.error("Failed to fetch categories");
       }
       setCategories([]);
@@ -71,12 +70,11 @@ export default function CategoryDropdown({
 
   useEffect(() => {
     fetchCategories();
-  }, []);
+  }, [courseId]);
 
   const validateForm = (data) => {
     const errors = {};
-
-    if (!data.name || data.name.trim().length === 0) {
+    if (!data.name?.trim()) {
       errors.name = "Category name is required";
     } else if (data.name.length > 50) {
       errors.name = "Name must be less than 50 characters";
@@ -93,7 +91,6 @@ export default function CategoryDropdown({
 
   const onSubmit = async (data) => {
     const errors = validateForm(data);
-
     if (Object.keys(errors).length > 0) {
       Object.keys(errors).forEach((field) => {
         form.setError(field, { message: errors[field] });
@@ -103,33 +100,25 @@ export default function CategoryDropdown({
 
     setIsCreating(true);
     const toastId = toast.loading("Creating category...");
-
     try {
       const response = await axiosInstance.post(
         `assessmentCategory/${courseId}`,
-        {
-          name: data.name,
-          weight: data.weight,
-          course: courseId,
-        }
+        { name: data.name, weight: data.weight, course: courseId }
       );
 
       toast.success(response.data.message, { id: toastId });
 
       const newCategory = response.data.category;
       setCategories((prev) => [...prev, newCategory]);
-
       onValueChange(newCategory._id);
 
-      // Reset form and close dialog
       form.reset();
       setIsDialogOpen(false);
-    } catch (error) {
-      console.error("Error creating category:", error);
-      toast.error(
-        error?.response?.data?.message || "Failed to create category",
-        { id: toastId }
-      );
+    } catch (err) {
+      console.error("Error creating category:", err);
+      toast.error(err?.response?.data?.message || "Failed to create category", {
+        id: toastId,
+      });
     } finally {
       setIsCreating(false);
     }
@@ -139,28 +128,29 @@ export default function CategoryDropdown({
     <div className="space-y-2">
       <Select
         value={value}
-        defaultValues={value._id}
+        defaultValues={value?._id}
         onValueChange={onValueChange}
       >
-        <SelectTrigger className={error ? "border-red-500" : ""}>
+        <SelectTrigger
+          className={error ? "border-red-500" : ""}
+          aria-label="Select Topic"
+        >
           <SelectValue
-            placeholder={
-              isLoading ? "Loading Topics..." : "Select a Topics"
-            }
+            placeholder={isLoading ? "Loading Topics..." : "Select a Topic"}
           />
         </SelectTrigger>
         <SelectContent>
           {categories.length === 0 && !isLoading ? (
-            <div className="p-2 text-sm text-muted-foreground text-center">
+            <div
+              className="p-2 text-sm text-muted-foreground text-center"
+              role="status"
+              aria-live="polite"
+            >
               No Topics found
             </div>
           ) : (
             categories.map((category) => (
-              <SelectItem
-                key={category._id}
-                defaultvalues={value}
-                value={category._id}
-              >
+              <SelectItem key={category._id} value={category._id}>
                 <div className="flex justify-between items-center w-full">
                   <span>{category.name}</span>
                   <span className="text-xs text-muted-foreground ml-2">
@@ -178,15 +168,20 @@ export default function CategoryDropdown({
                   variant="ghost"
                   className="w-full justify-start h-8 px-2 text-sm"
                   type="button"
+                  aria-label="Add New Topic"
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   Add New Topic
                 </Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-[425px]">
+              <DialogContent
+                className="sm:max-w-[425px]"
+                aria-labelledby="dialog-title"
+                aria-describedby="dialog-description"
+              >
                 <DialogHeader>
-                  <DialogTitle>Add New Topic</DialogTitle>
-                  <DialogDescription>
+                  <DialogTitle id="dialog-title">Add New Topic</DialogTitle>
+                  <DialogDescription id="dialog-description">
                     Create a new assessment category for this course.
                   </DialogDescription>
                 </DialogHeader>
@@ -201,14 +196,16 @@ export default function CategoryDropdown({
                       name="name"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Topic Name</FormLabel>
+                          <FormLabel htmlFor="topic-name">Topic Name</FormLabel>
                           <FormControl>
                             <Input
                               {...field}
+                              id="topic-name"
                               placeholder="e.g., Midterm Exam, Quiz, Assignment"
+                              aria-required="true"
                             />
                           </FormControl>
-                          <FormMessage />
+                          <FormMessage role="alert" />
                         </FormItem>
                       )}
                     />
@@ -218,21 +215,27 @@ export default function CategoryDropdown({
                       name="weight"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Weight (%)</FormLabel>
+                          <FormLabel htmlFor="topic-weight">
+                            Weight (%)
+                          </FormLabel>
                           <FormControl>
                             <Input
                               {...field}
+                              id="topic-weight"
                               type="number"
-                              min="0"
-                              max="100"
+                              min={0}
+                              max={100}
                               placeholder="e.g., 25"
+                              aria-valuemin={0}
+                              aria-valuemax={100}
+                              aria-required="true"
                               onChange={(e) => {
                                 const value = Number.parseFloat(e.target.value);
-                                field.onChange(isNaN(value) ? " " : value);
+                                field.onChange(isNaN(value) ? "" : value);
                               }}
                             />
                           </FormControl>
-                          <FormMessage />
+                          <FormMessage role="alert" />
                         </FormItem>
                       )}
                     />
@@ -246,10 +249,15 @@ export default function CategoryDropdown({
                           form.reset();
                         }}
                         disabled={isCreating}
+                        aria-label="Cancel creating category"
                       >
                         Cancel
                       </Button>
-                      <Button type="submit" disabled={isCreating}>
+                      <Button
+                        type="submit"
+                        disabled={isCreating}
+                        aria-busy={isCreating}
+                      >
                         {isCreating ? "Creating..." : "Create Category"}
                       </Button>
                     </DialogFooter>

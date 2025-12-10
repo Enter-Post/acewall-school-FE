@@ -3,34 +3,29 @@ import { Switch } from "@/components/ui/switch";
 import { axiosInstance } from "@/lib/AxiosInstance";
 import { toast } from "sonner";
 
-/**
- * CommentsRatingsToggle
- * 
- * Props:
- * - courseId?: string -> ID of a single course (omit for global toggle)
- * - onToggle?: function -> callback when toggle changes
- * - role?: "admin" | "teacher" (default: "admin") -> determines API endpoint
- * - global?: boolean -> if true, toggles all courses
- */
-const CommentsRatingsToggle = ({ courseId, onToggle, role = "admin", global = false }) => {
+const CommentsRatingsToggle = ({
+  courseId,
+  onToggle,
+  role = "admin",
+  global = false,
+}) => {
   const [enabled, setEnabled] = useState(false);
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
 
-  // Determine API endpoints dynamically
   const getDetailsEndpoint = () => {
-    if (global) return `/admin/toggle-all-comments-status`; // new GET for global status
+    if (global) return `/admin/toggle-all-comments-status`;
     if (role === "teacher") return `/teacher/course/details/${courseId}`;
-    return `/course/details/${courseId}`; // admin single course
+    return `/course/details/${courseId}`;
   };
 
   const getToggleEndpoint = () => {
-    if (global) return `/admin/toggle-all-comments`; // new PATCH for global toggle
-    if (role === "teacher") return `/teacher/course/toggle-comments/${courseId}`;
-    return `/admin/${courseId}/toggle-comments`; // admin single course
+    if (global) return `/admin/toggle-all-comments`;
+    if (role === "teacher")
+      return `/teacher/course/toggle-comments/${courseId}`;
+    return `/admin/${courseId}/toggle-comments`;
   };
 
-  // Fetch initial toggle state
   useEffect(() => {
     const fetchToggleState = async () => {
       try {
@@ -52,11 +47,12 @@ const CommentsRatingsToggle = ({ courseId, onToggle, role = "admin", global = fa
     fetchToggleState();
   }, [courseId, global, role, onToggle]);
 
-  // Handle toggle click
   const handleToggle = async () => {
     setLoading(true);
     try {
-      const res = await axiosInstance.patch(getToggleEndpoint(), { enable: !enabled });
+      const res = await axiosInstance.patch(getToggleEndpoint(), {
+        enable: !enabled,
+      });
       const state = res.data.commentsEnabled;
       setEnabled(state);
       onToggle?.(state);
@@ -70,19 +66,40 @@ const CommentsRatingsToggle = ({ courseId, onToggle, role = "admin", global = fa
   };
 
   if (fetching) {
-    return <div className="text-gray-500 my-2">Loading toggle state...</div>;
+    return (
+      <div className="text-gray-500 my-2" aria-live="polite">
+        Loading toggle state...
+      </div>
+    );
   }
 
   return (
     <div className="flex items-center gap-4 my-4">
-      <span className="font-medium">{global ? "Enable Comments & Ratings for All Courses" : "Enable Comments & Ratings"}</span>
+      <span className="font-medium">
+        {global
+          ? "Enable Comments & Ratings for All Courses"
+          : "Enable Comments & Ratings"}
+      </span>
       <Switch
         checked={enabled}
         onCheckedChange={handleToggle}
         disabled={loading}
-        className={`${enabled ? "bg-green-500" : "bg-gray-300"}`}
+        role="switch"
+        aria-checked={enabled}
+        aria-label={
+          global
+            ? "Toggle Comments & Ratings for All Courses"
+            : "Toggle Comments & Ratings"
+        }
+        className={`${
+          enabled ? "bg-green-500" : "bg-gray-300"
+        } focus:outline-none focus:ring-2 focus:ring-blue-500`}
       />
-      {loading && <span className="text-sm text-gray-500">Updating...</span>}
+      {loading && (
+        <span className="text-sm text-gray-500" aria-live="polite">
+          Updating...
+        </span>
+      )}
     </div>
   );
 };

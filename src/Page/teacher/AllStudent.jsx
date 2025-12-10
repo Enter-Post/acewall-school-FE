@@ -46,14 +46,20 @@ const AllStudent = () => {
 
   // Extract unique course titles from the fetched students
   const courseTitles = useMemo(() => {
-    const allCourses = students.flatMap(student => student.courses || []);
-    const uniqueTitles = [...new Set(allCourses.map(course => course.courseTitle))];
+    const allCourses = students.flatMap((student) => student.courses || []);
+    const uniqueTitles = [
+      ...new Set(allCourses.map((course) => course.courseTitle)),
+    ];
     return ["All", ...uniqueTitles]; // Add "All" at the beginning
   }, [students]);
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-6">
+    <div
+      className="container mx-auto px-4 py-8"
+      role="main"
+      aria-label="All students list page"
+    >
+      <h1 className="text-2xl font-bold mb-6" tabIndex={0}>
         Students{" "}
         <span className="font-normal text-gray-500">
           ({students?.length.toLocaleString()})
@@ -61,9 +67,14 @@ const AllStudent = () => {
       </h1>
 
       <div className="mb-6 max-w-xs">
+        <label htmlFor="courseFilter" className="sr-only">
+          Filter by course title
+        </label>
         <SelectCmp
+          id="courseFilter"
           data={courseTitles}
           title="Filter by course title"
+          aria-label="Filter students by course title"
           className="w-full"
           value={selectedCourse}
           onChange={(val) => {
@@ -74,36 +85,62 @@ const AllStudent = () => {
       </div>
 
       {loading ? (
-        <div className="flex justify-center items-center space-x-2">
-          <div className="spinner"></div>
+        <div
+          className="flex justify-center items-center space-x-2"
+          role="status"
+          aria-live="polite"
+        >
+          <div className="spinner" aria-hidden="true"></div>
           <p>Loading students...</p>
         </div>
       ) : students.length === 0 ? (
-        <p>No students found. Please try selecting a different course.</p>
+        <p role="alert">
+          No students found. Please try selecting a different course.
+        </p>
       ) : (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+            role="list"
+          >
             {students.map((student, index) => (
-              <Link key={index} to={`/teacher/studentProfile/${student._id}`} state={{ student }}>
+              <Link
+                key={index}
+                to={`/teacher/studentProfile/${student._id}`}
+                state={{ student }}
+                role="listitem"
+                aria-label={`View profile of ${student.firstName} ${student.lastName}`}
+              >
                 <StudentCard student={student} />
               </Link>
             ))}
           </div>
 
           {/* Pagination Controls */}
-          <div className="flex justify-center mt-6 space-x-2">
+          <div
+            className="flex justify-center mt-6 space-x-2"
+            aria-label="Pagination controls"
+          >
             <button
               disabled={page === 1}
-              onClick={() => setPage(prev => prev - 1)}
+              onClick={() => setPage((prev) => prev - 1)}
               className="px-3 py-1 border rounded disabled:opacity-50"
+              aria-disabled={page === 1}
+              aria-label="Go to previous page"
             >
               Prev
             </button>
-            <span className="px-3 py-1">{`Page ${page} of ${totalPages}`}</span>
+
+            <span className="px-3 py-1" aria-live="polite" aria-atomic="true">
+              {`Page ${page} of ${totalPages}`}
+            </span>
+
             <button
               disabled={page === totalPages}
-              onClick={() => setPage(prev => prev + 1)}
+              onClick={() => setPage((prev) => prev + 1)}
               className="px-3 py-1 border rounded disabled:opacity-50"
+              aria-disabled={page === totalPages}
+              aria-label="Go to next page"
             >
               Next
             </button>

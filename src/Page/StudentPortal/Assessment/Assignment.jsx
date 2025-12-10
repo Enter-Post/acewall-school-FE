@@ -85,8 +85,13 @@ const Assessment = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center w-full h-screen">
+      <div
+        className="flex items-center justify-center w-full h-screen"
+        role="status"
+        aria-live="polite"
+      >
         <Loader className="animate-spin" />
+        <span className="sr-only">Loading assessments...</span>
       </div>
     );
   }
@@ -104,6 +109,7 @@ const Assessment = () => {
       <div className="flex items-center py-4">
         <Input
           placeholder="Search by title"
+          aria-label="Search assessments by title"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="max-w-sm"
@@ -116,7 +122,9 @@ const Assessment = () => {
             <TableHeader>
               <TableRow>
                 {tableHead.map((item, idx) => (
-                  <TableHead key={idx}>{item}</TableHead>
+                  <TableHead key={idx} scope="col">
+                    {item}
+                  </TableHead>
                 ))}
               </TableRow>
             </TableHeader>
@@ -126,11 +134,20 @@ const Assessment = () => {
                   <React.Fragment key={assessment._id}>
                     <TableRow className="text-xs md:text-sm">
                       <TableCell
+                        tabIndex={0}
+                        role="button"
                         className="cursor-pointer hover:text-blue-600 flex items-center gap-2"
                         onClick={() => toggleAssessmentExpand(assessment._id)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" || e.key === " ")
+                            toggleAssessmentExpand(assessment._id);
+                        }}
                       >
                         {expandedAssessmentId === assessment._id ? (
-                          <ChevronDown className="h-4 w-4 text-gray-500" />
+                          <ChevronDown
+                            className="h-4 w-4 text-gray-500"
+                            aria-hidden="true"
+                          />
                         ) : (
                           <ChevronRight className="h-4 w-4 text-gray-500" />
                         )}
@@ -231,6 +248,11 @@ const Assessment = () => {
                               <Button
                                 className="bg-green-500 hover:bg-green-600 text-white"
                                 size="sm"
+                                aria-label={
+                                  assessment.isSubmitted
+                                    ? `See results for ${assessment.title}`
+                                    : `Submit assessment ${assessment.title}`
+                                }
                               >
                                 <Upload className="h-4 w-4 mr-2" />
                                 {assessment.isSubmitted
@@ -246,7 +268,11 @@ const Assessment = () => {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={5} className="text-center py-8">
+                  <TableCell
+                    colSpan={5}
+                    className="text-center py-8"
+                    role="alert"
+                  >
                     {search
                       ? "No assessments found matching your search."
                       : "No assessments available."}

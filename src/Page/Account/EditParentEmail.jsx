@@ -40,13 +40,15 @@ const EditParentEmail = ({ studentId, initialEmails = [], onUpdate }) => {
 
     try {
       setLoading(true);
-      const res = await axiosInstance.put(`/auth/updateParentEmail/${studentId}`, {
-        guardianEmails: validEmails,
-      });
+      const res = await axiosInstance.put(
+        `/auth/updateParentEmail/${studentId}`,
+        {
+          guardianEmails: validEmails,
+        }
+      );
 
       toast.success(res?.data?.message || "Emails updated successfully");
 
-      // Callback to update parent component
       if (onUpdate) onUpdate(validEmails);
     } catch (err) {
       console.error("❌ API Error:", err);
@@ -57,35 +59,62 @@ const EditParentEmail = ({ studentId, initialEmails = [], onUpdate }) => {
   };
 
   return (
-    <div className="mt-4 p-6 max-w-lg mx-auto bg-gray-50 rounded-lg shadow-md">
-      <h2 className="text-lg font-semibold">Edit Parent/Guardian Emails</h2>
+    <div
+      className="mt-4 p-6 max-w-lg mx-auto bg-gray-50 rounded-lg shadow-md"
+      role="region"
+      aria-labelledby="edit-parent-email-heading"
+    >
+      <h2
+        id="edit-parent-email-heading"
+        className="text-lg font-semibold"
+      >
+        Edit Parent/Guardian Emails
+      </h2>
+
       <p className="text-sm text-gray-600 mb-4">
         Add or update up to 4 parent/guardian email addresses.
       </p>
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        {emails.map((email, index) => (
-          <div key={index} className="flex gap-2 items-center">
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => handleEmailChange(index, e.target.value)}
-              className="border p-2 rounded-md w-full"
-              placeholder={`Parent/Guardian Email ${index + 1}`}
-              required
-            />
-            {emails.length > 1 && (
-              <Button
-                type="button"
-                variant="destructive"
-                size="icon"
-                onClick={() => handleRemoveEmail(index)}
-              >
-                <Trash2 className="w-4 h-4" />
-              </Button>
-            )}
-          </div>
-        ))}
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
+        <fieldset className="space-y-4" aria-describedby="email-limit-note">
+          <legend className="sr-only">Parent or guardian email addresses</legend>
+
+          {emails.map((email, index) => (
+            <div key={index} className="flex gap-2 items-start">
+              <div className="w-full">
+                <label
+                  htmlFor={`email-${index}`}
+                  className="text-sm font-medium text-gray-700"
+                >
+                  Parent/Guardian Email {index + 1}
+                </label>
+
+                <input
+                  id={`email-${index}`}
+                  type="email"
+                  value={email}
+                  onChange={(e) => handleEmailChange(index, e.target.value)}
+                  className="border p-2 rounded-md w-full mt-1"
+                  placeholder="example@email.com"
+                  aria-required="true"
+                  aria-invalid={email.trim() === ""}
+                />
+              </div>
+
+              {emails.length > 1 && (
+                <Button
+                  type="button"
+                  variant="destructive"
+                  size="icon"
+                  onClick={() => handleRemoveEmail(index)}
+                  aria-label={`Remove email field number ${index + 1}`}
+                >
+                  <Trash2 className="w-4 h-4" aria-hidden="true" />
+                </Button>
+              )}
+            </div>
+          ))}
+        </fieldset>
 
         <Button
           type="button"
@@ -93,13 +122,19 @@ const EditParentEmail = ({ studentId, initialEmails = [], onUpdate }) => {
           onClick={handleAddEmail}
           className="flex items-center gap-2"
           disabled={emails.length >= 4}
+          aria-disabled={emails.length >= 4}
+          aria-describedby="email-limit-note"
         >
-          <Plus className="w-4 h-4" />
+          <Plus className="w-4 h-4" aria-hidden="true" />
           Add Another Email
         </Button>
 
         {emails.length >= 4 && (
-          <p className="text-xs text-red-500">
+          <p
+            id="email-limit-note"
+            className="text-xs text-red-500"
+            role="alert"
+          >
             You can only add up to 4 parent/guardian emails.
           </p>
         )}
@@ -107,10 +142,12 @@ const EditParentEmail = ({ studentId, initialEmails = [], onUpdate }) => {
         <Button
           type="submit"
           disabled={loading || emails.every((e) => e.trim().length === 0)}
+          aria-busy={loading}
         >
           {loading ? (
             <span className="flex items-center gap-2">
-              <Loader className="animate-spin w-4 h-4" /> Saving...
+              <Loader className="animate-spin w-4 h-4" aria-hidden="true" />
+              Saving...
             </span>
           ) : (
             "Save Changes"

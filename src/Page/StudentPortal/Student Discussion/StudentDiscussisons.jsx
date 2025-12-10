@@ -10,31 +10,36 @@ const StudentDiscussion = () => {
   useEffect(() => {
     const fetchDiscussions = async () => {
       setLoading(true);
-      await axiosInstance
-        .get("/discussion/studentDiscussion")
-        .then((res) => {
-          setLoading(false);
-          setDiscussions(res.data.discussions || []);
-        })
-        .catch(() => {
-          setLoading(false);
-          setDiscussions([]);
-        });
+      try {
+        const res = await axiosInstance.get("/discussion/studentDiscussion");
+        setDiscussions(res.data.discussions || []);
+      } catch {
+        setDiscussions([]);
+      } finally {
+        setLoading(false);
+      }
     };
     fetchDiscussions();
   }, [refresh]);
 
   return (
-    <div>
-      <div className="flex flex-col pb-2 gap-5">
-        <p className="text-xl py-4 mb-8 pl-6 font-semibold bg-acewall-main text-white rounded-lg">
-          Discussions
-        </p>
-      </div>
-
-      {/* Existing Tab Content */}
-      <DiscussionTabContent loading={loading} discussions={discussions} />
-    </div>
+    <main className="md:p-6" aria-label="Student Discussions Page">
+      {/* Header */}{" "}
+      <h1
+        className="text-xl py-4 mb-8 pl-6 font-semibold bg-acewall-main text-white rounded-lg"
+        tabIndex={-1}
+      >
+        Discussions{" "}
+      </h1>
+      <section
+        className="flex flex-col pb-2 gap-5"
+        aria-label="Student discussion list"
+        aria-busy={loading}
+      >
+        {/* Existing Tab Content */}
+        <DiscussionTabContent loading={loading} discussions={discussions} />
+      </section>
+    </main>
   );
 };
 

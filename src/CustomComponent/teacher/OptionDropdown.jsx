@@ -23,50 +23,80 @@ const ChapterOptionDropdown = ({
   courseId,
   type,
 }) => {
+  const isChapter = type === "chapter";
+  const contentTypeLabel = isChapter ? "chapter" : "section";
+
   return (
     <div>
       <DropdownMenu>
-        <DropdownMenuTrigger>
-          <div className="bg-green-200 hover:bg-green-300 cursor-pointer rounded-lg p-2">
-            <BadgePlus className="text-green-600" size={20} />
-          </div>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent>
-          {/* <DropdownMenuItem> */}
-          {type === "chapter" && (
-            <LessonModal
-              chapterID={typeId}
-              fetchQuarterDetail={fetchChapterDetail}
+        <DropdownMenuTrigger asChild>
+          <button
+            className="bg-green-200 hover:bg-green-300 active:bg-green-400 cursor-pointer rounded-lg p-2 transition-colors duration-150"
+            aria-label={`Add content options for this ${contentTypeLabel}`}
+            aria-haspopup="true"
+            aria-expanded="false"
+            title={`Add content options for this ${contentTypeLabel}`}
+          >
+            <BadgePlus
+              className="text-green-600"
+              size={20}
+              aria-hidden="true"
             />
+          </button>
+        </DropdownMenuTrigger>
+
+        <DropdownMenuContent className="w-56">
+          <DropdownMenuLabel className="text-gray-700 font-semibold">
+            Add Content
+          </DropdownMenuLabel>
+          <DropdownMenuSeparator />
+
+          {/* Add Lesson - Only for Chapters */}
+          {isChapter && (
+            // <DropdownMenuItem asChild>
+              <div className="p-0">
+                <LessonModal
+                  chapterID={typeId}
+                  fetchQuarterDetail={fetchChapterDetail}
+                  aria-label="Add lesson to chapter"
+                />
+              </div>
+            // </DropdownMenuItem>
           )}
 
-          {/* </DropdownMenuItem> */}
-          <DropdownMenuItem>
+          {/* Add Assessment */}
+          <DropdownMenuItem asChild>
             <Link
               to={`/teacher/assessments/create/${type}/${typeId}/${courseId}/${quarterStart}/${quarterEnd}?semester=${semesterId}&quarter=${quarterId}`}
+              className="flex items-center gap-2 text-green-600 hover:text-green-700 active:text-green-800 py-2 px-3 rounded cursor-pointer transition-colors duration-150"
+              aria-label="Add assessment"
             >
-              <div className="text-green-600 bg-transparent flex ">
-                <Plus className="h-4 w-4 mr-2" />
-                Add Assessment
-              </div>
+              <Plus className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
+              <span>Add Assessment</span>
             </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem>
+
+          {/* Add Page */}
+          <DropdownMenuItem asChild>
             <Link
               to={`/teacher/courses/${courseId}/posts/${type}/${typeId}`}
-              className="flex cursor-pointer"
+              className="flex items-center gap-2 text-green-600 hover:text-green-700 active:text-green-800 py-2 px-3 rounded cursor-pointer transition-colors duration-150"
+              aria-label="Add page"
             >
-              <Plus className="h-4 w-4 mr-2" />
-              <p className="text-green-600">Add Page</p>
+              <Plus className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
+              <span>Add Page</span>
             </Link>
           </DropdownMenuItem>
-          <DropdownMenuItem>
+
+          {/* Add Discussion */}
+          <DropdownMenuItem asChild>
             <Link
-              to={`/teacher/discussions?semester=${semesterId}&&quarter=${quarterId}&&type=${type}&&typeId=${typeId}&&course=${courseId}`}
-              className="text-green-600 bg-transparent flex"
+              to={`/teacher/discussions?semester=${semesterId}&quarter=${quarterId}&type=${type}&typeId=${typeId}&course=${courseId}`}
+              className="flex items-center gap-2 text-green-600 hover:text-green-700 active:text-green-800 py-2 px-3 rounded cursor-pointer transition-colors duration-150"
+              aria-label="Add discussion"
             >
-              <Plus className="h-4 w-4 mr-2" />
-              Discussion
+              <Plus className="h-4 w-4 flex-shrink-0" aria-hidden="true" />
+              <span>Add Discussion</span>
             </Link>
           </DropdownMenuItem>
         </DropdownMenuContent>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useId, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -16,7 +16,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { Plus, Trash } from "lucide-react";
+import { Plus, Trash, AlertCircle, Info } from "lucide-react";
 import { axiosInstance } from "@/lib/AxiosInstance";
 import { toast } from "sonner";
 import JoditEditor from "jodit-react";
@@ -29,8 +29,14 @@ const pdfFileSchema = z
   });
 
 const lessonSchema = z.object({
-  title: z.string().min(5).max(100),
-  description: z.string().min(5).max(250000),
+  title: z
+    .string()
+    .min(5, "Title must be at least 5 characters")
+    .max(100, "Title must not exceed 100 characters"),
+  description: z
+    .string()
+    .min(5, "Description must be at least 5 characters")
+    .max(250000, "Description exceeds maximum length"),
   youtubeLinks: z
     .string()
     .trim()
@@ -43,7 +49,8 @@ const lessonSchema = z.object({
           val
         ),
       {
-        message: "Enter a valid YouTube video link",
+        message:
+          "Enter a valid YouTube video link (e.g., https://youtube.com/watch?v=...)",
       }
     ),
   otherLink: z
@@ -52,11 +59,11 @@ const lessonSchema = z.object({
     .transform((val) => (val === "" ? undefined : val))
     .optional()
     .refine((val) => !val || /^https?:\/\/.+$/.test(val), {
-      message: "Must be a valid URL",
+      message: "Must be a valid URL starting with http:// or https://",
     }),
   pdfFiles: z
     .array(pdfFileSchema)
-    .optional() // Make pdfFiles optional
+    .optional()
     .refine(
       (files) =>
         !files ||
@@ -73,22 +80,67 @@ const LessonModal = ({ type, chapterID, fetchQuarterDetail }) => {
   const [pdfInputs, setPdfInputs] = useState([{ id: Date.now(), file: null }]);
   const [totalSize, setTotalSize] = useState(0);
   const [loading, setLoading] = useState(false);
-
-  const MAX_TITLE_LENGTH = 100;
-  const MAX_DESCRIPTION_LENGTH = 200;
-
-  console.log(chapterID, "chapter Id");
-
   const [titleValue, setTitleValue] = useState("");
   const [descValue, setDescValue] = useState("");
-  const [editorConfig] = useState({
-    readonly: false,
-    height: 200,
-    toolbar: true,
-    uploader: {
-      insertImageAsBase64URI: true,
-    },
-  });
+
+  const dialogId = useId();
+  const titleFieldId = useId();
+  const descriptionFieldId = useId();
+  const youtubeFieldId = useId();
+  const otherLinkFieldId = useId();
+  const pdfFieldId = useId();
+  const totalSizeId = useId();
+  const editorRef = useRef(null);
+
+  const MAX_TITLE_LENGTH = 100;
+  const MAX_DESCRIPTION_LENGTH = 250000;
+  const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+
+  const editorConfig = {
+    readonly: false, // false to allow editing
+    height: 400, // editor height
+    toolbarSticky: true, // toolbar sticks on scroll
+    toolbarButtonSize: "middle", // button size: small, middle, large
+    askBeforePasteHTML: true,
+    askBeforePasteFromWord: true,
+    showCharsCounter: true,
+    showWordsCounter: true,
+    showXPathInStatusbar: false,
+    buttons: [
+      "bold",
+      "italic",
+      "underline",
+      "strikethrough",
+      "superscript",
+      "subscript",
+      "|",
+      "ul",
+      "ol",
+      "|",
+      "outdent",
+      "indent",
+      "|",
+      "font",
+      "fontsize",
+      "brush",
+      "paragraph",
+      "|",
+      "image",
+      "video",
+      "link",
+      "table",
+      "|",
+      "align",
+      "undo",
+      "redo",
+      "hr",
+      "eraser",
+      "copyformat",
+      "|",
+      "fullsize",
+      "source",
+    ],
+  };
 
   const {
     register,
@@ -107,8 +159,6 @@ const LessonModal = ({ type, chapterID, fetchQuarterDetail }) => {
     },
   });
 
-  console.log(errors, "errors");
-
   const calculateTotalSize = (files) =>
     files.reduce((acc, f) => acc + (f?.size || 0), 0);
 
@@ -116,7 +166,7 @@ const LessonModal = ({ type, chapterID, fetchQuarterDetail }) => {
     if (!file) return;
 
     if (file.type !== "application/pdf") {
-      toast.error("Only PDF files are allowed");
+      toast.error("Only PDF files are allowed. Please select a PDF.");
       return;
     }
 
@@ -125,8 +175,8 @@ const LessonModal = ({ type, chapterID, fetchQuarterDetail }) => {
     );
 
     const newSize = calculateTotalSize(updated.map((i) => i.file));
-    if (newSize > 5 * 1024 * 1024) {
-      toast.error("Total file size exceeds 5MB");
+    if (newSize > MAX_FILE_SIZE) {
+      toast.error("Total file size exceeds 5MB. Please remove some files.");
       return;
     }
 
@@ -135,11 +185,12 @@ const LessonModal = ({ type, chapterID, fetchQuarterDetail }) => {
     setValue("pdfFiles", updated.map((i) => i.file).filter(Boolean), {
       shouldValidate: true,
     });
+    toast.success(`File "${file.name}" added successfully.`);
   };
 
   const handleAddField = () => {
     const currentTotal = calculateTotalSize(pdfInputs.map((i) => i.file));
-    if (currentTotal >= 5 * 1024 * 1024) {
+    if (currentTotal >= MAX_FILE_SIZE) {
       toast.error("Cannot add more files. 5MB limit reached.");
       return;
     }
@@ -148,6 +199,11 @@ const LessonModal = ({ type, chapterID, fetchQuarterDetail }) => {
   };
 
   const handleRemoveField = (id) => {
+    if (pdfInputs.length === 1) {
+      toast.error("You must keep at least one file input field.");
+      return;
+    }
+
     const updated = pdfInputs.filter((input) => input.id !== id);
     const newSize = calculateTotalSize(updated.map((i) => i.file));
     setPdfInputs(updated);
@@ -181,157 +237,396 @@ const LessonModal = ({ type, chapterID, fetchQuarterDetail }) => {
 
       toast.success(res.data.message);
       fetchQuarterDetail();
-      reset();
-      setPdfInputs([{ id: Date.now(), file: null }]);
-      setTotalSize(0);
-      setTitleValue("");
-      setDescValue("");
+      handleReset();
       setOpen(false);
     } catch (err) {
-      toast.error(err?.response?.data?.message || "Something went wrong");
+      toast.error(
+        err?.response?.data?.message ||
+          "Failed to save lesson. Please try again."
+      );
     } finally {
       setLoading(false);
     }
   };
 
+  const handleReset = () => {
+    reset();
+    setPdfInputs([{ id: Date.now(), file: null }]);
+    setTitleValue("");
+    setDescValue("");
+    setTotalSize(0);
+  };
+
+  const handleCancel = () => {
+    handleReset();
+    setOpen(false);
+  };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <div className="flex item-center gap-2 border-blue-200 text-sm text-blue-700 ml-auto w-full bg-white p-2 cursor-pointer">
-          <Plus className="h-4 w-4" size={16} />
+        <div
+          className="flex items-center gap-2 text-green-600 hover:text-green-700 active:text-green-800 py-2 px-3 rounded cursor-pointer transition-colors duration-150 text-sm"
+          aria-label="Open dialog to add a new lesson"
+          title="Add a new lesson to this chapter"
+        >
+          <Plus className="h-4 w-4 text-gray" aria-hidden="true" />
           Add Lesson
         </div>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[90%] h-[80dvh] overflow-y-auto">
+
+      <DialogContent
+        className="sm:max-w-[90%] max-h-[80dvh] overflow-y-auto focus:ring-2 focus:ring-blue-500"
+        role="dialog"
+        aria-labelledby={`${dialogId}-title`}
+        aria-describedby={`${dialogId}-description`}
+      >
         <DialogHeader>
-          <DialogTitle>Add Lesson</DialogTitle>
-          <DialogDescription>
-            Fill in the lesson details. Upload only PDF files, max 5MB total.
+          <DialogTitle id={`${dialogId}-title`}>Add New Lesson</DialogTitle>
+          <DialogDescription
+            id={`${dialogId}-description`}
+            className="flex items-start gap-2 mt-2"
+          >
+            <Info
+              className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5"
+              aria-hidden="true"
+            />
+            <span>
+              Create a lesson with title, description, and optional resources.
+              Fields marked with <span className="text-red-500">*</span> are
+              required. Maximum file size: 5MB total.
+            </span>
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div>
-            <Label htmlFor="title">Lesson Title</Label>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          {/* Title Field */}
+          <div className="space-y-2">
+            <Label htmlFor={titleFieldId} className="font-medium text-gray-700">
+              Lesson Title
+              <span className="text-red-500 ml-1" aria-label="required">
+                *
+              </span>
+            </Label>
             <Input
-              id="title"
+              id={titleFieldId}
+              placeholder="Enter a descriptive lesson title"
               {...register("title")}
               value={titleValue}
               maxLength={MAX_TITLE_LENGTH}
               onChange={(e) => {
-                if (e.target.value.length <= MAX_TITLE_LENGTH) {
-                  setTitleValue(e.target.value);
-                  setValue("title", e.target.value);
+                const value = e.target.value;
+                if (value.length <= MAX_TITLE_LENGTH) {
+                  setTitleValue(value);
+                  setValue("title", value);
                 }
               }}
+              className="focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              aria-describedby={
+                errors.title ? `${titleFieldId}-error` : `${titleFieldId}-count`
+              }
+              aria-invalid={!!errors.title}
             />
-            <div className="text-sm text-muted-foreground text-right">
-              {titleValue.length}/{MAX_TITLE_LENGTH}
+            <div className="flex items-center justify-between">
+              <div>
+                {errors.title && (
+                  <p
+                    id={`${titleFieldId}-error`}
+                    className="text-red-500 text-sm flex items-center gap-1"
+                    role="alert"
+                  >
+                    <AlertCircle className="w-3 h-3" aria-hidden="true" />
+                    {errors.title.message}
+                  </p>
+                )}
+              </div>
+              <span
+                id={`${titleFieldId}-count`}
+                className="text-xs text-gray-500"
+                aria-live="polite"
+              >
+                {titleValue.length}/{MAX_TITLE_LENGTH}
+              </span>
             </div>
-            {errors.title && (
-              <p className="text-red-500 text-sm">{errors.title.message}</p>
-            )}
           </div>
 
-          <div className="w-[80%] flex justify-center item-center gap-2 flex-col">
-            <Label htmlFor="description">Lesson Description</Label>
-            <JoditEditor
-              config={editorConfig}
-              value={descValue}
-              onChange={(newContent) => {
-                setDescValue(newContent);
-                setValue("description", newContent);
-              }}
+          {/* Description Field */}
+          <div className="space-y-2">
+            <Label
+              htmlFor={descriptionFieldId}
+              className="font-medium text-gray-700"
+            >
+              Lesson Description
+              <span className="text-red-500 ml-1" aria-label="required">
+                *
+              </span>
+            </Label>
+            <p className="text-xs text-gray-600">
+              Use the rich text editor to format your description with bold,
+              italic, lists, and links.
+            </p>
+            <div
+              className="border border-gray-300 rounded-md focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-transparent"
+              aria-label="Rich text editor"
+            >
+              <JoditEditor
+                ref={editorRef}
+                config={editorConfig}
+                value={descValue}
+                onChange={(newContent) => {
+                  setDescValue(newContent);
+                  setValue("description", newContent, { shouldValidate: true });
+                }}
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <div>
+                {errors.description && (
+                  <p
+                    id={`${descriptionFieldId}-error`}
+                    className="text-red-500 text-sm flex items-center gap-1"
+                    role="alert"
+                  >
+                    <AlertCircle className="w-3 h-3" aria-hidden="true" />
+                    {errors.description.message}
+                  </p>
+                )}
+              </div>
+              <span className="text-xs text-gray-500" aria-live="polite">
+                {descValue.length}/{MAX_DESCRIPTION_LENGTH}
+              </span>
+            </div>
+          </div>
+
+          {/* YouTube Link Field */}
+          <div className="space-y-2">
+            <Label
+              htmlFor={youtubeFieldId}
+              className="font-medium text-gray-700"
+            >
+              YouTube Link
+              <span className="text-gray-400 text-sm ml-2">(Optional)</span>
+            </Label>
+            <Input
+              id={youtubeFieldId}
+              placeholder="https://www.youtube.com/watch?v=... or https://youtu.be/..."
+              {...register("youtubeLinks")}
+              className="focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              aria-describedby={
+                errors.youtubeLinks
+                  ? `${youtubeFieldId}-error`
+                  : `${youtubeFieldId}-hint`
+              }
+              aria-invalid={!!errors.youtubeLinks}
             />
-            {errors.description && (
-              <p className="text-red-500 text-sm">{errors.desciption}</p>
+            {!errors.youtubeLinks && (
+              <p
+                id={`${youtubeFieldId}-hint`}
+                className="text-xs text-gray-500"
+              >
+                Paste a valid YouTube video link (watch, embed, or shortened
+                youtu.be format)
+              </p>
             )}
-          </div>
-
-          <div>
-            <Label htmlFor="youtubeLinks">YouTube Link</Label>
-            <Input id="youtubeLinks" {...register("youtubeLinks")} />
             {errors.youtubeLinks && (
-              <p className="text-red-500 text-sm">
+              <p
+                id={`${youtubeFieldId}-error`}
+                className="text-red-500 text-sm flex items-center gap-1"
+                role="alert"
+              >
+                <AlertCircle className="w-3 h-3" aria-hidden="true" />
                 {errors.youtubeLinks.message}
               </p>
             )}
           </div>
 
-          <div>
-            <Label htmlFor="otherLink">Other Link</Label>
-            <Input id="otherLink" {...register("otherLink")} />
+          {/* Other Link Field */}
+          <div className="space-y-2">
+            <Label
+              htmlFor={otherLinkFieldId}
+              className="font-medium text-gray-700"
+            >
+              Other Resource Link
+              <span className="text-gray-400 text-sm ml-2">(Optional)</span>
+            </Label>
+            <Input
+              id={otherLinkFieldId}
+              placeholder="https://example.com"
+              {...register("otherLink")}
+              className="focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              aria-describedby={
+                errors.otherLink
+                  ? `${otherLinkFieldId}-error`
+                  : `${otherLinkFieldId}-hint`
+              }
+              aria-invalid={!!errors.otherLink}
+            />
+            {!errors.otherLink && (
+              <p
+                id={`${otherLinkFieldId}-hint`}
+                className="text-xs text-gray-500"
+              >
+                Link to any external resource (must start with http:// or
+                https://)
+              </p>
+            )}
             {errors.otherLink && (
-              <p className="text-red-500 text-sm">{errors.otherLink.message}</p>
+              <p
+                id={`${otherLinkFieldId}-error`}
+                className="text-red-500 text-sm flex items-center gap-1"
+                role="alert"
+              >
+                <AlertCircle className="w-3 h-3" aria-hidden="true" />
+                {errors.otherLink.message}
+              </p>
             )}
           </div>
 
-          <div>
-            <Label>
-              Lesson PDF Files{" "}
-              <span className="text-xs text-muted-foreground">(optional)</span>
+          {/* PDF Files Field */}
+          <div className="space-y-3">
+            <Label className="font-medium text-gray-700">
+              Lesson PDF Files
+              <span className="text-gray-400 text-sm ml-2">(Optional)</span>
             </Label>
-            {pdfInputs.map((input) => (
-              <div key={input.id} className="flex items-center gap-2 mt-2">
-                <Input
-                  type="file"
-                  accept="application/pdf"
-                  onChange={(e) =>
-                    handleFileChange(input.id, e.target.files?.[0])
-                  }
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => handleRemoveField(input.id)}
-                  disabled={pdfInputs.length === 1}
-                  className="text-red-500"
-                >
-                  <Trash className="h-4 w-4" />
-                </Button>
-              </div>
-            ))}
+            <p className="text-xs text-gray-600">
+              Upload PDF resources to support your lesson. You can add multiple
+              files up to 5MB total.
+            </p>
 
+            {/* PDF Input Fields */}
+            <div className="space-y-2">
+              {pdfInputs.map((input, index) => (
+                <div
+                  key={input.id}
+                  className="flex items-end gap-2 p-3 bg-gray-50 rounded-md border border-gray-200"
+                  role="group"
+                  aria-label={`PDF file ${index + 1}`}
+                >
+                  <div className="flex-1">
+                    <Label
+                      htmlFor={`pdf-${input.id}`}
+                      className="text-xs text-gray-600"
+                    >
+                      File {index + 1}
+                      {input.file && (
+                        <span className="ml-2 text-green-600 font-medium">
+                          ✓ {input.file.name}
+                        </span>
+                      )}
+                    </Label>
+                    <Input
+                      id={`pdf-${input.id}`}
+                      type="file"
+                      accept="application/pdf"
+                      onChange={(e) =>
+                        handleFileChange(input.id, e.target.files?.[0])
+                      }
+                      className="focus:ring-2 focus:ring-blue-500 focus:border-transparent mt-1"
+                      aria-label={`Upload PDF file ${index + 1}`}
+                      disabled={loading}
+                    />
+                  </div>
+
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleRemoveField(input.id)}
+                    disabled={pdfInputs.length === 1 || loading}
+                    className={`flex-shrink-0 ${
+                      pdfInputs.length === 1
+                        ? "opacity-50 cursor-not-allowed"
+                        : "hover:bg-red-100 text-red-600"
+                    }`}
+                    aria-label={`Remove PDF file ${index + 1}`}
+                    title={
+                      pdfInputs.length === 1
+                        ? "Cannot remove the only file input"
+                        : "Remove this file input"
+                    }
+                  >
+                    <Trash className="h-4 w-4" aria-hidden="true" />
+                  </Button>
+                </div>
+              ))}
+            </div>
+
+            {/* Add File Button */}
             <Button
               type="button"
               variant="outline"
               size="sm"
-              className="mt-2"
               onClick={handleAddField}
+              disabled={loading}
+              className="focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              aria-label="Add another PDF file input"
             >
-              <Plus className="h-4 w-4 mr-2" />
+              <Plus className="h-4 w-4 mr-2" aria-hidden="true" />
               Add Another File
             </Button>
 
-            <p className="text-gray-600 text-sm mt-1">
-              Total size: {(totalSize / 1024 / 1024).toFixed(2)} MB / 5 MB
-            </p>
+            {/* File Size Display */}
+            <div
+              id={totalSizeId}
+              className="flex items-center justify-between p-3 bg-blue-50 rounded-md border border-blue-200"
+              role="status"
+              aria-live="polite"
+              aria-atomic="true"
+            >
+              <span className="text-sm font-medium text-gray-700">
+                Total File Size:
+              </span>
+              <span
+                className={`text-sm font-semibold ${
+                  totalSize > MAX_FILE_SIZE * 0.8
+                    ? "text-red-600"
+                    : "text-green-600"
+                }`}
+              >
+                {(totalSize / 1024 / 1024).toFixed(2)} MB / 5 MB
+              </span>
+            </div>
 
             {errors.pdfFiles && (
-              <p className="text-red-500 text-sm mt-2">
+              <p
+                className="text-red-500 text-sm flex items-center gap-1"
+                role="alert"
+              >
+                <AlertCircle className="w-3 h-3" aria-hidden="true" />
                 {errors.pdfFiles.message}
               </p>
             )}
           </div>
 
-          <DialogFooter>
+          {/* Action Buttons */}
+          <DialogFooter className="gap-2 flex flex-col sm:flex-row">
             <Button
               type="button"
               variant="outline"
-              onClick={() => {
-                reset();
-                setPdfInputs([{ id: Date.now(), file: null }]);
-                setTitleValue("");
-                setDescValue("");
-                setTotalSize(0);
-                setOpen(false);
-              }}
+              onClick={handleCancel}
+              disabled={loading}
+              className="focus:ring-2 focus:ring-gray-500 focus:outline-none"
+              aria-label="Cancel and close the add lesson dialog"
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={loading}>
-              {loading ? "Saving..." : "Save Lesson"}
+            <Button
+              type="submit"
+              disabled={loading}
+              className="focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              aria-busy={loading}
+              aria-label={
+                loading ? "Saving lesson..." : "Save and create lesson"
+              }
+            >
+              {loading ? (
+                <>
+                  <span className="animate-spin inline-block mr-2">⏳</span>
+                  Saving...
+                </>
+              ) : (
+                "Save Lesson"
+              )}
             </Button>
           </DialogFooter>
         </form>

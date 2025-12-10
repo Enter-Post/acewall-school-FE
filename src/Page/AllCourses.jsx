@@ -1,74 +1,64 @@
 import * as React from "react";
-import SearchBox from "@/CustomComponent/SearchBox";
-import { axiosInstance } from "@/lib/AxiosInstance";
+import { useState, useEffect, useContext } from "react";
+import { useParams, Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AspectRatio } from "@/components/ui/aspect-ratio";
-import { Link, useParams } from "react-router-dom";
-import { useContext, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Loader } from "lucide-react";
+import { axiosInstance } from "@/lib/AxiosInstance";
 import { GlobalContext } from "@/Context/GlobalProvider";
 import avatar from "@/assets/avatar.png";
+import SearchBox from "@/CustomComponent/SearchBox";
 import SearchCourseDialog from "@/CustomComponent/CodeEnrollmentDialog";
 
 const AllCourses = () => {
+  const { subcategoryId } = useParams();
+  const { user } = useContext(GlobalContext);
+
   const [allCourses, setAllCourses] = useState([]);
+  const [subCat, setSubCat] = useState({});
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(false);
-  const { user } = useContext(GlobalContext);
-  const { subcategoryId } = useParams();
-  const [subCat, setSubCat] = useState({});
 
   const searching = searchQuery.trim() !== "";
 
-  console.log(subCat, "subCat");
-
+  // Fetch subcategory + category
   const getSubCatWithCategory = async () => {
     try {
-      await axiosInstance
-        .get(`subcategory/getSubcategoryWithCategory/${subcategoryId}`)
-        .then((res) => {
-          setSubCat(res.data.subcategories);
-          console.log(res.data, "asdfasdf");
-        })
-        .catch((err) => {
-          console.log(err, "error");
-        });
+      const res = await axiosInstance.get(`subcategory/getSubcategoryWithCategory/${subcategoryId}`);
+      setSubCat(res.data.subcategories);
     } catch (error) {
-      console.log(error, "error in fetching subcategory");
+      console.error("Error fetching subcategory:", error);
     }
   };
 
   useEffect(() => {
-    getSubCatWithCategory();
-  }, []);
+    if (subcategoryId) getSubCatWithCategory();
+  }, [subcategoryId]);
 
+  // Fetch courses with search debounce
   useEffect(() => {
     setLoading(true);
-    const delayDebounce = setTimeout(() => {
-      const getCourses = async () => {
-        await axiosInstance
-          .get(`/course/${subcategoryId}`, {
-            params: { search: searchQuery },
-          })
-          .then((res) => {
-            setAllCourses(res.data.courses);
-            console.log("res", res);
-            setLoading(false);
-          })
-          .catch((err) => {
-            console.log(err, "error");
-            setLoading(false);
-          });
-      };
-      getCourses();
-    }, 2000); // 500ms delay
+    const delayDebounce = setTimeout(async () => {
+      try {
+        const res = await axiosInstance.get(`/course/${subcategoryId}`, {
+          params: { search: searchQuery },
+        });
+        setAllCourses(res.data.courses || []);
+      } catch (error) {
+        console.error("Error fetching courses:", error);
+        setAllCourses([]);
+      } finally {
+        setLoading(false);
+      }
+    }, 500); // reduced debounce for snappier UX
 
-    return () => clearTimeout(delayDebounce); // cleanup
+    return () => clearTimeout(delayDebounce);
   }, [searchQuery, subcategoryId]);
 
   return (
     <section className="p-3 md:p-0">
+      {/* Header */}
       <div className="flex flex-col pb-5 gap-2">
         <div className="text-xl py-4 mb-8 pl-6 font-semibold bg-acewall-main text-white rounded-lg flex gap-3">
           {subCat?.category?.title ? (
@@ -79,24 +69,24 @@ const AllCourses = () => {
             <Loader className="animate-spin" />
           )}
         </div>
+
         <div className="flex items-center justify-between gap-3">
           <SearchBox query={searchQuery} setQuery={setSearchQuery} />
           <SearchCourseDialog />
         </div>
       </div>
 
+      {/* Loading state */}
       {loading ? (
         <div className="flex justify-center items-center py-10">
-          <section className="flex justify-center items-center h-full w-full">
-            <Loader className="animate-spin" />
-          </section>
+          <Loader className="animate-spin" size={48} />
         </div>
-      ) : allCourses?.length === 0 ? (
+      ) : allCourses.length === 0 ? (
         <div className="flex flex-col items-center justify-center text-center px-4">
           {searching ? (
             <>
               <img
-                src="https://img.freepik.com/free-vector/no-results-concept-illustration_114360-746.jpg?t=st=1745438134~exp=1745441734~hmac=0ad993dd85db23d3cdb0f0a9d208e591e764f1c7ef9f6bb8f7d384e05015d7aa&w=900"
+                src="https://img.freepik.com/free-vector/no-results-concept-illustration_114360-746.jpg"
                 alt="No search results"
                 className="w-72 h-72 object-contain mb-6"
               />
@@ -120,7 +110,7 @@ const AllCourses = () => {
           ) : (
             <>
               <img
-                src="https://img.freepik.com/free-vector/empty-concept-illustration_114360-1188.jpg?t=st=1745438134~exp=1745441734~hmac=8ed88b4d5e9025d3df84d88d611e12c44f8c73226e95ed6f116358984760b42d&w=900"
+                src="https://img.freepik.com/free-vector/empty-concept-illustration_114360-1188.jpg"
                 alt="No courses"
                 className="w-72 h-72 object-contain mb-6"
               />
@@ -134,53 +124,42 @@ const AllCourses = () => {
           )}
         </div>
       ) : (
-        <section>
-          <div className="px-10">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {allCourses.map((course) => (
-                <Link
-                  key={course._id}
-                  to={`/student/course/detail/${course._id}`}
-                >
-                  <Card className="pb-6 pt-0 w-full h-full overflow-hidden cursor-pointer">
-                    <AspectRatio ratio={16 / 9}>
+        <div className="px-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {allCourses.map((course) => (
+              <Link key={course._id} to={`/student/course/detail/${course._id}`}>
+                <Card className="pb-6 pt-0 w-full h-full overflow-hidden cursor-pointer">
+                  <AspectRatio ratio={16 / 9}>
+                    <img
+                      src={course?.thumbnail?.url || "/placeholder.svg"}
+                      alt={course?.thumbnail?.filename || "Course image"}
+                      className="object-cover w-full h-full"
+                    />
+                  </AspectRatio>
+                  <CardHeader>
+                    <CardTitle className="flex flex-col gap-2">
+                      <span className="text-md font-bold leading-tight capitalize">
+                        {course.courseTitle}
+                      </span>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center gap-2">
                       <img
-                        src={course?.thumbnail?.url || "/placeholder.svg"}
-                        alt={`${course?.thumbnail?.filename} image`}
-                        className="object-cover w-full h-full"
+                        src={course.createdby?.profileImg?.url || avatar}
+                        className="w-5 h-5 rounded-full"
+                        alt={course.createdby?.firstName || "Instructor"}
                       />
-                    </AspectRatio>
-                    <CardHeader>
-                      <CardTitle className="flex justify-between flex-col gap-2">
-                        <span className="text-md font-bold leading-tight capitalize">
-                          {course.courseTitle}
-                        </span>
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2">
-                          <img
-                            src={course.createdby?.profileImg?.url || avatar}
-                            className="w-5 h-5 rounded-full"
-                            alt=""
-                          />
-                          <p className="text-sm text-muted-foreground">
-                            {course.createdby?.firstName}{" "}
-                            {course.createdby?.middleName
-                              ? course.createdby.middleName + " "
-                              : ""}
-                            {course.createdby?.lastName}
-                          </p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
-              ))}
-            </div>
+                      <p className="text-sm text-muted-foreground">
+                        {`${course.createdby?.firstName || ""} ${course.createdby?.middleName || ""} ${course.createdby?.lastName || ""}`.trim()}
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
           </div>
-        </section>
+        </div>
       )}
     </section>
   );
