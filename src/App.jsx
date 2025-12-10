@@ -21,7 +21,7 @@ import GeneralCoursesDetail from "./Page/GeneralCourseDetail";
 import TeacherDashboard from "./Page/teacher/Dashboard";
 import TeacherLayout from "./Page/teacher/Layout";
 import TeacherAccount from "./Page/teacher/Account";
-import TeacherrAssessment from "./Page/teacher/TeacherAssignment";
+import TeacherrAssessment from "./Page/teacher/CourseAssessmentList";
 import TeacherAnnoucement from "./Page/teacher/TeacherAnnoucement";
 import AllStudent from "./Page/teacher/AllStudent";
 import StudentProfile from "./Page/teacher/studentProfile";
@@ -90,6 +90,9 @@ import StudentWhoNeedAssistance from "./Page/teacher/StudentNeedAssistancePage";
 import GradingScales from "./Page/teacher/GradingScales";
 import AllStdCourses from "./Page/teacher/AllStdCourses";
 import CourseStudents from "./Page/teacher/CourseStudents";
+import CourseAssessmentList from "./Page/teacher/CourseAssessmentList";
+import TeacherAssessmentByCourse from "./Page/teacher/TeacherAssessmentByCourse";
+import StudentCourseByCard from "./Page/StudentPortal/Assessment/StudentCourseByCard";
 
 function App() {
   const {
@@ -239,7 +242,11 @@ function App() {
             </Route>
 
             <Route path="assessment">
-              <Route index element={<Assignment />} />
+              <Route index element={<StudentCourseByCard />} />
+              <Route
+                path="course/:id" // id = courseId
+                element={<Assignment />} // updated Assessment component
+              />
               <Route
                 path="submission/:id"
                 element={<AssessmentSubmissionPage />}
@@ -295,7 +302,9 @@ function App() {
               <Route path="editParentEmail" element={<EditParentEmail />} />
             </Route>
             <Route path="assessments">
-              <Route index element={<TeacherrAssessment />} />
+              <Route index element={<TeacherAssessmentByCourse />} />
+              <Route path="bycourse/:id" element={<CourseAssessmentList />} />
+
               <Route path="allsubmissions/:id" element={<AllSubmission />} />
               <Route path=":id" element={<AssessmentReview />} />
               <Route
@@ -322,13 +331,8 @@ function App() {
             <Route path="allStudent" element={<AllStudent />} />
             <Route path="studentProfile/:id" element={<StudentProfile />} />
             <Route path="coursesstd" element={<AllStdCourses />} />
-            <Route
-              path="course/:courseId"
-              element={<CourseStudents />}
-            />
+            <Route path="course/:courseId" element={<CourseStudents />} />
 
-
-            
             <Route
               path="courseGrades/:studentId/:courseId"
               element={<StudentCourseGrades />}
