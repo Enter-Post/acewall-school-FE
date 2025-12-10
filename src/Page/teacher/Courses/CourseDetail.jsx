@@ -6,12 +6,26 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   BookOpen,
-  BookPlus,
+  Settings,
+  ListChecks,
+  Users,
+  Eye,
+  Layers,
   ChartBarStacked,
   LibraryBig,
   Loader,
   Pen,
 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
+  DropdownMenuGroup,
+} from "@/components/ui/dropdown-menu";
+
 import { axiosInstance } from "@/lib/AxiosInstance";
 import CommentSection from "@/CustomComponent/Student/CommentSection";
 import { FinalCourseAssessmentCard } from "@/CustomComponent/CreateCourse/FinalCourseAssessmentCard";
@@ -358,67 +372,102 @@ export default function TeacherCourseDetails() {
 
         <section className="relative">
           <div className="flex justify-between items-center mb-4">
-           
-            <div className="relative">
-              <Button
-                className="bg-green-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2"
-                onClick={() => setDropdownOpen(!dropdownOpen)}
-                aria-haspopup="true"
-                aria-expanded={dropdownOpen}
-              >
-                Manage Course Actions
-              </Button>
+            <AssessmentCategoryDialog courseId={id} />
 
-              {dropdownOpen && (
-                <div className="absolute left-0 mt-2 w-max bg-white border rounded shadow-lg z-50 p-2 flex gap-2">
-                   <AssessmentCategoryDialog courseId={id} />
-                  <button
-                    className="bg-green-500 text-white px-3 py-2 rounded hover:bg-green-600 text-sm flex items-center gap-1"
-                    onClick={() => navigate(`/teacher/studentAssisstance/${id}`)}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button className="bg-green-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-green-700 transition">
+                  <Settings size={16} className="mr-2" />
+                  Manage Course Actions
+                </Button>
+              </DropdownMenuTrigger>
+
+              <DropdownMenuContent
+                className="w-64 rounded-xl shadow-lg border border-gray-200 bg-white dark:bg-neutral-900 dark:border-neutral-700"
+                align="start"
+                sideOffset={8}
+              >
+                <DropdownMenuLabel className="text-xs text-gray-500 dark:text-gray-400 px-3 pt-2 pb-1 tracking-wide">
+                  Course Tools
+                </DropdownMenuLabel>
+
+                <DropdownMenuGroup>
+                
+
+                  {/* Student Assistance */}
+                  <DropdownMenuItem
+                    onClick={() =>
+                      navigate(`/teacher/studentAssisstance/${id}`)
+                    }
+                    className="flex items-center gap-3 py-2.5 cursor-pointer"
                   >
-                    Student who need assistance
-                  </button>
-                  <button
-                    className="bg-green-500 text-white px-3 py-2 rounded hover:bg-green-600 text-sm"
+                    <Users size={18} className="text-green-600" />
+                    <span>Students Who Need Assistance</span>
+                  </DropdownMenuItem>
+
+                  {/* Preview */}
+                  <DropdownMenuItem
                     onClick={handlePreview}
+                    className="flex items-center gap-3 py-2.5 cursor-pointer"
                   >
-                    Preview as a student
-                  </button>
-                  <button
-                    className="bg-green-500 text-white px-3 py-2 rounded hover:bg-green-600 text-sm flex items-center gap-1"
+                    <Eye size={18} className="text-green-600" />
+                    <span>Preview as Student</span>
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+
+                <DropdownMenuSeparator />
+
+                <DropdownMenuLabel className="text-xs text-gray-500 dark:text-gray-400 px-3 pt-1 pb-1 tracking-wide">
+                  Course Management
+                </DropdownMenuLabel>
+
+                <DropdownMenuGroup>
+                  {/* Gradebook */}
+                  <DropdownMenuItem
                     onClick={() => navigate(`/teacher/gradebook/${id}`)}
+                    className="flex items-center gap-3 py-2.5 cursor-pointer"
                   >
-                    <BookPlus size={16} aria-hidden="true" />
-                    Gradebook
-                  </button>
-                  <button
-                    className="bg-green-500 text-white px-3 py-2 rounded hover:bg-green-600 text-sm flex items-center gap-1"
+                    <ListChecks size={18} className="text-green-600" />
+                    <span>Gradebook</span>
+                  </DropdownMenuItem>
+
+                  {/* Edit Course */}
+                  <DropdownMenuItem
                     onClick={() => navigate(`/teacher/courses/edit/${id}`)}
+                    className="flex items-center gap-3 py-2.5 cursor-pointer"
                   >
-                    <Pen size={16} aria-hidden="true" />
-                    Edit Course Info
-                  </button>
-                  <a
-                    href={course.syllabus?.url || ""}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="bg-green-500 text-white px-3 py-2 rounded hover:bg-green-600 text-sm flex items-center gap-1"
-                  >
-                    <BookOpen size={16} aria-hidden="true" />
-                    Syllabus
-                  </a>
-                  <button
-                    className="bg-green-500 text-white px-3 py-2 rounded hover:bg-green-600 text-sm flex items-center gap-1"
-                    onClick={handleToggleGrading}
-                  >
-                    <ChartBarStacked size={16} aria-hidden="true" />
-                    {course.gradingSystem === "normalGrading"
-                      ? "Switch to Standard Grading"
-                      : "Switch to Normal Grading"}
-                  </button>
-                </div>
-              )}
-            </div>
+                    <Pen size={18} className="text-green-600" />
+                    <span>Edit Course Info</span>
+                  </DropdownMenuItem>
+
+                  {/* Syllabus */}
+                  <DropdownMenuItem asChild className="cursor-pointer">
+                    <a
+                      href={course.syllabus?.url || ""}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 py-2.5 w-full"
+                    >
+                      <BookOpen size={18} className="text-green-600" />
+                      <span>Open Syllabus</span>
+                    </a>
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+
+                <DropdownMenuSeparator />
+
+                {/* Toggle Grading */}
+                <DropdownMenuItem
+                  onClick={handleToggleGrading}
+                  className="flex items-center gap-3 py-2.5 cursor-pointer text-green-700 font-medium"
+                >
+                  <ChartBarStacked size={18} className="text-green-700" />
+                  {course.gradingSystem === "normalGrading"
+                    ? "Switch to Standard Grading"
+                    : "Switch to Normal Grading"}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </section>
 
@@ -519,7 +568,10 @@ export default function TeacherCourseDetails() {
         )}
 
         <footer className="flex justify-end">
-          <ArchiveDialog course={course} fetchCourseDetail={fetchCourseDetail} />
+          <ArchiveDialog
+            course={course}
+            fetchCourseDetail={fetchCourseDetail}
+          />
         </footer>
       </div>
     </main>
@@ -534,7 +586,10 @@ function StatCard({ icon, value, label, bgColor }) {
           {icon}
         </div>
         <div>
-          <div className="font-semibold text-lg" aria-label={`${label}: ${value}`}>
+          <div
+            className="font-semibold text-lg"
+            aria-label={`${label}: ${value}`}
+          >
             {value}
           </div>
           <div className="text-sm text-muted-foreground" aria-hidden="true">
