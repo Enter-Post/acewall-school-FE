@@ -6,6 +6,7 @@ import acewallshort from "../../assets/acewallshort.png";
 import avatar from "../../assets/avatar.png";
 
 import {
+  Bot,
   Coffee,
   GitGraph,
   Menu,
@@ -105,6 +106,13 @@ const sideBarTabs = [
     path: "/student/messages",
     allowedAsPreview: false,
   },
+  {
+    id: 10,
+    name: "AI Assistant",
+    icon: <Bot />,
+    path: "/student/ai",
+    allowedAsPreview: false,
+  },
 ];
 
 export default function Layout() {
@@ -167,7 +175,9 @@ export default function Layout() {
             <div className="flex items-center justify-between space-x-4 w-full">
               <div>
                 <p className="text-white text-sm">
-                  {`Viewing as Student - ${user.firstName || ""} ${user.lastName || ""}`}
+                  {`Viewing as Student - ${user.firstName || ""} ${
+                    user.lastName || ""
+                  }`}
                 </p>
               </div>
               <Button
@@ -206,7 +216,11 @@ export default function Layout() {
           </Button>
 
           {/* Logos */}
-          <Link className="block md:hidden" to="/student" aria-label="Home - Acewall Scholars">
+          <Link
+            className="block md:hidden"
+            to="/student"
+            aria-label="Home - Acewall Scholars"
+          >
             <img
               src={acewallshort}
               alt="Acewall Scholars logo — mobile"
@@ -214,7 +228,11 @@ export default function Layout() {
               className="w-8 h-auto rounded-full"
             />
           </Link>
-          <Link className="hidden md:block" to="/student" aria-label="Home - Acewall Scholars">
+          <Link
+            className="hidden md:block"
+            to="/student"
+            aria-label="Home - Acewall Scholars"
+          >
             <img
               src={acewallscholarslogo}
               alt="Acewall Scholars — Learn and grow with Acewall Scholars"
@@ -240,14 +258,21 @@ export default function Layout() {
           </div>
 
           {/* Search bar (desktop only) */}
-          <div className="relative w-64 hidden md:flex flex-col" aria-live="polite">
+          <div
+            className="relative w-64 hidden md:flex flex-col"
+            aria-live="polite"
+          >
             <DropdownMenu
               open={openDropdown}
               onOpenChange={setOpenDropdown}
               modal={false}
             >
               <DropdownMenuTrigger asChild>
-                <div className="relative flex gap-2 w-full" role="search" aria-label="Course search">
+                <div
+                  className="relative flex gap-2 w-full"
+                  role="search"
+                  aria-label="Course search"
+                >
                   <Input
                     type="text"
                     value={searchQuery}
@@ -271,7 +296,13 @@ export default function Layout() {
               <DropdownMenuContent className="bg-white border mt-2 max-h-60 overflow-y-auto z-50 w-64">
                 {loading ? (
                   <DropdownMenuItem disabled>
-                    <span className="text-sm text-gray-700" role="status" aria-live="polite">Searching...</span>
+                    <span
+                      className="text-sm text-gray-700"
+                      role="status"
+                      aria-live="polite"
+                    >
+                      Searching...
+                    </span>
                   </DropdownMenuItem>
                 ) : dropdownCourses.length > 0 ? (
                   dropdownCourses.map((enrollment) => (
@@ -310,24 +341,33 @@ export default function Layout() {
         {/* Sidebar */}
         <aside
           id="primary-sidebar"
-          className={`bg-white ${isSidebarOpen ? "block" : "hidden"
-            } w-screen md:w-64 flex-shrink-0 overflow-y-auto md:block`}
+          className={`bg-white ${
+            isSidebarOpen ? "block" : "hidden"
+          } w-screen md:w-64 flex-shrink-0 overflow-y-auto md:block`}
           aria-labelledby="sidebar-heading"
         >
           <div className="p-4">
             {/* User Info */}
             <div className="flex items-center space-x-3 pb-4">
-              <Link to="/student/account" className="block" aria-label="Open account settings">
+              <Link
+                to="/student/account"
+                className="block"
+                aria-label="Open account settings"
+              >
                 <div className="h-12 w-12 rounded-full overflow-hidden">
                   <img
                     src={UpdatedUser?.profileImg?.url || avatar}
-                    alt={`Profile picture of ${UpdatedUser?.firstName || "User"}`}
+                    alt={`Profile picture of ${
+                      UpdatedUser?.firstName || "User"
+                    }`}
                     className="h-full w-full object-cover rounded-full"
                   />
                 </div>
               </Link>
               <div>
-                <p className="font-medium">{UpdatedUser?.firstName || "User"}</p>
+                <p className="font-medium">
+                  {UpdatedUser?.firstName || "User"}
+                </p>
                 <p
                   className="text-sm text-gray-600 w-full max-w-[150px]  break-words"
                   title={UpdatedUser?.email || "N/A"}
@@ -339,7 +379,12 @@ export default function Layout() {
 
             {/* Mobile search */}
             <div className="flex md:hidden items-center space-x-4 mb-5">
-              <Input type="text" placeholder="Search" aria-label="Search courses" className="flex-grow" />
+              <Input
+                type="text"
+                placeholder="Search"
+                aria-label="Search courses"
+                className="flex-grow"
+              />
               <button
                 type="button"
                 className="bg-green-200 hover:bg-green-300 rounded-full p-2"
@@ -353,13 +398,17 @@ export default function Layout() {
             <nav className="space-y-2" role="navigation" aria-label="Primary">
               {sideBarTabs.map((tab) => {
                 const isCurrent = location === tab.path;
-                const unavailable = tab.allowedAsPreview === false && user?.role === "teacherAsStudent";
+                const unavailable =
+                  tab.allowedAsPreview === false &&
+                  user?.role === "teacherAsStudent";
 
                 // If preview-disabled and user is teacherAsStudent, mark as aria-disabled and don't allow tab focus
                 const commonLinkProps = {
                   to: tab.path,
                   onClick: () => setIsSidebarOpen(false),
-                  className: `flex items-center space-x-3 rounded-lg px-3 py-2 ${isCurrent ? "bg-green-500" : "text-black"}`,
+                  className: `flex items-center space-x-3 rounded-lg px-3 py-2 ${
+                    isCurrent ? "bg-green-500" : "text-black"
+                  }`,
                 };
 
                 return (
@@ -382,7 +431,11 @@ export default function Layout() {
                         aria-current={isCurrent ? "page" : undefined}
                       >
                         <span aria-hidden="true">{tab.icon}</span>
-                        <span className={isCurrent ? "text-white" : "text-green-600"}>
+                        <span
+                          className={
+                            isCurrent ? "text-white" : "text-green-600"
+                          }
+                        >
                           {tab.name}
                         </span>
                       </Link>
@@ -394,7 +447,11 @@ export default function Layout() {
 
             {/* Promo image */}
             <div className="flex flex-col items-center justify-between mt-10 w-full">
-              <img src={acewallshort} alt="Acewall shortmark" className="w-1/2" />
+              <img
+                src={acewallshort}
+                alt="Acewall shortmark"
+                className="w-1/2"
+              />
               <Link
                 to="https://www.acewallscholars.org/contact-Us"
                 className="text-center font-semibold text-sm mt-4 text-acewall-main"
