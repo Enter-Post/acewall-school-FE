@@ -93,6 +93,7 @@ import CourseStudents from "./Page/teacher/CourseStudents";
 import CourseAssessmentList from "./Page/teacher/CourseAssessmentList";
 import TeacherAssessmentByCourse from "./Page/teacher/TeacherAssessmentByCourse";
 import StudentCourseByCard from "./Page/StudentPortal/Assessment/StudentCourseByCard";
+import AiChatbot from "./Page/StudentPortal/AiChatbot";
 
 function App() {
   const {
@@ -256,6 +257,7 @@ function App() {
             <Route path="stdPages" element={<StdPagesView />} />
             <Route path="announcements" element={<Announcement />} />
             <Route path="graphs" element={<GradingScales />} />
+            <Route path="ai" element={<AiChatbot />} />
 
             <Route path="social" element={<SocialMain />} />
             <Route
