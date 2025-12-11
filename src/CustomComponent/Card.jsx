@@ -281,91 +281,36 @@ function AnnouncementCard({ data }) {
     </Card>
   );
 }
-function CoursesCard({ course, link }) {
-  return (
-    <Link key={course.id} to={link}>
-      <Card className="w-full overflow-hidden cursor-pointer gap-0 py-0">
-        <AspectRatio ratio={16 / 9}>
-          <img
-            src={course.image || "/placeholder.svg"}
-            alt={`${course.course} image`}
-            className="object-cover w-full h-full"
-          />
-        </AspectRatio>
-        <div className="p-4">
-          <div className="uppercase text-indigo-600 bg-indigo-100 text-xs font-medium mb-2 w-fit px-2">
-            {course.category || "Developments"}
-          </div>
-          <h3 className="text-xl font-bold text-gray-900 mb-4">
-            {course.course}
-          </h3>
-          <div className="text-xl font-bold text-green-500 mb-3">
-            ${course.Prise || "24.00"}
-          </div>
 
-          <div className="flex items-center gap-4 mb-4">
-            <div className="flex items-center">
-              <span className="text-yellow-500 mr-1">★</span>
-              <span className="font-medium">{course.rating || "4.9"}</span>
-            </div>
-            <div className="flex items-center text-gray-500">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-4 w-4 mr-1"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" />
-              </svg>
-              <span>{course.students || "982,941"} students</span>
-            </div>
-          </div>
 
-          {/* Add to cart button */}
-          <Button className="w-full bg-green-500 hover:bg-green-600 text-white">
-            Add To Cart
-          </Button>
-        </div>
-      </Card>
-    </Link>
-  );
-}
 
-const StudentCard = ({ student }) => (
-  <Card className="overflow-hidden rounded-2xl shadow-sm hover:shadow-xl transition-shadow duration-300 bg-white">
-    <CardContent className="px-6 py-2 flex flex-col items-center gap-3">
-      <div className="relative">
-        <Avatar className="w-24 h-24 ring-3 ring-gray-500 shadow-sm">
-          <AvatarImage
-            src={student.profileImg?.url || avatar}
-            alt={student.name}
-            className="rounded-full object-cover"
-          />
-          <AvatarFallback className="bg-gray-200 text-gray-600 text-xl font-semibold flex items-center justify-center">
-            {student.firstName[0]}
-          </AvatarFallback>
-        </Avatar>
-      </div>
 
-      <div className="text-center">
-        <h3 className="text-xl font-bold text-gray-800">{student.firstName}</h3>
-        <p className="text-sm text-gray-500">{student.email}</p>
-      </div>
 
-      <div className="w-full grid grid-cols-2 gap-y-2 gap-x-4 text-sm mt-2">
-        <span className="text-gray-500">Joined</span>
-        <span className="text-right text-gray-700 font-medium">
-          {new Date(student.createdAt).toLocaleDateString()}
-        </span>
-      </div>
 
-      {/* Optional CTA */}
-      <Button className="mt-4 w-full bg-green-600 hover:bg-green-700 text-white transition-colors duration-300 ">
-        View Profile
-      </Button>
-    </CardContent>
-  </Card>
+
+
+
+const CourseCard = ({ course, selected, onClick }) => (
+  <div
+    onClick={onClick}
+    className={`cursor-pointer border rounded-xl shadow-sm p-4 flex flex-col items-center hover:shadow-lg transition-all
+      ${selected ? "border-green-600 shadow-md" : "border-gray-200"}`}
+  >
+    {course.thumbnail && (
+      <img
+        src={course.thumbnail}
+        alt={course.courseTitle}
+        className="w-24 h-24 object-cover rounded-md mb-3"
+      />
+    )}
+
+    <h3 className="font-semibold text-gray-800 text-center">
+      {course.courseTitle}
+    </h3>
+  </div>
 );
+
+
 
 const TransactionCard = ({ title, data }) => (
   <Card className="h-fit p-0 gap-3 rounded mt-5">
@@ -694,8 +639,7 @@ export {
   DeshBoardCourseCard,
   Assignment,
   AnnouncementCard,
-  CoursesCard,
-  StudentCard,
+  CourseCard,
   TransactionCard,
   EarningStateCard,
   LandingPageCard,

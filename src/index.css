@@ -209,3 +209,16 @@
   border-radius: 9999px;
   pointer-events: none;
 }
+
+@keyframes progressBarFill {
+  from {
+    width: 0%;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+.animate-progressBar {
+  animation: progressBarFill 6s linear forwards;
+}

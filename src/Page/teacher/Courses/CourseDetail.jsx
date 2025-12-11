@@ -5,26 +5,27 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
-  Dialog,
-  DialogFooter,
-  DialogTrigger,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-
-import {
   BookOpen,
-  BookPlus,
+  Settings,
+  ListChecks,
+  Users,
+  Eye,
+  Layers,
   ChartBarStacked,
-  CircleEllipsis,
-  Languages,
   LibraryBig,
   Loader,
   Pen,
-  Play,
-  Users,
 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
+  DropdownMenuGroup,
+} from "@/components/ui/dropdown-menu";
+
 import { axiosInstance } from "@/lib/AxiosInstance";
 import CommentSection from "@/CustomComponent/Student/CommentSection";
 import { FinalCourseAssessmentCard } from "@/CustomComponent/CreateCourse/FinalCourseAssessmentCard";
@@ -86,6 +87,7 @@ export default function TeacherCourseDetails() {
   const [Prevthumbnail, setPrevThumbnail] = useState(null);
   const [newthumbnail, setNewThumbnail] = useState(null);
   const [loadingThumbnail, setLoadingThumbnail] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const handleDeleteAssessment = (assessmentID) => {
     setLoading(true);
@@ -108,7 +110,6 @@ export default function TeacherCourseDetails() {
       .then((res) => {
         setCourse(res.data.course);
         setQuarters(res.data.course.quarter);
-        console.log("course", res.data);
       })
       .catch((err) => {
         console.log(err);
@@ -369,71 +370,105 @@ export default function TeacherCourseDetails() {
           </div>
         </section>
 
-        <section className="flex flex-wrap justify-between gap-4">
-          <div className="flex justify-between items-center">
+        <section className="relative">
+          <div className="flex justify-between items-center mb-4">
             <AssessmentCategoryDialog courseId={id} />
-          </div>
-          <nav
-            className="flex justify-between items-center gap-4"
-            aria-label="Course actions"
-          >
-            <Link
-              to={`/teacher/studentAssisstance/${id}`}
-              className="focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2 rounded-lg"
-            >
-              <button
-                className="bg-green-500 text-white py-2 px-4 rounded-lg shadow-md transition-all duration-150 text-sm cursor-pointer hover:bg-green-600"
-                aria-label="View students who need assistance"
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button className="bg-green-600 text-white px-4 py-2 rounded-lg shadow-md hover:bg-green-700 transition">
+                  <Settings size={16} className="mr-2" />
+                  Manage Course Actions
+                </Button>
+              </DropdownMenuTrigger>
+
+              <DropdownMenuContent
+                className="w-64 rounded-xl shadow-lg border border-gray-200 bg-white dark:bg-neutral-900 dark:border-neutral-700"
+                align="start"
+                sideOffset={8}
               >
-                Student who need assistance
-              </button>
-            </Link>
-            <button
-              className="bg-green-500 text-white py-2 px-4 rounded-lg shadow-md transition-all duration-150 text-sm cursor-pointer hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2"
-              onClick={() => handlePreview()}
-              aria-label="Preview course as a student"
-            >
-              Preview as a student
-            </button>
-            <button
-              className="flex gap-2 items-center bg-blue-600 text-white py-2 px-4 rounded-lg shadow-md transition-all duration-150 text-sm cursor-pointer hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-offset-2"
-              onClick={() => navigate(`/teacher/gradebook/${id}`)}
-              aria-label="Open gradebook"
-            >
-              <BookPlus size={16} aria-hidden="true" />
-              Gradebook
-            </button>
-            <button
-              className="flex gap-2 items-center bg-slate-600 text-white py-2 px-4 rounded-lg shadow-md transition-all duration-150 text-sm cursor-pointer hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-600 focus:ring-offset-2"
-              onClick={() => navigate(`/teacher/courses/edit/${id}`)}
-              aria-label="Edit course information"
-            >
-              <Pen size={16} aria-hidden="true" />
-              Edit Course Info
-            </button>
-            <a
-              href={course.syllabus?.url || ""}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 bg-sky-600 text-white px-4 py-2 rounded-lg shadow-md transition-all duration-150 text-sm cursor-pointer hover:bg-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-600 focus:ring-offset-2"
-              aria-label="View course syllabus in new tab"
-            >
-              <BookOpen size={16} aria-hidden="true" />
-              Syllabus
-            </a>
-            <button
-              className="flex gap-2 items-center bg-purple-600 text-white py-2 px-4 rounded-lg shadow-md transition-all duration-150 text-sm cursor-pointer hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:ring-offset-2"
-              onClick={handleToggleGrading}
-              aria-label={`Switch to ${
-                course.gradingSystem === "normalGrading" ? "standard" : "normal"
-              } grading system`}
-            >
-              <ChartBarStacked size={16} aria-hidden="true" />
-              {course.gradingSystem === "normalGrading"
-                ? "Switch to Standard Grading"
-                : "Switch to Normal Grading"}
-            </button>
-          </nav>
+                <DropdownMenuLabel className="text-xs text-gray-500 dark:text-gray-400 px-3 pt-2 pb-1 tracking-wide">
+                  Course Tools
+                </DropdownMenuLabel>
+
+                <DropdownMenuGroup>
+                
+
+                  {/* Student Assistance */}
+                  <DropdownMenuItem
+                    onClick={() =>
+                      navigate(`/teacher/studentAssisstance/${id}`)
+                    }
+                    className="flex items-center gap-3 py-2.5 cursor-pointer"
+                  >
+                    <Users size={18} className="text-green-600" />
+                    <span>Students Who Need Assistance</span>
+                  </DropdownMenuItem>
+
+                  {/* Preview */}
+                  <DropdownMenuItem
+                    onClick={handlePreview}
+                    className="flex items-center gap-3 py-2.5 cursor-pointer"
+                  >
+                    <Eye size={18} className="text-green-600" />
+                    <span>Preview as Student</span>
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+
+                <DropdownMenuSeparator />
+
+                <DropdownMenuLabel className="text-xs text-gray-500 dark:text-gray-400 px-3 pt-1 pb-1 tracking-wide">
+                  Course Management
+                </DropdownMenuLabel>
+
+                <DropdownMenuGroup>
+                  {/* Gradebook */}
+                  <DropdownMenuItem
+                    onClick={() => navigate(`/teacher/gradebook/${id}`)}
+                    className="flex items-center gap-3 py-2.5 cursor-pointer"
+                  >
+                    <ListChecks size={18} className="text-green-600" />
+                    <span>Gradebook</span>
+                  </DropdownMenuItem>
+
+                  {/* Edit Course */}
+                  <DropdownMenuItem
+                    onClick={() => navigate(`/teacher/courses/edit/${id}`)}
+                    className="flex items-center gap-3 py-2.5 cursor-pointer"
+                  >
+                    <Pen size={18} className="text-green-600" />
+                    <span>Edit Course Info</span>
+                  </DropdownMenuItem>
+
+                  {/* Syllabus */}
+                  <DropdownMenuItem asChild className="cursor-pointer">
+                    <a
+                      href={course.syllabus?.url || ""}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 py-2.5 w-full"
+                    >
+                      <BookOpen size={18} className="text-green-600" />
+                      <span>Open Syllabus</span>
+                    </a>
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+
+                <DropdownMenuSeparator />
+
+                {/* Toggle Grading */}
+                <DropdownMenuItem
+                  onClick={handleToggleGrading}
+                  className="flex items-center gap-3 py-2.5 cursor-pointer text-green-700 font-medium"
+                >
+                  <ChartBarStacked size={18} className="text-green-700" />
+                  {course.gradingSystem === "normalGrading"
+                    ? "Switch to Standard Grading"
+                    : "Switch to Normal Grading"}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </section>
 
         {/* Stats */}
@@ -455,7 +490,7 @@ export default function TeacherCourseDetails() {
             />
 
             <StatCard
-              icon={<Users className="h-5 w-5 text-orange-500" />}
+              icon={<LibraryBig className="h-5 w-5 text-orange-500" />}
               value={course.enrollments?.length}
               label="Students Enrolled"
               bgColor="bg-slate-100 hover:bg-slate-200"
@@ -505,37 +540,40 @@ export default function TeacherCourseDetails() {
               handleDeleteAssessment={handleDeleteAssessment}
             />
           ))}
-      </div>
 
-      {/* Comments & Ratings Sections */}
-      {typeof course.commentsEnabled === "boolean" ? (
-        course.commentsEnabled ? (
-          <section aria-label="Ratings and comments">
-            <RatingSection courseId={id} />
-            <CommentSection id={id} />
-          </section>
+        {/* Comments & Ratings Sections */}
+        {typeof course.commentsEnabled === "boolean" ? (
+          course.commentsEnabled ? (
+            <section aria-label="Ratings and comments">
+              <RatingSection courseId={id} />
+              <CommentSection id={id} />
+            </section>
+          ) : (
+            <div
+              className="text-center text-gray-500 my-4"
+              role="status"
+              aria-live="polite"
+            >
+              Comments & Ratings are currently disabled for this course.
+            </div>
+          )
         ) : (
           <div
             className="text-center text-gray-500 my-4"
             role="status"
             aria-live="polite"
           >
-            Comments & Ratings are currently disabled for this course.
+            Loading comments & ratings status...
           </div>
-        )
-      ) : (
-        <div
-          className="text-center text-gray-500 my-4"
-          role="status"
-          aria-live="polite"
-        >
-          Loading comments & ratings status...
-        </div>
-      )}
+        )}
 
-      <footer className="flex justify-end">
-        <ArchiveDialog course={course} fetchCourseDetail={fetchCourseDetail} />
-      </footer>
+        <footer className="flex justify-end">
+          <ArchiveDialog
+            course={course}
+            fetchCourseDetail={fetchCourseDetail}
+          />
+        </footer>
+      </div>
     </main>
   );
 }

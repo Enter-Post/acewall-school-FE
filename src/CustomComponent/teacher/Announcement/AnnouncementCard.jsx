@@ -1,5 +1,3 @@
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -7,92 +5,107 @@ import {
   DialogTitle,
   DialogDescription,
 } from "@/components/ui/dialog";
-import { Megaphone, Trash2 } from "lucide-react";
+import { Trash2, Paperclip, Link as LinkIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
-export default function AnnouncementCard({ announcement, onDelete, rowIndex }) {
-  const [open, setOpen] = useState(false);
+export default function AnnouncementCard({ announcement, onDelete, onClose }) {
+  const formattedDate = announcement?.date || "-";
+  const courseTitle =
+    announcement?.course?.courseTitle || announcement?.courseTitle || "-";
+  const teacherName = announcement?.teacher
+    ? `${announcement.teacher.firstName} ${announcement.teacher.lastName}`
+    : "-";
 
-  const handleTitleClick = () => {
-    setOpen(true);
-  };
-
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      setOpen(true);
-    }
-  };
+  const isImageFile = (filename) =>
+    /\.(jpg|jpeg|png|gif|webp|bmp)$/i.test(filename);
 
   return (
-    <>
-      <tr className="border-b hover:bg-gray-50 transition-colors">
-        <td className="p-4 text-gray-700 whitespace-nowrap">
-          {announcement.date}
-        </td>
+    <Dialog open={!!announcement} onOpenChange={onClose}>
+      <DialogContent className="max-w-3xl w-full p-6 bg-white rounded-lg shadow-lg overflow-y-auto max-h-[80vh]">
+        <DialogHeader className="pb-4 border-b">
+          <DialogTitle className="text-xl font-bold text-gray-800">
+            {announcement?.title || "-"}
+          </DialogTitle>
+        </DialogHeader>
 
-        <td className="p-4">
-          <button
-            onClick={handleTitleClick}
-            onKeyDown={handleKeyDown}
-            className="text-indigo-600 flex items-center max-w-xs hover:text-indigo-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:rounded transition-colors"
-            aria-label={`View announcement: ${announcement.title}`}
-          >
-            <Megaphone
-              className="h-4 w-4 mr-2 text-indigo-400 flex-shrink-0"
-              aria-hidden="true"
-            />
-            <span className="truncate max-w-[300px] text-left">
-              {announcement.title}
-            </span>
-          </button>
-        </td>
+        <DialogDescription asChild>
+          <div className="space-y-4 mt-4 text-gray-700 text-sm">
+            {/* Message */}
+            <div className="bg-gray-50 p-4 rounded-md whitespace-pre-line shadow-sm">
+              {announcement?.message || "-"}
+            </div>
 
-        <td className="p-4">
-          <button
-            onClick={handleTitleClick}
-            onKeyDown={handleKeyDown}
-            className="text-gray-700 w-full text-left hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:rounded transition-colors"
-            aria-label={`View full message for: ${announcement.title}`}
-          >
-            <span className="truncate block max-w-[400px]">
-              {announcement.message}
-            </span>
-          </button>
-        </td>
+            {/* Details */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <strong>Date:</strong> {formattedDate}
+              </div>
+              <div>
+                <strong>Course:</strong> {courseTitle}
+              </div>
+              <div>
+                <strong>Teacher:</strong> {teacherName}
+              </div>
+            </div>
 
-        <td className="p-4">
-          <div className="flex justify-end space-x-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 text-red-600 hover:text-red-800 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-              onClick={() => onDelete?.(announcement._id)}
-              aria-label={`Delete announcement: ${announcement.title}`}
-            >
-              <Trash2 className="h-4 w-4" aria-hidden="true" />
-            </Button>
+            {/* Links */}
+            {announcement?.links?.length > 0 && (
+              <div>
+                <strong className="block mb-1">Links:</strong>
+                <ul className="list-disc ml-5 space-y-1">
+                  {announcement.links.map((link, i) => (
+                    <li key={i}>
+                      <a
+                        href={link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:underline flex items-center gap-1"
+                      >
+                        <LinkIcon className="h-4 w-4" /> {link}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {/* Attachments */}
+            {announcement?.attachments?.length > 0 && (
+              <div>
+                <strong className="block mb-1">Attachments:</strong>
+                <div className="flex flex-wrap gap-3 overflow-x-auto py-1">
+                  {announcement.attachments.map((file, i) => (
+                    <div
+                      key={i}
+                      className="flex items-center gap-2 min-w-[150px] bg-gray-50 p-2 rounded-md shadow-sm"
+                    >
+                      {isImageFile(file.filename) ? (
+                        <img
+                          src={file.url}
+                          alt={file.filename}
+                          className="h-16 w-16 object-cover rounded"
+                        />
+                      ) : (
+                        <Paperclip className="h-4 w-4 text-gray-600" />
+                      )}
+                      <a
+                        href={file.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:underline truncate max-w-[100px]"
+                      >
+                        {file.filename}
+                      </a>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
-        </td>
-      </tr>
+        </DialogDescription>
 
-      {/* Modal Dialog */}
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent aria-describedby="announcement-message">
-          <DialogHeader>
-            <DialogTitle className="text-indigo-600">
-              {announcement.title}
-            </DialogTitle>
-          </DialogHeader>
-          <DialogDescription asChild>
-            <p
-              id="announcement-message"
-              className="text-gray-700 whitespace-pre-line mt-4"
-            >
-              {announcement.message}
-            </p>
-          </DialogDescription>
-        </DialogContent>
-      </Dialog>
-    </>
+      
+      </DialogContent>
+    </Dialog>
   );
 }

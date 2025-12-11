@@ -23,35 +23,95 @@ import {
 } from "lucide-react";
 import { axiosInstance } from "@/lib/AxiosInstance";
 import { format } from "date-fns";
-import { Link } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
+import AssessmentFilters from "@/CustomComponent/Student/AssessmentFilters";
+
+// Custom Toast Component
+import MotivationToast from "@/CustomComponent/Toast/MotivationToast";
+
+// Sonner Toast
+import { toast } from "sonner";
 
 const tableHead = ["Assessment Name", "Course", "Due Date", "Status", "Type"];
 
 const Assessment = () => {
+  const { id } = useParams();
   const [search, setSearch] = useState("");
   const [assessments, setAssessments] = useState([]);
   const [expandedAssessmentId, setExpandedAssessmentId] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  const [filters, setFilters] = useState({
+    category: "all",
+    type: "all",
+    status: "all",
+  });
+
+  const [categories, setCategories] = useState([]);
+  const [types, setTypes] = useState([]);
+
   useEffect(() => {
     const fetchAssessment = async () => {
       setLoading(true);
-      await axiosInstance
-        .get("assessment/getAllassessmentforStudent")
-        .then((res) => {
-          console.log(res, "response");
-          setAssessments(res.data);
-          setLoading(false);
-        })
-        .catch(() => {
-          setError("Failed to fetch assessments");
-          setLoading(false);
+      try {
+        const res = await axiosInstance.get(
+          "assessment/getAllassessmentforStudent"
+        );
+
+        let filteredByCourse = id
+          ? res.data.filter((a) => a.course?._id === id)
+          : res.data;
+
+        setAssessments(filteredByCourse);
+
+        // Extract unique categories
+        const uniqueCategories = [];
+        filteredByCourse.forEach((a) => {
+          if (
+            a.category?._id &&
+            !uniqueCategories.some((c) => c._id === a.category._id)
+          ) {
+            uniqueCategories.push(a.category);
+          }
         });
+        setCategories(uniqueCategories);
+
+        // Extract unique types
+        setTypes([...new Set(filteredByCourse.map((a) => a.type))]);
+
+        // --------------------------------------
+        // 🔥 Show Motivation Toast
+        // --------------------------------------
+        const pending = filteredByCourse.filter((a) => !a.isSubmitted);
+
+        const nearestDueDate = pending
+          .filter((a) => a?.dueDate?.date)
+          .map((a) => new Date(a.dueDate.date))
+          .sort((a, b) => a - b)[0];
+
+        toast.custom(
+          (t) => (
+            <MotivationToast
+              pendingCount={pending.length}
+              nearestDueDate={nearestDueDate}
+              onClose={() => toast.dismiss(t.id)}
+            />
+          ),
+          {
+            position: "top-right",
+          }
+        );
+
+        setLoading(false);
+      } catch (err) {
+        setError("Failed to fetch assessments");
+        setLoading(false);
+      }
     };
 
     fetchAssessment();
-  }, []);
+  }, [id]);
 
   const formatDueDate = (date, time) => {
     try {
@@ -62,12 +122,6 @@ const Assessment = () => {
       return "Invalid date";
     }
   };
-
-  const filteredAssessments = Array.isArray(assessments)
-    ? assessments.filter((assessment) =>
-        assessment?.title?.toLowerCase().includes(search.toLowerCase())
-      )
-    : [];
 
   const toggleAssessmentExpand = (assessmentId) => {
     setExpandedAssessmentId(
@@ -83,12 +137,25 @@ const Assessment = () => {
       ? "bg-green-100 text-green-800"
       : "bg-yellow-100 text-yellow-800";
 
+  // Apply search + filters
+  const filteredAssessments = assessments.filter((a) => {
+    const matchesSearch = a.title?.toLowerCase().includes(search.toLowerCase());
+    const matchesCategory =
+      filters.category === "all" || a.category?.name === filters.category;
+    const matchesType = filters.type === "all" || a.type === filters.type;
+    const matchesStatus =
+      filters.status === "all" ||
+      (filters.status === "submitted" && a.isSubmitted) ||
+      (filters.status === "pending" && !a.isSubmitted);
+
+    return matchesSearch && matchesCategory && matchesType && matchesStatus;
+  });
+
   if (loading) {
     return (
       <div
         className="flex items-center justify-center w-full h-screen"
         role="status"
-        aria-live="polite"
       >
         <Loader className="animate-spin" />
         <span className="sr-only">Loading assessments...</span>
@@ -101,18 +168,25 @@ const Assessment = () => {
   }
 
   return (
-    <div>
-      <p className="text-xl py-4 mb-8 pl-6 font-semibold bg-acewall-main text-white rounded-lg">
-        Assessment
+    <div className="w-full p-6">
+      <p className="text-xl py-4 mb-4 pl-6 font-semibold bg-acewall-main text-white rounded-lg">
+        {id ? "Assessments for this Course" : "All Assessments"}
       </p>
 
-      <div className="flex items-center py-4">
+      <div className="flex flex-col md:flex-row gap-4 items-center mb-4">
         <Input
           placeholder="Search by title"
           aria-label="Search assessments by title"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           className="max-w-sm"
+        />
+
+        <AssessmentFilters
+          filters={filters}
+          setFilters={setFilters}
+          categories={categories}
+          types={types}
         />
       </div>
 
@@ -122,12 +196,11 @@ const Assessment = () => {
             <TableHeader>
               <TableRow>
                 {tableHead.map((item, idx) => (
-                  <TableHead key={idx} scope="col">
-                    {item}
-                  </TableHead>
+                  <TableHead key={idx}>{item}</TableHead>
                 ))}
               </TableRow>
             </TableHeader>
+
             <TableBody>
               {filteredAssessments.length > 0 ? (
                 filteredAssessments.map((assessment) => (
@@ -138,16 +211,9 @@ const Assessment = () => {
                         role="button"
                         className="cursor-pointer hover:text-blue-600 flex items-center gap-2"
                         onClick={() => toggleAssessmentExpand(assessment._id)}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter" || e.key === " ")
-                            toggleAssessmentExpand(assessment._id);
-                        }}
                       >
                         {expandedAssessmentId === assessment._id ? (
-                          <ChevronDown
-                            className="h-4 w-4 text-gray-500"
-                            aria-hidden="true"
-                          />
+                          <ChevronDown className="h-4 w-4 text-gray-500" />
                         ) : (
                           <ChevronRight className="h-4 w-4 text-gray-500" />
                         )}
@@ -161,15 +227,18 @@ const Assessment = () => {
                           {assessment.title}
                         </span>
                       </TableCell>
+
                       <TableCell>
                         {assessment?.course?.courseTitle || "N/A"}
                       </TableCell>
+
                       <TableCell>
                         {formatDueDate(
                           assessment?.dueDate?.date,
                           assessment?.dueDate?.time
                         )}
                       </TableCell>
+
                       <TableCell>
                         <span
                           className={`px-2 py-1 rounded-full text-xs ${getStatusClass(
@@ -179,6 +248,7 @@ const Assessment = () => {
                           {getStatusLabel(assessment.isSubmitted)}
                         </span>
                       </TableCell>
+
                       <TableCell>
                         <span className="capitalize">
                           {assessment.type?.replace("-", " ") || "N/A"}
@@ -199,6 +269,7 @@ const Assessment = () => {
                                   "No description provided."}
                               </p>
                             </div>
+
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               <div>
                                 <h4 className="text-sm font-medium mb-2">
@@ -209,6 +280,7 @@ const Assessment = () => {
                                   {assessment?.course?.courseTitle || "N/A"}
                                 </p>
                               </div>
+
                               <div>
                                 <h4 className="text-sm font-medium mb-2">
                                   Due Date
@@ -228,6 +300,7 @@ const Assessment = () => {
                                         )
                                       : "Invalid date"}
                                   </p>
+
                                   <p className="text-sm text-gray-600 flex items-center gap-2">
                                     <Clock className="h-4 w-4 text-gray-500" />
                                     {assessment?.dueDate?.time || "N/A"}
@@ -235,6 +308,7 @@ const Assessment = () => {
                                 </div>
                               </div>
                             </div>
+
                             <Link
                               to={
                                 assessment.source === "assessment"
@@ -243,16 +317,10 @@ const Assessment = () => {
                                   ? `/student/discussions/${assessment._id}`
                                   : "#"
                               }
-                              className="pt-2"
                             >
                               <Button
-                                className="bg-green-500 hover:bg-green-600 text-white"
+                                className="bg-green-500 text-white hover:bg-green-600"
                                 size="sm"
-                                aria-label={
-                                  assessment.isSubmitted
-                                    ? `See results for ${assessment.title}`
-                                    : `Submit assessment ${assessment.title}`
-                                }
                               >
                                 <Upload className="h-4 w-4 mr-2" />
                                 {assessment.isSubmitted
@@ -268,13 +336,9 @@ const Assessment = () => {
                 ))
               ) : (
                 <TableRow>
-                  <TableCell
-                    colSpan={5}
-                    className="text-center py-8"
-                    role="alert"
-                  >
+                  <TableCell colSpan={5} className="text-center py-8">
                     {search
-                      ? "No assessments found matching your search."
+                      ? "No assessments match your search."
                       : "No assessments available."}
                   </TableCell>
                 </TableRow>
