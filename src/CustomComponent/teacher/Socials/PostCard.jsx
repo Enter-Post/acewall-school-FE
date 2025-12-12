@@ -17,9 +17,12 @@ const PostCard = ({ post, setPosts }) => {
   const authorName = `${author.firstName || ""} ${author.middleName || ""} ${
     author.lastName || ""
   }`.trim();
-  const profilePic = author?.profileImg?.includes("placeholder")
+
+  console.log(author?.profileImg)
+
+  const profilePic = author?.profileImg?.url.includes("placeholder")
     ? avatar
-    : author?.profileImg;
+    : author?.profileImg.url;
 
   const postTime = post?.createdAt
     ? new Date(post.createdAt).toLocaleString()

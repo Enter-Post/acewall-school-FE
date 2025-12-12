@@ -5,7 +5,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useFieldArray, FormProvider } from "react-hook-form";
 import { z } from "zod";
-import { Loader, Upload } from "lucide-react";
+import { Loader, Loader2, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -93,6 +93,8 @@ export default function CoursesBasis() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  console.log(loading, "loading state in CoursesBasics");
+
   const { user } = useContext(GlobalContext);
   const { course } = useContext(CourseContext);
 
@@ -173,6 +175,8 @@ export default function CoursesBasis() {
    * Form Submit
    */
   const onSubmit = async (data) => {
+    setLoading(true);
+
     const formData = new FormData();
     formData.append("thumbnail", data.thumbnail);
     formData.append("courseTitle", data.courseTitle);
@@ -191,7 +195,7 @@ export default function CoursesBasis() {
       JSON.stringify(data.requirements.map((r) => r.value))
     );
     formData.append("syllabus", data.syllabus);
- 
+
     try {
       const res = await axiosInstance.post("/course/create", formData, {
         headers: { "Content-Type": "multipart/form-data" },
@@ -480,7 +484,7 @@ export default function CoursesBasis() {
               disabled={loading}
               className="bg-green-600 text-white hover:bg-green-700"
             >
-              {loading ? "Creating..." : "Create Course"}
+              {loading ? <Loader2 className="animate-spin" /> : "Create Course"}
             </Button>
           </div>
         </form>

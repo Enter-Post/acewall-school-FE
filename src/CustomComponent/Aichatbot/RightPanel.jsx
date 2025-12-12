@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import DifficultyBadge from "./DifficultyBadge"
-import FollowUpCard from "./FollowUpCard"
-import ExportButtons from "./ExportButtons"
-import { ChevronLeft, ChevronRight } from "lucide-react"
+import { useState } from "react";
+import DifficultyBadge from "./DifficultyBadge";
+import FollowUpCard from "./FollowUpCard";
+import ExportButtons from "./ExportButtons";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 export default function RightPanel({
   difficulty,
@@ -14,7 +14,7 @@ export default function RightPanel({
   onDownloadWord,
   suggestions = [], // ✅ Accept dynamic suggestions from parent
 }) {
-  const [isExpanded, setIsExpanded] = useState(true)
+  const [isExpanded, setIsExpanded] = useState(true);
 
   if (!isExpanded) {
     return (
@@ -25,7 +25,7 @@ export default function RightPanel({
       >
         <ChevronLeft size={20} aria-hidden="true" />
       </button>
-    )
+    );
   }
 
   return (
@@ -44,7 +44,11 @@ export default function RightPanel({
           className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400"
           aria-label="Collapse study tools panel"
         >
-          <ChevronRight size={20} className="text-slate-600 dark:text-slate-400" aria-hidden="true" />
+          <ChevronRight
+            size={20}
+            className="text-slate-600 dark:text-slate-400"
+            aria-hidden="true"
+          />
         </button>
       </div>
 
@@ -52,27 +56,44 @@ export default function RightPanel({
       <div className="flex-1 flex flex-col gap-6 px-4 py-6">
         {/* Difficulty Badge */}
         <section aria-labelledby="difficulty-heading">
-          <h3 id="difficulty-heading" className="text-sm font-semibold text-slate-900 dark:text-white mb-3">
+          <h3
+            id="difficulty-heading"
+            className="text-sm font-semibold text-slate-900 dark:text-white mb-3"
+          >
             Difficulty Level
           </h3>
-          <DifficultyBadge difficulty={difficulty} onDifficultyChange={onDifficultyChange} />
+          <DifficultyBadge
+            difficulty={difficulty}
+            onDifficultyChange={onDifficultyChange}
+          />
         </section>
 
         {/* Follow-up / Suggested Questions */}
-        <section aria-labelledby="followup-heading">
-          <h3 id="followup-heading" className="sr-only">Follow-up Questions</h3>
+        <section
+          aria-labelledby="followup-heading"
+          className={`${suggestions.length <= 0 && "pointer-events-none opacity-50"}`}
+        >
+          <h3 id="followup-heading" className="sr-only">
+            Follow-up Questions
+          </h3>
           <FollowUpCard
-            questions={suggestions.length > 0 ? suggestions : ["Ask a question to see suggestions!"]}
+            questions={
+              suggestions.length > 0
+                ? suggestions
+                : ["Ask a question to see suggestions!"]
+            }
             onSelectQuestion={onFollowUpQuestion}
           />
         </section>
 
         {/* Export Buttons */}
         <section aria-labelledby="export-heading">
-          <h3 id="export-heading" className="sr-only">Export Options</h3>
-          <ExportButtons onDownloadPDF={onDownloadPDF} onDownloadWord={onDownloadWord} />
+          <h3 id="export-heading" className="sr-only">
+            Export Options
+          </h3>
+          {/* <ExportButtons onDownloadPDF={onDownloadPDF} onDownloadWord={onDownloadWord} /> */}
         </section>
       </div>
     </aside>
-  )
+  );
 }

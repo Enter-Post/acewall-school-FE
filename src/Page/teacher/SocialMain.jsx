@@ -25,8 +25,12 @@ const SocialMain = ({ posts: externalPosts, setPosts: setExternalPosts }) => {
   const fetchPosts = async (pageNum = 1) => {
     try {
       setLoading(true);
-      const response = await axiosInstance.get(`/posts/getPosts?page=${pageNum}&limit=10`);
+      const response = await axiosInstance.get(
+        `/posts/getPosts?page=${pageNum}&limit=10`
+      );
       const fetched = response.data?.posts || [];
+
+      console.log(fetched, "fetched posts");
 
       const normalized = fetched.map((post) => ({
         _id: post._id,
@@ -37,9 +41,12 @@ const SocialMain = ({ posts: externalPosts, setPosts: setExternalPosts }) => {
           firstName: post?.author?.firstName || "Deleted",
           middleName: post?.author?.middleName || "",
           lastName: post?.author?.lastName || "User",
-          profileImg:
-            post?.author?.profileImg?.url ||
-            "https://via.placeholder.com/150",
+          profileImg: {
+            url:
+              post?.author?.profileImg?.url ||
+              "https://via.placeholder.com/150",
+              
+          },
         },
         createdAt: post.createdAt || new Date().toISOString(),
         likes: post.likes || [],
@@ -158,7 +165,11 @@ const SocialMain = ({ posts: externalPosts, setPosts: setExternalPosts }) => {
             </div>
           ))
         ) : loading ? (
-          <div role="status" aria-live="polite" className="text-center text-gray-500 py-6">
+          <div
+            role="status"
+            aria-live="polite"
+            className="text-center text-gray-500 py-6"
+          >
             Loading posts...
           </div>
         ) : (
@@ -166,7 +177,11 @@ const SocialMain = ({ posts: externalPosts, setPosts: setExternalPosts }) => {
         )}
 
         {loading && posts.length > 0 && (
-          <div role="status" aria-live="polite" className="text-center text-gray-500 py-6">
+          <div
+            role="status"
+            aria-live="polite"
+            className="text-center text-gray-500 py-6"
+          >
             Loading more posts...
           </div>
         )}
@@ -174,7 +189,10 @@ const SocialMain = ({ posts: externalPosts, setPosts: setExternalPosts }) => {
 
       {/* Create Post Modal */}
       {isModalOpen && (
-        <CreatePostModal onClose={() => setIsModalOpen(false)} onCreate={handleCreatePost} />
+        <CreatePostModal
+          onClose={() => setIsModalOpen(false)}
+          onCreate={handleCreatePost}
+        />
       )}
     </div>
   );

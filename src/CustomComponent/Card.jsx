@@ -56,7 +56,7 @@ function DeshboardAnnouncementCard({ mainHeading, data, link, height }) {
                   >
                     <p className="font-semibold text-md">{item.title}</p>
                     <p className="text-sm text-gray-500 mb-2 mt-1">
-                      {item.course.courseTitle}
+                      {item?.course?.courseTitle}
                     </p>
                   </Link>
                 </div>

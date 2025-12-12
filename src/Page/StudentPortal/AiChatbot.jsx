@@ -9,12 +9,20 @@ import { Forward, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 export default function AiChatbot() {
-  const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState([
+    {
+      id: Date.now() + 1,
+      text: "Hello! I am EduMentor, your AI educational assistant. How can I help you today?",
+      sender: "ai",
+      isLoading: true,
+    },
+  ]);
   const [difficulty, setDifficulty] = useState("medium");
   const [suggestedQuestions, setSuggestedQuestions] = useState([]);
   const [loading, setLoading] = useState(false);
   const { taggedMessage, setTaggedMessage } = useContext(GlobalContext);
   const [input, setInput] = useState("");
+  const [file, setFile] = useState();
 
   const chatEndRef = useRef(null);
 
@@ -50,7 +58,6 @@ export default function AiChatbot() {
     await axiosInstance
       .get("/aichat/getChatHistory")
       .then((res) => {
-        console.log(res.data, "data from fetchChats");
         const normalizedMessages = normalizeMessagesFromDB(
           res.data.chats || []
         );
@@ -74,6 +81,7 @@ export default function AiChatbot() {
       text,
       sender: "user",
       timestamp: new Date(),
+      file: file,
     };
 
     setMessages((prev) => [...prev, userMessage]);
@@ -89,11 +97,20 @@ export default function AiChatbot() {
     setMessages((prev) => [...prev, loadingMessage]);
 
     try {
-      const res = await axiosInstance.post("/aichat/ask", {
-        question: text,
-        difficulty,
-        context: taggedMessage ? taggedMessage.dbId : null,
-      });
+      const res = await axiosInstance.post(
+        "/aichat/ask",
+        {
+          question: text,
+          file: file,
+          difficulty,
+          context: taggedMessage ? taggedMessage.dbId : null,
+        },
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
 
       // Remove loading message
       setMessages((prev) => prev.filter((m) => !m.isLoading));
@@ -136,12 +153,14 @@ export default function AiChatbot() {
   return (
     <div className="flex flex-col lg:flex-row h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900">
       <main className="flex-1 flex flex-col min-h-0 order-1 lg:order-none">
+        {/* HEADER */}
         <header className="bg-green-600 dark:bg-slate-950 px-6 py-4 shadow-md sticky top-0 rounded-xl">
           <h1 className="text-xl sm:text-2xl font-bold text-white">
             AI Educational Assistant
           </h1>
         </header>
 
+        {/* CHAT WINDOW SECTION */}
         <section className="flex-1 overflow-y-auto">
           <ChatWindow
             messages={messages}
@@ -150,25 +169,30 @@ export default function AiChatbot() {
           />
         </section>
 
-        <section className="flex flex-wrap p-4 bg-white dark:bg-slate-800 shadow-lg border-t overflow-x-auto overflow-y-auto">
-          {GENERIC_FOLLOWUP_PATTERNS.map((pattern) => (
-            <Badge
-             
-              key={pattern}
-              onClick={() => setInput(pattern)}
-              className="mr-2 mb-2 cursor-pointer"
-              variant="outline"
-            >
-              {pattern}
-            </Badge>
-          ))}
+        {/* FOLLOW-UP SUGGESTION SCROLL BAR */}
+        <section>
+          {messages.length !== 0 && (
+            <section className="flex p-2 bg-white dark:bg-slate-800 shadow-lg border-t overflow-x-auto overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent flex-wrap">
+              {GENERIC_FOLLOWUP_PATTERNS.map((pattern) => (
+                <Badge
+                  key={pattern}
+                  onClick={() => setInput(pattern)}
+                  className="mr-2 mb-2 cursor-pointer whitespace-nowrap"
+                  variant="outline"
+                >
+                  {pattern}
+                </Badge>
+              ))}
+            </section>
+          )}
         </section>
 
-        <div className="p-4 bg-white dark:bg-slate-800 shadow-lg border-t">
+        {/* INPUT + TAGGED MESSAGE BAR */}
+        <div className="bg-white dark:bg-slate-800 shadow-lg border-t">
           <p className="text-xs mb-2 text-muted-foreground gap-2">
             {taggedMessage && (
               <>
-                <div className="">
+                <div>
                   <section className="flex justify-between mb-2">
                     <Forward className="cursor-pointer" />
                     <X
@@ -183,16 +207,19 @@ export default function AiChatbot() {
               </>
             )}
           </p>
+
           <InputBar
             onSendMessage={handleSendMessage}
             input={input}
             setInput={setInput}
             disabled={loading}
+            file={file}
+            setFile={setFile}
           />
         </div>
       </main>
 
-      {/* PASS suggestions HERE */}
+      {/* RIGHT SIDE PANEL */}
       <aside className="bg-slate-100 dark:bg-slate-900 shadow-xl border-l p-4">
         <RightPanel
           difficulty={difficulty}

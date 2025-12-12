@@ -7,8 +7,6 @@ export default function ChatMessage({ message, loading }) {
   const isUser = message.sender === "user";
   const { taggedMessage, setTaggedMessage } = useContext(GlobalContext);
 
-  console.log(taggedMessage, "taggedMessage in ChatMessage");
-
   return (
     <div className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
       <div

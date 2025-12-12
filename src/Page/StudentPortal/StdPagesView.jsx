@@ -148,7 +148,7 @@ const StdPagesView = () => {
               {selectedPost.image?.url && (
                 <img
                   src={selectedPost.image.url}
-                  alt={post.title}
+                  alt={selectedPost.title}
                   className="w-full object-contain rounded-md border max-h-[70vh]"
                 />
               )}
