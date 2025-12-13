@@ -81,7 +81,13 @@ export default function AiChatbot() {
       text,
       sender: "user",
       timestamp: new Date(),
-      file: file,
+      file: file
+        ? {
+            name: file.name,
+            size: file.size,
+            type: file.type,
+          }
+        : null,
     };
 
     setMessages((prev) => [...prev, userMessage]);
@@ -97,36 +103,40 @@ export default function AiChatbot() {
     setMessages((prev) => [...prev, loadingMessage]);
 
     try {
-      const res = await axiosInstance.post(
-        "/aichat/ask",
-        {
-          question: text,
-          file: file,
-          difficulty,
-          context: taggedMessage ? taggedMessage.dbId : null,
+      const formData = new FormData();
+      formData.append("question", text);
+      formData.append("difficulty", difficulty);
+      if (taggedMessage) {
+        formData.append("context", taggedMessage.dbId);
+      }
+      if (file) {
+        formData.append("file", file);
+      }
+
+      const res = await axiosInstance.post("/aichat/askupdated", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
         },
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      });
 
       // Remove loading message
       setMessages((prev) => prev.filter((m) => !m.isLoading));
 
       const aiMessage = {
         id: Date.now() + 2,
-        text: res.data.answer.text,
+        text: res.data.answer,
         sender: "ai",
         timestamp: new Date(),
         suggestions: res.data.suggestedQuestions,
+        generatedFile: res.data.generatedFile || null,
+        fileUsed: res.data.fileUsed || null,
       };
 
       setMessages((prev) => [...prev, aiMessage]);
       setSuggestedQuestions(res.data.suggestedQuestions || []);
       setTaggedMessage(null);
       setInput("");
+      setFile(null); // Clear file after sending
     } catch (error) {
       console.error("AI API Error:", error);
 
