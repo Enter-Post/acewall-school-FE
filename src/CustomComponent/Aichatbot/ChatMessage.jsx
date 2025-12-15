@@ -7,14 +7,14 @@ export default function ChatMessage({ message, loading }) {
   const isUser = message.sender === "user";
   const { taggedMessage, setTaggedMessage } = useContext(GlobalContext);
 
-  console.log(message, "message");
-
   const getFileIcon = (type) => {
     if (type === "pdf") return "📄";
     if (type === "word") return "📝";
     if (type === "excel") return "📊";
     return "📎";
   };
+
+  console.log(message, "message");
 
   const formatFileSize = (bytes) => {
     if (!bytes) return "";
@@ -42,11 +42,13 @@ export default function ChatMessage({ message, loading }) {
           </p>
 
           {/* Show user's uploaded file */}
-          {isUser && message.file && (
+          {isUser && message.file.url !== null && (
             <div className="mt-2 p-2 bg-white/20 rounded-lg flex items-center gap-2">
               <FileIcon size={16} />
               <div className="text-xs">
-                <p className="font-medium">{message.file.name}</p>
+                <p className="font-medium">
+                  {message.fileUsed || message.file.name}
+                </p>
                 <p className="opacity-75">
                   {formatFileSize(message.file.size)}
                 </p>
@@ -65,11 +67,11 @@ export default function ChatMessage({ message, loading }) {
                 className="flex items-center gap-2 p-3 bg-green-500 hover:bg-green-600 text-white rounded-lg transition-colors duration-200"
               >
                 <span className="text-2xl">
-                  {getFileIcon(message.generatedFile.type)}
+                  {getFileIcon(message.generatedFile.FileType)}
                 </span>
                 <div className="flex-1 text-left">
                   <p className="text-sm font-semibold">
-                    Download {message.generatedFile.type.toUpperCase()}
+                    Download {message.generatedFile.FileType.toUpperCase()}
                   </p>
                   <p className="text-xs opacity-90">
                     {message.generatedFile.filename}

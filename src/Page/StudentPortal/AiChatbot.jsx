@@ -12,7 +12,7 @@ export default function AiChatbot() {
   const [messages, setMessages] = useState([
     {
       id: Date.now() + 1,
-      text: "Hello! I am EduMentor, your AI educational assistant. How can I help you today?",
+      text: "Hello! I am Acewall Scholars EduMentor, your AI educational assistant. How can I help you today?",
       sender: "ai",
       isLoading: true,
     },
@@ -61,7 +61,7 @@ export default function AiChatbot() {
         const normalizedMessages = normalizeMessagesFromDB(
           res.data.chats || []
         );
-        setMessages(normalizedMessages);
+        setMessages((prev) => [...prev, ...normalizedMessages]);
       })
       .catch((err) => {
         console.log(err, "error in fetchChats");

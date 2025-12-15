@@ -11,6 +11,9 @@ export const normalizeMessagesFromDB = (dbChats) => {
         sender: "user",
         timestamp: chat.createdAt,
         dbId: chat._id,
+        generatedFile: chat.generatedFile,
+        file: chat.file,
+        fileUsed: chat.fileUsed
       })
     }
 
@@ -22,6 +25,9 @@ export const normalizeMessagesFromDB = (dbChats) => {
         sender: "ai",
         timestamp: chat.createdAt,
         dbId: chat._id,
+        generatedFile: chat.generatedFile,
+        file: chat.file,
+        fileUsed: chat.fileUsed
       })
     }
   })
