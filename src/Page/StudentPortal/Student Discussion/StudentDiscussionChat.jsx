@@ -3,35 +3,31 @@ import ChatBox from "@/CustomComponent/Discussion/ChatBox";
 import { axiosInstance } from "@/lib/AxiosInstance";
 import { Files } from "lucide-react";
 import React, { useContext, useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom"; // <-- useNavigate here
+import { useNavigate, useParams } from "react-router-dom";
 
 const StudentDiscussionChat = () => {
   const { id } = useParams();
-  const navigate = useNavigate(); // <-- initialize navigate
-  const [discussion, setDiscussion] = useState([]);
+  const navigate = useNavigate();
+  const [discussion, setDiscussion] = useState(null);
   const [loading, setLoading] = useState(true);
   const { user } = useContext(GlobalContext);
 
-  // Modal state
   const [modalOpen, setModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState(null);
 
-  console.log(discussion, "discussion");
-
   useEffect(() => {
-    const fetchdiscussion = async () => {
+    const fetchDiscussion = async () => {
       setLoading(true);
       try {
         const res = await axiosInstance.get(`discussion/${id}`);
         setDiscussion(res.data.discussion);
-        console.log("discussion", discussion);
       } catch (err) {
-        console.log(err);
+        console.error(err);
       } finally {
         setLoading(false);
       }
     };
-    fetchdiscussion();
+    fetchDiscussion();
   }, [id]);
 
   const openModal = (file) => {
@@ -44,107 +40,138 @@ const StudentDiscussionChat = () => {
     setModalContent(null);
   };
 
-  return (
-    <div className="flex flex-col gap-2">
-      <section className="w-full p-6 bg-white rounded-xl shadow-md">
-        {/* Correct back button */}
+  if (loading) {
+    return (
+      <main className="p-6" aria-busy="true" aria-live="polite">
+        {" "}
+        <p>Loading discussion...</p>{" "}
+      </main>
+    );
+  }
+
+  if (!discussion) {
+    return (
+      <main className="p-6">
+        {" "}
+        <p>Discussion not found.</p>
         <button
-          onClick={() => navigate(-1)} // <-- use navigate here
-          className="mb-4 px-4 py-1 rounded bg-gray-200 hover:bg-gray-300 transition w-fit"
+          onClick={() => navigate(-1)}
+          className="mt-4 px-4 py-2 bg-gray-200 rounded"
         >
-          ← Back
-        </button>
+          ← Back{" "}
+        </button>{" "}
+      </main>
+    );
+  }
 
-        <div className="py-4 mb-6 pl-6 rounded-lg bg-green-600 text-white">
-          <p className="text-2xl font-bold">Discussion</p>
+  return (
+    <main
+      className="flex flex-col gap-4 p-6"
+      aria-label="Student Discussion Chat"
+    >
+      <button
+        onClick={() => navigate(-1)}
+        className="mb-4 px-4 py-1 rounded bg-gray-200 hover:bg-gray-300 transition w-fit"
+        aria-label="Go back"
+      >
+        ← Back{" "}
+      </button>
+
+      <section className="py-4 mb-6 pl-6 rounded-lg bg-green-600 text-white">
+        <h1 className="text-2xl font-bold">{discussion.topic}</h1>
+      </section>
+
+      <section
+        className="p-4 border border-gray-200 rounded-lg shadow-sm bg-white mb-4"
+        aria-label="Discussion details"
+      >
+        <div className="flex flex-wrap items-center gap-4 mb-3">
+          <p
+            className="text-xs text-gray-600 font-semibold"
+            aria-label="Due Date"
+          >
+            📅 Due Date:{" "}
+            <span className="text-gray-500">
+              {discussion?.dueDate?.date
+                ? new Date(discussion.dueDate.date).toLocaleDateString()
+                : "N/A"}{" "}
+              {discussion?.dueDate?.time
+                ? discussion.dueDate.time.slice(0, 5)
+                : ""}
+            </span>
+          </p>
         </div>
-        <section className="p-4 border border-gray-200 rounded-lg shadow-sm bg-white mb-4">
-          {/* Top Row - Due Date */}
-          <div className="flex flex-wrap items-center gap-4 mb-3">
-            <div className="flex items-center gap-2 text-xs">
-              <span className="text-gray-600 font-semibold">📅 Due Date:</span>
-              <span className="text-gray-500">
-                {discussion?.dueDate?.date
-                  ? new Date(discussion.dueDate.date).toLocaleDateString()
-                  : "N/A"}
-              </span>
-              <span className="text-gray-400">|</span>
-              <span className="text-gray-500">
-                {discussion?.dueDate?.time
-                  ? discussion.dueDate.time.slice(0, 5)
-                  : ""}
-              </span>
-            </div>
-          </div>
 
-          {/* Info Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-6 text-sm">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-3 gap-x-6 text-sm">
+          <div>
+            <p className="text-gray-600 font-semibold">📚 Course</p>
+            <p className="text-gray-500">
+              {discussion?.course?.courseTitle || "Not Assigned"}
+            </p>
+          </div>
+          {discussion?.chapter && (
             <div>
-              <p className="text-gray-600 font-semibold">📚 Course</p>
+              <p className="text-gray-600 font-semibold">📖 Chapter</p>
               <p className="text-gray-500">
-                {discussion?.course?.courseTitle || "Not Assigned"}
+                {discussion?.chapter?.title || "No Chapter"}
               </p>
             </div>
+          )}
+          {discussion?.lesson && (
+            <div>
+              <p className="text-gray-600 font-semibold">📖 Lesson</p>
+              <p className="text-gray-500">
+                {discussion?.lesson?.title || "No Lesson"}
+              </p>
+            </div>
+          )}
+        </div>
+      </section>
 
-            {discussion?.chapter && (
-              <div>
-                <p className="text-gray-600 font-semibold">📖 Chapter</p>
-                <p className="text-gray-500">
-                  {discussion?.chapter?.title || "No Chapter"}
-                </p>
-              </div>
+      <p className="text-lg text-gray-600 mb-6">{discussion.description}</p>
+
+      <section
+        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"
+        aria-label="Discussion attachments"
+      >
+        {discussion?.files?.map((file, index) => (
+          <button
+            key={index}
+            onClick={() => openModal(file)}
+            className="flex items-center gap-4 p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow bg-gray-50 hover:bg-white"
+            type="button"
+            aria-label={`Open file ${file.filename}`}
+          >
+            {file.type === "application/pdf" ? (
+              <>
+                <Files className="h-6 w-6 text-red-500" />
+                <span className="text-sm font-medium text-blue-700 truncate">
+                  {file.filename}
+                </span>
+              </>
+            ) : (
+              <>
+                <img
+                  src={file.url}
+                  alt={file.filename}
+                  className="h-10 w-10 object-cover rounded-md"
+                />
+                <span className="text-sm font-medium text-blue-700 truncate">
+                  {file.filename}
+                </span>
+              </>
             )}
-            {discussion?.lesson && (
-              <div>
-                <p className="text-gray-600 font-semibold">📖 Lesson</p>
-                <p className="text-gray-500">
-                  {discussion?.lesson?.title || "No Lesson"}
-                </p>
-              </div>
-            )}
-          </div>
-        </section>
-
-        <p className="text-2xl font-semibold mb-2">{discussion.topic}</p>
-        <p className="text-lg text-gray-600 mb-6">{discussion.description}</p>
-
-        <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-          {discussion?.files?.map((file, index) => (
-            <button
-              key={index}
-              onClick={() => openModal(file)}
-              className="flex items-center gap-4 p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow bg-gray-50 hover:bg-white"
-              type="button"
-            >
-              {file.type === "application/pdf" ? (
-                <>
-                  <Files className="h-6 w-6 text-red-500" />
-                  <span className="text-sm font-medium text-blue-700 truncate">
-                    {file.filename}
-                  </span>
-                </>
-              ) : (
-                <>
-                  <img
-                    src={file.url}
-                    alt={`File ${index}`}
-                    className="h-10 w-10 object-cover rounded-md"
-                  />
-                  <span className="text-sm font-medium text-blue-700 truncate">
-                    {file.filename}
-                  </span>
-                </>
-              )}
-            </button>
-          ))}
-        </section>
+          </button>
+        ))}
       </section>
 
       <ChatBox discussionId={id} />
 
-      {/* Modal */}
-      {modalOpen && (
+      {modalOpen && modalContent && (
         <div
+          role="dialog"
+          aria-modal="true"
+          aria-label={`Preview of file ${modalContent.filename}`}
           onClick={closeModal}
           className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50"
         >
@@ -155,7 +182,7 @@ const StudentDiscussionChat = () => {
             <button
               onClick={closeModal}
               className="text-gray-600 hover:text-gray-900 float-right text-xl font-bold mb-2"
-              aria-label="Close modal"
+              aria-label="Close file preview modal"
             >
               ×
             </button>
@@ -176,7 +203,7 @@ const StudentDiscussionChat = () => {
           </div>
         </div>
       )}
-    </div>
+    </main>
   );
 };
 

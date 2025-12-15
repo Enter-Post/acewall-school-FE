@@ -26,7 +26,6 @@ export default function ManageGuardianEmailNotifications({ studentId }) {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  // Fetch preferences when dialog opens
   useEffect(() => {
     if (open && studentId) {
       fetchPreferences();
@@ -61,21 +60,24 @@ export default function ManageGuardianEmailNotifications({ studentId }) {
   const handleSave = async () => {
     try {
       setSaving(true);
+
       const { data } = await axiosInstance.put(
         `emailnotification/update/${studentId}`,
         { guardianEmailPreferences: preferences }
       );
 
       toast.success(
-        data?.message ||
-          "Guardian email notifications updated successfully."
+        data?.message || "Guardian email notifications updated successfully."
       );
+
       setOpen(false);
     } catch (error) {
       console.error("Error updating preferences:", error);
+
       const msg =
         error.response?.data?.message ||
         "Could not save preferences. Please try again.";
+
       toast.error(msg);
     } finally {
       setSaving(false);
@@ -85,21 +87,40 @@ export default function ManageGuardianEmailNotifications({ studentId }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline">Manage Guardian Email Notifications</Button>
+        <Button
+          variant="outline"
+          aria-label="Manage guardian email notifications"
+        >
+          Manage Guardian Email Notifications
+        </Button>
       </DialogTrigger>
 
-      <DialogContent className="sm:max-w-md">
+      <DialogContent
+        className="sm:max-w-md"
+        aria-labelledby="guardian-dialog-title"
+      >
         <DialogHeader>
-          <DialogTitle>Guardian Email Notifications</DialogTitle>
-          <DialogDescription>
-            Select which types of emails should be sent to the parent or guardian
-            of this student.
+          <DialogTitle id="guardian-dialog-title">
+            Guardian Email Notifications
+          </DialogTitle>
+
+          <DialogDescription id="guardian-dialog-description">
+            Select which types of emails should be sent to the parent or
+            guardian of this student.
           </DialogDescription>
         </DialogHeader>
 
         {loading ? (
-          <div className="flex justify-center py-10">
-            <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+          <div
+            className="flex justify-center py-10"
+            role="status"
+            aria-live="polite"
+          >
+            <Loader2
+              className="h-6 w-6 animate-spin text-muted-foreground"
+              aria-hidden="true"
+            />
+            <span className="sr-only">Loading preferences…</span>
           </div>
         ) : (
           <div className="space-y-4 py-3">
@@ -124,21 +145,35 @@ export default function ManageGuardianEmailNotifications({ studentId }) {
                 title: "Assessment Reminders",
                 desc: "Notify guardian about upcoming or missed assessments.",
               },
-            ].map((item) => (
-              <div
-                key={item.key}
-                className="flex items-center justify-between rounded-lg border p-3"
-              >
-                <div>
-                  <Label className="text-sm font-medium">{item.title}</Label>
-                  <p className="text-xs text-muted-foreground">{item.desc}</p>
+            ].map((item) => {
+              const switchId = `switch-${item.key}`;
+              return (
+                <div
+                  key={item.key}
+                  className="flex items-center justify-between rounded-lg border p-3"
+                  role="group"
+                  aria-labelledby={`${switchId}-label`}
+                >
+                  <div>
+                    <Label
+                      id={`${switchId}-label`}
+                      htmlFor={switchId}
+                      className="text-sm font-medium"
+                    >
+                      {item.title}
+                    </Label>
+                    <p className="text-xs text-muted-foreground">{item.desc}</p>
+                  </div>
+
+                  <Switch
+                    id={switchId}
+                    aria-label={`${item.title} toggle`}
+                    checked={preferences[item.key]}
+                    onCheckedChange={() => handleToggle(item.key)}
+                  />
                 </div>
-                <Switch
-                  checked={preferences[item.key]}
-                  onCheckedChange={() => handleToggle(item.key)}
-                />
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 
@@ -150,10 +185,20 @@ export default function ManageGuardianEmailNotifications({ studentId }) {
           >
             Cancel
           </Button>
-          <Button onClick={handleSave} disabled={saving}>
+
+          <Button
+            onClick={handleSave}
+            disabled={saving}
+            aria-busy={saving ? "true" : "false"}
+            aria-live="polite"
+          >
             {saving ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...
+                <Loader2
+                  className="mr-2 h-4 w-4 animate-spin"
+                  aria-hidden="true"
+                />
+                Saving…
               </>
             ) : (
               "Save Preferences"

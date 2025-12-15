@@ -26,8 +26,6 @@ const CourseGradebook = ({ title }) => {
   const [gradingSystem, setGradingSystem] = useState("");
   const [emptyGrade, setEmptyGrade] = useState(false);
 
-  // console.log(gradebook.standardGrade, "gradebook");
-
   useEffect(() => {
     const fetchGradebook = async () => {
       try {
@@ -68,14 +66,14 @@ const CourseGradebook = ({ title }) => {
       </CardHeader>
 
       {loading ? (
-        <div className="flex justify-center item-center">
-          <Loader className="animate-spin justify-center" />
+        <div className="flex justify-center items-center" aria-live="polite">
+          <Loader className="animate-spin" />
+          <span className="sr-only">Loading gradebook...</span>
         </div>
       ) : emptyGrade ? (
-        <Alert severity="info">
+        <Alert severity="info" aria-live="polite">
           <AlertDescription>No Gradebook Available</AlertDescription>
         </Alert>
-        
       ) : (
         <CardContent>
           <Table>
@@ -102,11 +100,14 @@ const CourseGradebook = ({ title }) => {
                 <Fragment key={`${student.studentId}-${index}`}>
                   <TableRow>
                     <TableCell className="w-4">
-                      {console.log(student)}
                       <Button
                         variant="ghost"
                         size="icon"
                         onClick={() => toggleExpand(student.studentId)}
+                        aria-expanded={expanded[student.studentId] || false}
+                        aria-controls={`student-${student.studentId}-details`}
+                        aria-label={`Toggle details for ${student.studentName}`}
+                        className="focus:outline-none focus:ring-2 focus:ring-blue-500"
                       >
                         {expanded[student.studentId] ? (
                           <ChevronDown className="h-4 w-4" />
@@ -147,7 +148,7 @@ const CourseGradebook = ({ title }) => {
                   </TableRow>
 
                   {expanded[student.studentId] && (
-                    <TableRow>
+                    <TableRow id={`student-${student.studentId}-details`}>
                       <TableCell colSpan={5} className="bg-muted/20 px-6 py-4">
                         <div className="space-y-4">
                           <p className="text-sm font-medium text-muted-foreground mb-3">
@@ -169,7 +170,14 @@ const CourseGradebook = ({ title }) => {
                                       semester.semesterId
                                     )
                                   }
-                                  className="p-1 h-6 w-6"
+                                  aria-expanded={
+                                    semesterExpanded[
+                                      `${student.studentId}-${semester.semesterId}`
+                                    ] || false
+                                  }
+                                  aria-controls={`semester-${semester.semesterId}-details`}
+                                  aria-label={`Toggle ${semester.semesterTitle} details for ${student.studentName}`}
+                                  className="p-1 h-6 w-6 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 >
                                   {semesterExpanded[
                                     `${student.studentId}-${semester.semesterId}`
@@ -187,7 +195,10 @@ const CourseGradebook = ({ title }) => {
                               {semesterExpanded[
                                 `${student.studentId}-${semester.semesterId}`
                               ] && (
-                                <div className="ml-6 space-y-3">
+                                <div
+                                  id={`semester-${semester.semesterId}-details`}
+                                  className="ml-6 space-y-3"
+                                >
                                   {semester?.quarters?.map((quarter) => (
                                     <div
                                       key={quarter.quarterId}
@@ -204,7 +215,14 @@ const CourseGradebook = ({ title }) => {
                                               quarter.quarterId
                                             )
                                           }
-                                          className="p-1 h-5 w-5"
+                                          aria-expanded={
+                                            quarterExpanded[
+                                              `${student.studentId}-${semester.semesterId}-${quarter.quarterId}`
+                                            ] || false
+                                          }
+                                          aria-controls={`quarter-${quarter.quarterId}-details`}
+                                          aria-label={`Toggle ${quarter.quarterTitle} details for ${student.studentName}`}
+                                          className="p-1 h-5 w-5 focus:outline-none focus:ring-2 focus:ring-blue-500"
                                         >
                                           {quarterExpanded[
                                             `${student.studentId}-${semester.semesterId}-${quarter.quarterId}`
@@ -249,7 +267,10 @@ const CourseGradebook = ({ title }) => {
                                       {quarterExpanded[
                                         `${student.studentId}-${semester.semesterId}-${quarter.quarterId}`
                                       ] && (
-                                        <div className="mt-3">
+                                        <div
+                                          id={`quarter-${quarter.quarterId}-details`}
+                                          className="mt-3"
+                                        >
                                           <Table>
                                             <TableHeader>
                                               <TableRow>

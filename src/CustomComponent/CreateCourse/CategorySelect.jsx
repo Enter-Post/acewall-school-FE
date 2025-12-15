@@ -19,9 +19,11 @@ const CategorySelect = ({
   categories,
   setCategories,
 }) => {
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const fetchCategoriesWithSubcategories = async () => {
+      setIsLoading(true);
       try {
         const res = await axiosInstance.get("/category/get");
         const allCategories = res.data?.categories || [];
@@ -43,24 +45,24 @@ const CategorySelect = ({
         setCategories(validCategories);
       } catch (err) {
         console.error("Failed to fetch categories:", err.message);
+      } finally {
+        setIsLoading(false);
       }
     };
 
     fetchCategoriesWithSubcategories();
-  }, []);
+  }, [setCategories]);
 
   console.log(categories, "categories");
 
-
-  return
-  // Ensure defaultValue is set only once, and update value if prevCategory changes
   return (
     <div>
-      <Label className="block mb-2">Category *</Label>
+      <Label htmlFor="category-select" className="block mb-2">
+        Category <span aria-label="required">*</span>
+      </Label>
       <Controller
         name="category"
         control={control}
-        // defaultValue={"f6840e263cacb34164983440b"}
         shouldUnregister={false}
         render={({ field }) => (
           <Select
@@ -70,20 +72,44 @@ const CategorySelect = ({
               field.onChange(value);
               onCategoryChange?.(value);
             }}
+            disabled={isLoading}
           >
-            <SelectTrigger className="bg-gray-50">
-              <SelectValue placeholder="Select category" />
+            <SelectTrigger
+              id="category-select"
+              className="bg-gray-50"
+              aria-required="true"
+              aria-invalid={errors?.category ? "true" : "false"}
+              aria-describedby={errors?.category ? "category-error" : undefined}
+              aria-label="Select course category"
+            >
+              <SelectValue
+                placeholder={
+                  isLoading ? "Loading categories..." : "Select category"
+                }
+              />
             </SelectTrigger>
             <SelectContent>
-              {categories?.length > 0 ? (
+              {isLoading ? (
+                <div
+                  className="p-2 text-sm text-gray-500"
+                  role="status"
+                  aria-live="polite"
+                >
+                  Loading categories...
+                </div>
+              ) : categories?.length > 0 ? (
                 categories?.map((value) => (
-                  <SelectItem key={value._id} value={value._id}>
+                  <SelectItem
+                    key={value._id}
+                    value={value._id}
+                    aria-label={`Category: ${value.title}`}
+                  >
                     {value.title}
                   </SelectItem>
                 ))
               ) : (
-                <div className="p-2 text-sm text-gray-500">
-                  No categories with subcategories
+                <div className="p-2 text-sm text-gray-500" role="status">
+                  No categories with subcategories available
                 </div>
               )}
             </SelectContent>
@@ -91,7 +117,13 @@ const CategorySelect = ({
         )}
       />
       {errors?.category && (
-        <p className="text-xs text-red-500 mt-1">{errors.category.message}</p>
+        <p
+          id="category-error"
+          className="text-xs text-red-500 mt-1"
+          role="alert"
+        >
+          {errors.category.message}
+        </p>
       )}
     </div>
   );

@@ -16,52 +16,70 @@ import { useState } from "react";
 import avatar from "../assets/avatar.png";
 
 function DeshboardAnnouncementCard({ mainHeading, data, link, height }) {
-  console.log(data, "data");
   return (
     <Card
-      className={`bg-gray-100 border-0 my-auto py-0 gap-2 rounded h-full`}
+      role="region"
+      aria-labelledby={`${mainHeading}-heading`}
+      className="bg-gray-100 border-0 my-auto py-0 gap-2 rounded h-full"
       style={{ height: height || "100%" }}
+      tabIndex="0"
     >
-      <CardHeader className="flex-row justify-between discussions-center bg-green-600 py-3 rounded">
-        <CardTitle className="text-lg text-white ">{mainHeading}</CardTitle>
-        <Link to={link} className="text-white text-xs">
+      <CardHeader className="flex-row justify-between items-center bg-green-600 py-3 rounded">
+        <CardTitle id={`${mainHeading}-heading`} className="text-lg text-white">
+          {mainHeading}
+        </CardTitle>
+
+        <Link
+          to={link}
+          aria-label={`View all ${mainHeading}`}
+          className="text-white text-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-green-500"
+        >
           View All
         </Link>
       </CardHeader>
 
-      <CardContent className="p-0 overflow-auto max-h-[390px]">
-        <div className="divide-y divide-gray-100">
-          {data?.length > 0 ? (
-            data?.map((item, index) => (
-              <div
+      <CardContent
+        className="p-0 overflow-auto max-h-[390px]"
+        aria-live="polite"
+      >
+        {data?.length > 0 ? (
+          <ul className="divide-y divide-gray-100">
+            {data.map((item, index) => (
+              <li
                 key={index}
-                className="px-6 py-4 flex items-start justify-between  transition"
+                className="px-6 py-4 flex items-start justify-between transition"
               >
                 <div className="flex-1">
-                  <Link to={link}>
+                  <Link
+                    to={link}
+                    className="focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 rounded"
+                  >
                     <p className="font-semibold text-md">{item.title}</p>
                     <p className="text-sm text-gray-500 mb-2 mt-1">
-                      {item.course.courseTitle}
+                      {item?.course?.courseTitle}
                     </p>
                   </Link>
                 </div>
 
-                <div className="text-right text-xs text-gray-500 whitespace-nowrap">
-                  {item.createdAt ? (
+                <div
+                  className="text-right text-xs text-gray-500 whitespace-nowrap"
+                  aria-label={`Created on ${new Date(
+                    item.createdAt
+                  ).toDateString()}`}
+                >
+                  {item.createdAt && (
                     <p>{new Date(item.createdAt).toLocaleDateString()}</p>
-                  ) : item.createdAt ? (
-                    <p>{new Date(item.createdAt).toLocaleDateString()}</p>
-                  ) : null}
+                  )}
                   {item.time && <p>{item.time}</p>}
                 </div>
-              </div>
-            ))
-          ) : (
-            <div className="text-center text-sm text-gray-500 py-10">
-              No data available.
-            </div>
-          )}
-        </div>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <div className="text-center text-sm text-gray-500 py-10">
+            No data available.
+          </div>
+        )}
       </CardContent>
     </Card>
   );
@@ -70,66 +88,94 @@ function DeshboardAnnouncementCard({ mainHeading, data, link, height }) {
 function DeshBoardCourseCard({ mainHeading, data, link, height }) {
   return (
     <Card
-      className={`bg-gray-100 border-0 my-auto py-0 gap-2 rounded h-full`}
+      role="region"
+      aria-labelledby={`${mainHeading}-heading`}
+      className="bg-gray-100 border-0 my-auto py-0 gap-2 rounded h-full"
       style={{ height: height || "100%" }}
+      tabIndex="0"
     >
       <CardHeader className="flex-row justify-between items-center bg-green-600 py-3 rounded">
-        <CardTitle className="text-lg text-white ">{mainHeading}</CardTitle>
-        <Link to={link} className="text-white text-xs">
+        <CardTitle id={`${mainHeading}-heading`} className="text-lg text-white">
+          {mainHeading}
+        </CardTitle>
+
+        <Link
+          to={link}
+          aria-label={`View all ${mainHeading}`}
+          className="text-white text-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-green-500"
+        >
           View All
         </Link>
       </CardHeader>
 
-      <CardContent className="p-0 overflow-auto max-h-[390px]">
-        <div className="divide-y divide-gray-100">
-          {data?.length > 0 ? (
-            data?.map((item, index) => (
-              <div
+      <CardContent
+        className="p-0 overflow-auto max-h-[390px]"
+        aria-live="polite"
+      >
+        {data?.length > 0 ? (
+          <ul className="divide-y divide-gray-100">
+            {data.map((item, index) => (
+              <li
                 key={index}
-                className="px-6 py-4 flex items-start justify-between  transition"
+                className="px-6 py-4 flex items-start justify-between transition"
               >
                 <div className="flex-1">
-                  <Link to={`/student/mycourses/${item?._id}`}>
+                  <Link
+                    to={`/student/mycourses/${item?._id}`}
+                    className="focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 rounded"
+                  >
                     {item?.course?.courseTitle ? (
-                      <div>
-                        <p className="font-semibold text-gray-800">
-                          {item?.course?.courseTitle}
-                        </p>
-                      </div>
+                      <p className="font-semibold text-gray-800">
+                        {item.course.courseTitle}
+                      </p>
                     ) : (
                       <>
                         <p className="font-semibold text-gray-800">
-                          {item?.course}
+                          {item.course}
                         </p>
                         <p className="text-sm text-gray-600">
-                          {item?.course?.title}
+                          {item.course?.title}
                         </p>
                       </>
                     )}
                   </Link>
                 </div>
 
-                <div className="text-right text-xs text-gray-500 whitespace-nowrap">
-                  {item?.enrolledAt ? (
-                    <div>
+                <div
+                  className="text-right text-xs text-gray-500 whitespace-nowrap"
+                  aria-label={
+                    item.enrolledAt
+                      ? `Enrolled on ${new Date(
+                          item.enrolledAt
+                        ).toDateString()}`
+                      : item.course.createdAt
+                      ? `Created on ${new Date(
+                          item.course.createdAt
+                        ).toDateString()}`
+                      : ""
+                  }
+                >
+                  {item.enrolledAt ? (
+                    <>
                       <p>Enrolled at</p>
-                      <p>{new Date(item?.enrolledAt).toLocaleDateString()}</p>
-                    </div>
+                      <p>{new Date(item.enrolledAt).toLocaleDateString()}</p>
+                    </>
                   ) : item.course.createdAt ? (
                     <p>
-                      {new Date(item?.course?.createdAt).toLocaleDateString()}
+                      {new Date(item.course.createdAt).toLocaleDateString()}
                     </p>
                   ) : null}
-                  {item?.course?.time && <p>{item?.course?.time}</p>}
+
+                  {item?.course?.time && <p>{item.course.time}</p>}
                 </div>
-              </div>
-            ))
-          ) : (
-            <div className="text-center text-sm text-gray-500 py-10">
-              No data available.
-            </div>
-          )}
-        </div>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <div className="text-center text-sm text-gray-500 py-10">
+            No data available.
+          </div>
+        )}
       </CardContent>
     </Card>
   );
@@ -191,10 +237,12 @@ function AnnouncementCard({ data }) {
               <div
                 className="flex justify-between items-center cursor-pointer"
                 onClick={() => toggleOpen(index)}
+                aria-expanded={isOpen}
+                aria-controls={`announcement-content-${index}`}
               >
-                <h3 className="text-lg font-semibold text-gray-900">
+                <h2 className="text-lg font-semibold text-gray-900">
                   {announcement.title}
-                </h3>
+                </h2>
                 <div className="flex items-center gap-2">
                   <p className="text-sm text-gray-500">{announcement.date}</p>
                   {isOpen ? (
@@ -213,7 +261,12 @@ function AnnouncementCard({ data }) {
 
               {/* Dropdown content */}
               {isOpen && (
-                <div className="mt-3 space-y-2">
+                <div
+                  className="mt-3 space-y-2"
+                  id={`announcement-content-${index}`}
+                  role="region"
+                  aria-labelledby={`announcement-toggle-${index}`}
+                >
                   <p className="text-gray-700">{announcement.message}</p>
                   <p className="text-sm text-gray-600">
                     <span className="font-medium text-gray-800">Time:</span>{" "}
@@ -228,91 +281,36 @@ function AnnouncementCard({ data }) {
     </Card>
   );
 }
-function CoursesCard({ course, link }) {
-  return (
-    <Link key={course.id} to={link}>
-      <Card className="w-full overflow-hidden cursor-pointer gap-0 py-0">
-        <AspectRatio ratio={16 / 9}>
-          <img
-            src={course.image || "/placeholder.svg"}
-            alt={`${course.course} image`}
-            className="object-cover w-full h-full"
-          />
-        </AspectRatio>
-        <div className="p-4">
-          <div className="uppercase text-indigo-600 bg-indigo-100 text-xs font-medium mb-2 w-fit px-2">
-            {course.category || "Developments"}
-          </div>
-          <h3 className="text-xl font-bold text-gray-900 mb-4">
-            {course.course}
-          </h3>
-          <div className="text-xl font-bold text-green-500 mb-3">
-            ${course.Prise || "24.00"}
-          </div>
 
-          <div className="flex items-center gap-4 mb-4">
-            <div className="flex items-center">
-              <span className="text-yellow-500 mr-1">★</span>
-              <span className="font-medium">{course.rating || "4.9"}</span>
-            </div>
-            <div className="flex items-center text-gray-500">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-4 w-4 mr-1"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" />
-              </svg>
-              <span>{course.students || "982,941"} students</span>
-            </div>
-          </div>
 
-          {/* Add to cart button */}
-          <Button className="w-full bg-green-500 hover:bg-green-600 text-white">
-            Add To Cart
-          </Button>
-        </div>
-      </Card>
-    </Link>
-  );
-}
 
-const StudentCard = ({ student }) => (
-  <Card className="overflow-hidden rounded-2xl shadow-sm hover:shadow-xl transition-shadow duration-300 bg-white">
-    <CardContent className="px-6 py-2 flex flex-col items-center gap-3">
-      <div className="relative">
-        <Avatar className="w-24 h-24 ring-3 ring-gray-500 shadow-sm">
-          <AvatarImage
-            src={student.profileImg?.url || avatar}
-            alt={student.name}
-            className="rounded-full object-cover"
-          />
-          <AvatarFallback className="bg-gray-200 text-gray-600 text-xl font-semibold flex items-center justify-center">
-            {student.firstName[0]}
-          </AvatarFallback>
-        </Avatar>
-      </div>
 
-      <div className="text-center">
-        <h3 className="text-xl font-bold text-gray-800">{student.firstName}</h3>
-        <p className="text-sm text-gray-500">{student.email}</p>
-      </div>
 
-      <div className="w-full grid grid-cols-2 gap-y-2 gap-x-4 text-sm mt-2">
-        <span className="text-gray-500">Joined</span>
-        <span className="text-right text-gray-700 font-medium">
-          {new Date(student.createdAt).toLocaleDateString()}
-        </span>
-      </div>
 
-      {/* Optional CTA */}
-      <Button className="mt-4 w-full bg-green-600 hover:bg-green-700 text-white transition-colors duration-300 ">
-        View Profile
-      </Button>
-    </CardContent>
-  </Card>
+
+
+
+const CourseCard = ({ course, selected, onClick }) => (
+  <div
+    onClick={onClick}
+    className={`cursor-pointer border rounded-xl shadow-sm p-4 flex flex-col items-center hover:shadow-lg transition-all
+      ${selected ? "border-green-600 shadow-md" : "border-gray-200"}`}
+  >
+    {course.thumbnail && (
+      <img
+        src={course.thumbnail}
+        alt={course.courseTitle}
+        className="w-24 h-24 object-cover rounded-md mb-3"
+      />
+    )}
+
+    <h3 className="font-semibold text-gray-800 text-center">
+      {course.courseTitle}
+    </h3>
+  </div>
 );
+
+
 
 const TransactionCard = ({ title, data }) => (
   <Card className="h-fit p-0 gap-3 rounded mt-5">
@@ -426,15 +424,34 @@ const LandingPageCard = ({ name, description, imageUrl, buttonUrl }) => {
 };
 
 function StudentProfileCourseCard({ course }) {
+  const thumbnailUrl = course?.thumbnail?.url;
+  const altText = thumbnailUrl
+    ? `${course?.courseTitle} course thumbnail`
+    : `Thumbnail not available for ${course?.courseTitle}`;
+
   return (
-    <Card className="p-4 flex flex-col sm:flex-row items-center gap-4 sm:gap-6 shadow-md rounded-xl border hover:border-primary transition duration-300">
+    <Card
+      className="p-4 flex flex-col sm:flex-row items-center gap-4 sm:gap-6 shadow-md rounded-xl border hover:border-primary transition duration-300"
+      role="group"
+      aria-label={`Course card for ${course?.courseTitle}`}
+      tabIndex={0} // REMOVE if parent Link already handles focus
+    >
       {/* Thumbnail */}
-      <div className="w-full sm:w-36 h-24 rounded-lg overflow-hidden flex items-center justify-center">
-        <img
-          src={course?.thumbnail?.url}
-          alt="Course Thumbnail"
-          className="w-full h-full object-contain"
-        />
+      <div className="w-full sm:w-36 h-24 rounded-lg overflow-hidden flex items-center justify-center bg-gray-50">
+        {thumbnailUrl ? (
+          <img
+            src={thumbnailUrl}
+            alt={altText}
+            className="w-full h-full object-contain"
+          />
+        ) : (
+          <div
+            aria-hidden="true"
+            className="w-full h-full flex items-center justify-center text-gray-400 text-sm"
+          >
+            No Image
+          </div>
+        )}
       </div>
 
       {/* Course Info */}
@@ -442,7 +459,6 @@ function StudentProfileCourseCard({ course }) {
         <h3 className="text-lg font-semibold text-gray-900">
           {course?.courseTitle}
         </h3>
-        {/* <p className="text-sm text-gray-500 mt-1 line-clamp-2">{course?.description}</p> */}
       </div>
     </Card>
   );
@@ -450,50 +466,91 @@ function StudentProfileCourseCard({ course }) {
 
 function StudentProfileStatCard({ title, value, icon }) {
   return (
-    <Card className="p-6 flex items-center w-full gap-4 shadow-sm">
+    <Card
+      className="p-6 flex items-center w-full gap-4 shadow-sm"
+      role="region"
+      aria-labelledby={`${title.replace(/\s+/g, "-").toLowerCase()}-label`}
+    >
+      {/* Icon with accessibility label */}
       <div
-        className={`w-14 h-14 rounded-full flex items-center justify-center`}
+        className="w-14 h-14 rounded-full flex items-center justify-center"
+        aria-hidden="true"
       >
         {icon}
       </div>
+
+      {/* Text Section */}
       <div>
-        <p className="text-gray-500">{title}</p>
-        <p className="text-3xl font-bold text-center">{value}</p>
+        <p
+          id={`${title.replace(/\s+/g, "-").toLowerCase()}-label`}
+          className="text-gray-500"
+        >
+          {title}
+        </p>
+
+        <p
+          className="text-3xl font-bold text-center"
+          aria-label={`${title} is ${value}`}
+        >
+          {value}
+        </p>
       </div>
     </Card>
   );
 }
 
 const MyCoursesCard = ({ course }) => {
+  const courseTitle = course?.course?.courseTitle || "Untitled course";
+  const courseCategory = course?.course?.category?.title || "Uncategorized";
+  const imageUrl = course?.course?.thumbnail?.url || "/placeholder.svg";
+
+  const altText = course?.course?.thumbnail?.filename
+    ? `${course.course.thumbnail.filename} thumbnail`
+    : `${courseTitle} course thumbnail`;
+
   return (
-    <Card className="pb-6 pt-0 w-full overflow-hidden cursor-pointer">
-      <AspectRatio ratio={16 / 9}>
-        <img
-          src={course?.course?.thumbnail?.url || "/placeholder.svg"}
-          alt={`${course?.course?.thumbnail?.filename} image`}
-          className="object-cover w-full h-full"
-        />
-      </AspectRatio>
-      <CardHeader>
-        <div className="uppercase text-indigo-600 bg-indigo-100 text-xs font-medium mb-2 w-fit px-2">
-          {course?.course?.category?.title}
-        </div>
-        <CardTitle className="flex justify-between flex-col gap-2">
-          <span>{course?.course?.courseTitle}</span>
-          {/* <span className="text-lg font-semibold text-green-500">
-            ${course.price}
-          </span> */}
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-2">
-          <p className="text-sm text-muted-foreground">
-            <span className="font-semibold">Language: </span>{" "}
-            {course?.course?.language}
-          </p>
-        </div>
-      </CardContent>
-    </Card>
+    <article
+      role="article"
+      aria-label={`Course card for ${courseTitle}`}
+      className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 rounded-md"
+      aria-live="polite"
+    >
+      <Card className="pb-6 pt-0 w-full overflow-hidden cursor-pointer">
+        <AspectRatio ratio={16 / 9}>
+          <img
+            src={imageUrl}
+            alt={altText}
+            className="object-cover w-full h-full"
+          />
+        </AspectRatio>
+
+        <CardHeader>
+          <div
+            className="uppercase text-indigo-600 bg-indigo-100 text-xs font-medium mb-2 w-fit px-2"
+            role="note"
+            aria-label={`Course category: ${courseCategory}`}
+          >
+            {courseCategory}
+          </div>
+
+          <CardTitle
+            className="flex justify-between flex-col gap-2"
+            aria-label={`Course title: ${courseTitle}`}
+          >
+            <span>{courseTitle}</span>
+          </CardTitle>
+        </CardHeader>
+
+        <CardContent>
+          <div className="space-y-2">
+            <p className="text-sm text-muted-foreground">
+              <span className="font-semibold">Language:</span>{" "}
+              {course?.course?.language || "Not specified"}
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    </article>
   );
 };
 
@@ -502,9 +559,15 @@ const DiscussionCard = ({ discussion, link }) => {
     <Link
       key={discussion._id}
       to={link}
-      // to={`/student/discussions/${discussion._id}`}
-      className="border border-gray-300 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition duration-300 p-4 bg-white group"
+      className="border border-gray-300 rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition duration-300 p-4 bg-white group focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+      tabIndex={0}
+      aria-label={`Discussion titled "${discussion.topic}", type ${
+        discussion.type
+      }, created on ${new Date(
+        discussion.createdAt
+      ).toLocaleDateString()}, for course ${discussion.course?.courseTitle}`}
     >
+      {/* Course Thumbnail */}
       <div className="overflow-hidden rounded-md mb-2">
         <img
           src={discussion.course.thumbnail.url}
@@ -513,10 +576,14 @@ const DiscussionCard = ({ discussion, link }) => {
         />
       </div>
 
+      {/* Due Date */}
       {discussion.dueDate && (
-        <div className="flex discussions-center gap-2 text-xs mt-1">
+        <div
+          className="flex items-center gap-2 text-xs mt-1"
+          aria-label="Due date information"
+        >
           <p className="text-gray-600 font-bold">Due Date:</p>
-          <div className="flex discussions-center gap-2">
+          <div className="flex items-center gap-2">
             <p className="text-gray-500">
               {discussion.dueDate.date
                 ? new Date(discussion.dueDate.date).toLocaleDateString()
@@ -533,13 +600,14 @@ const DiscussionCard = ({ discussion, link }) => {
 
       {/* Type Badge */}
       <div
-        className={`border w-fit px-2 py-1 rounded-full border-gray-200 m-2 bg-indigo-600`}
+        className="border w-fit px-2 py-1 rounded-full border-gray-200 m-2 bg-indigo-600"
+        aria-label={`Discussion type: ${discussion?.type}`}
       >
         <p className="text-xs text-white">{discussion?.type}</p>
       </div>
 
       {/* Metadata */}
-      <div className="flex justify-between discussions-center mt-3">
+      <div className="flex justify-between items-center mt-3">
         <h2 className="font-semibold text-lg text-gray-800 truncate">
           {discussion?.topic}
         </h2>
@@ -548,11 +616,16 @@ const DiscussionCard = ({ discussion, link }) => {
         </span>
       </div>
 
+      {/* Course Title */}
       <p className="text-sm text-indigo-700 font-medium">
         {discussion?.course?.courseTitle}
       </p>
 
-      <p className="text-sm text-gray-700 line-clamp-2">
+      {/* Description */}
+      <p
+        className="text-sm text-gray-700 line-clamp-2"
+        aria-label="Discussion description"
+      >
         {discussion?.description}
       </p>
     </Link>
@@ -566,8 +639,7 @@ export {
   DeshBoardCourseCard,
   Assignment,
   AnnouncementCard,
-  CoursesCard,
-  StudentCard,
+  CourseCard,
   TransactionCard,
   EarningStateCard,
   LandingPageCard,

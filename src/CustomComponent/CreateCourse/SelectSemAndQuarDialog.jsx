@@ -29,6 +29,7 @@ const Schema = z.object({
     .array(z.string().nonempty({ message: "Please select a quarter" }))
     .min(1, { message: "Please select a quarter" }),
 });
+
 export function SelectSemAndQuarDialog({
   prevSelectedSemesters,
   prevSelectedQuarters,
@@ -37,6 +38,7 @@ export function SelectSemAndQuarDialog({
 }) {
   const [selectedSemester, setSelectedSemester] = useState({});
   const [open, setOpen] = useState(false);
+
   const {
     register,
     handleSubmit,
@@ -54,8 +56,6 @@ export function SelectSemAndQuarDialog({
   });
 
   const onSubmit = async (data) => {
-    console.log(data, "submitted data");
-
     await axiosInstance
       .post(`semester/selectingNewSemesterwithQuarter/${courseId}`, data)
       .then((res) => {
@@ -65,7 +65,6 @@ export function SelectSemAndQuarDialog({
         reset();
       })
       .catch((err) => {
-        console.log(err, "error");
         toast.error(
           err.response?.data?.message || "Error selecting semester and quarter"
         );
@@ -75,45 +74,95 @@ export function SelectSemAndQuarDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" className={"bg-green-500 hover:bg-green-600"}>
+        <Button
+          variant="outline"
+          className="bg-green-500 hover:bg-green-600"
+          aria-label="Add a new semester to this course"
+        >
           Add new semester
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
-        <form onSubmit={handleSubmit(onSubmit)}>
+
+      <DialogContent
+        className="sm:max-w-[425px]"
+        aria-labelledby="dialog-title"
+        aria-describedby="dialog-description"
+      >
+        <form onSubmit={handleSubmit(onSubmit)} noValidate>
           <DialogHeader>
-            <DialogTitle>Edit profile</DialogTitle>
-            <DialogDescription>
-              Make changes to your profile here. Click save when you&apos;re
-              done.
+            <DialogTitle id="dialog-title">Edit semester & quarter</DialogTitle>
+
+            <DialogDescription id="dialog-description">
+              Select semesters and quarters for this course. When finished,
+              click “Save changes”.
             </DialogDescription>
           </DialogHeader>
-          <div className="grid gap-4">
+
+          <div className="grid gap-4 mt-4">
+            {/* Semester Selection */}
             <div className="grid gap-3">
+              <Label htmlFor="semester">Select Semester</Label>
               <SelectSemester
                 register={register}
                 errors={errors}
                 selectedSemester={selectedSemester}
                 setSelectedSemester={setSelectedSemester}
                 prevSelectedSemesters={prevSelectedSemesters}
+                aria-describedby={
+                  errors.semester ? "semester-error" : undefined
+                }
               />
+
+              {errors.semester && (
+                <p
+                  id="semester-error"
+                  role="alert"
+                  className="text-red-600 text-sm"
+                >
+                  {errors.semester.message}
+                </p>
+              )}
             </div>
+
+            {/* Quarter Selection */}
             <div className="grid gap-3">
-              <SelectQuarter  
+              <Label htmlFor="quarter">Select Quarter</Label>
+              <SelectQuarter
                 register={register}
                 errors={errors}
                 selectedSemester={selectedSemester}
                 prevSelectedQuarters={prevSelectedQuarters}
+                aria-describedby={errors.quarter ? "quarter-error" : undefined}
               />
+
+              {errors.quarter && (
+                <p
+                  id="quarter-error"
+                  role="alert"
+                  className="text-red-600 text-sm"
+                >
+                  {errors.quarter.message}
+                </p>
+              )}
             </div>
           </div>
-          <DialogFooter>
+
+          <DialogFooter className="mt-6">
             <DialogClose asChild>
-              <Button type="button" variant="outline">
+              <Button
+                type="button"
+                variant="outline"
+                aria-label="Cancel and close dialog"
+              >
                 Cancel
-              </Button> 
+              </Button>
             </DialogClose>
-            <Button type="submit" disabled={isSubmitting}>
+
+            <Button
+              type="submit"
+              disabled={isSubmitting}
+              aria-busy={isSubmitting}
+            >
               {isSubmitting ? "Saving..." : "Save changes"}
             </Button>
           </DialogFooter>

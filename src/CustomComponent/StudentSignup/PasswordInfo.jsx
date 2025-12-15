@@ -1,8 +1,6 @@
 import { useFormContext } from "react-hook-form";
 import { useState, useEffect } from "react";
 import { Eye, EyeClosed } from "lucide-react";
-import PrivacyPolicy from "../PrivacePolicy";
-import TermsModal from "../Termsandcondition";
 
 const PasswordInfo = () => {
   const {
@@ -17,16 +15,6 @@ const PasswordInfo = () => {
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [isPasswordTyping, setIsPasswordTyping] = useState(false);
-  const [isConfirmPasswordTyping, setIsConfirmPasswordTyping] = useState(false);
-
-  useEffect(() => {
-    setIsPasswordTyping(password.length > 0);
-  }, [password]);
-
-  useEffect(() => {
-    setIsConfirmPasswordTyping(confirmPassword.length > 0);
-  }, [confirmPassword]);
 
   const passwordRules = {
     required: "Password is required",
@@ -37,7 +25,7 @@ const PasswordInfo = () => {
     pattern: {
       value: /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[#?!@$%^&*-])(?=\S).*$/,
       message:
-        "Password must contain at least one uppercase, one lowercase, one number, one special character and no spaces",
+        "Password must contain uppercase, lowercase, number, special char, no spaces",
     },
   };
 
@@ -47,71 +35,81 @@ const PasswordInfo = () => {
   return (
     <div>
       {/* Password Input */}
-      <div className="relative">
+      <div className="relative mb-4">
         <label
           htmlFor="password"
-          className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+          className="block text-sm font-medium text-gray-700"
         >
-          Password<span className="text-red-600"> *</span>
+          Password <span className="text-red-600">*</span>
         </label>
         <input
-          type={showPassword ? "text" : "password"}
           id="password"
+          type={showPassword ? "text" : "password"}
           {...register("password", passwordRules)}
-          className="mt-1 block w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+          aria-required="true"
+          aria-invalid={errors?.password ? "true" : "false"}
+          aria-describedby={errors?.password ? "password-error" : undefined}
+          className="mt-1 block w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
         />
-        {isPasswordTyping && (
-          <button
-            type="button"
-            onClick={() => setShowPassword((prev) => !prev)}
-            className="absolute right-3 top-[38px] text-gray-500 dark:text-gray-300"
-            tabIndex={-1}
-          >
-            {showPassword ? <Eye size={18} /> : <EyeClosed size={18} />}
-          </button>
-        )}
-        {errors?.password?.message && (
-          <p className="text-xs text-red-600 mt-1">{errors.password.message}</p>
+        <button
+          type="button"
+          onClick={() => setShowPassword((prev) => !prev)}
+          className="absolute right-3 top-[38px] text-gray-500"
+          aria-label={showPassword ? "Hide password" : "Show password"}
+        >
+          {showPassword ? <Eye size={18} /> : <EyeClosed size={18} />}
+        </button>
+        {errors?.password && (
+          <p id="password-error" className="text-xs text-red-600 mt-1">
+            {errors.password.message}
+          </p>
         )}
       </div>
 
       {/* Confirm Password Input */}
-      <div className="mt-4 relative">
+      <div className="relative mb-4">
         <label
           htmlFor="confirmPassword"
-          className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+          className="block text-sm font-medium text-gray-700"
         >
-          Confirm Password<span className="text-red-600"> *</span>
+          Confirm Password <span className="text-red-600">*</span>
         </label>
         <input
-          type={showConfirmPassword ? "text" : "password"}
           id="confirmPassword"
+          type={showConfirmPassword ? "text" : "password"}
           {...register("confirmPassword")}
+          aria-required="true"
+          aria-invalid={errors?.confirmPassword ? "true" : "false"}
+          aria-describedby={
+            errors?.confirmPassword ? "confirmPassword-error" : undefined
+          }
           onPaste={(e) => e.preventDefault()}
           onCopy={(e) => e.preventDefault()}
           onCut={(e) => e.preventDefault()}
           onContextMenu={(e) => e.preventDefault()}
-          className="mt-1 block w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+          className="mt-1 block w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500"
         />
-        {isConfirmPasswordTyping && (
-          <button
-            type="button"
-            onClick={() => setShowConfirmPassword((prev) => !prev)}
-            className="absolute right-3 top-[38px] text-gray-500 dark:text-gray-300"
-            tabIndex={-1}
-          >
-            {showConfirmPassword ? <Eye size={18} /> : <EyeClosed size={18} />}
-          </button>
-        )}
-        {errors?.confirmPassword?.message && (
-          <p className="text-xs text-red-600 mt-1">
+        <button
+          type="button"
+          onClick={() => setShowConfirmPassword((prev) => !prev)}
+          className="absolute right-3 top-[38px] text-gray-500"
+          aria-label={
+            showConfirmPassword
+              ? "Hide confirm password"
+              : "Show confirm password"
+          }
+        >
+          {showConfirmPassword ? <Eye size={18} /> : <EyeClosed size={18} />}
+        </button>
+        {errors?.confirmPassword && (
+          <p id="confirmPassword-error" className="text-xs text-red-600 mt-1">
             {errors.confirmPassword.message}
           </p>
         )}
       </div>
 
       {/* Password Validation Checklist */}
-      <ol className="list-decimal pl-6 space-y-2 text-gray-700 mt-5 dark:text-gray-300">
+      <ol className="list-decimal pl-6 space-y-2 text-gray-700 mt-4">
         <li className={getClass(password.length >= 8)}>Minimum 8 characters</li>
         <li className={getClass(/[A-Z]/.test(password))}>
           At least one uppercase letter
@@ -134,27 +132,29 @@ const PasswordInfo = () => {
             {...register("agreeToTerms", {
               required: "You must agree before submitting",
             })}
+            aria-required="true"
+            aria-invalid={errors?.agreeToTerms ? "true" : "false"}
             className="w-4 h-4 text-green-600 border-gray-300 rounded focus:ring-green-500"
           />
-          <div className="text-sm text-gray-700 dark:text-gray-300 flex flex-wrap items-center gap-x-1">
-            I agree to the
-               <a
-              className="text-blue-600 underline cursor-pointer"
+          <div className="text-sm text-gray-700 flex flex-wrap items-center gap-x-1">
+            I agree to the{" "}
+            <a
+              className="text-blue-600 underline"
               target="_blank"
+              rel="noopener noreferrer"
               href="https://acewallscholarslearningonline.com/terms"
             >
               Terms
-            </a>
-            {/* <span className="text-blue-600 underline cursor-pointer"><TermsModal /></span> */}
-            and
+            </a>{" "}
+            and{" "}
             <a
-              className="text-blue-600 underline cursor-pointer"
+              className="text-blue-600 underline"
               target="_blank"
+              rel="noopener noreferrer"
               href="https://acewallscholarslearningonline.com/privacyPolicy"
             >
               Privacy Policy
             </a>
-            {/* <span className="text-blue-600 underline cursor-pointer"><PrivacyPolicy /></span> */}
           </div>
         </label>
         {errors?.agreeToTerms && (

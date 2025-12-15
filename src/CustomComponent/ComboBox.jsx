@@ -18,31 +18,44 @@ import {
 } from "@/components/ui/popover";
 
 const frameworks = [
-  {
-    value: "next.js",
-    label: "Next.js",
-  },
-  {
-    value: "sveltekit",
-    label: "SvelteKit",
-  },
-  {
-    value: "nuxt.js",
-    label: "Nuxt.js",
-  },
-  {
-    value: "remix",
-    label: "Remix",
-  },
-  {
-    value: "astro",
-    label: "Astro",
-  },
+  { value: "next.js", label: "Next.js" },
+  { value: "sveltekit", label: "SvelteKit" },
+  { value: "nuxt.js", label: "Nuxt.js" },
+  { value: "remix", label: "Remix" },
+  { value: "astro", label: "Astro" },
 ];
 
 export function SearchBox() {
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState("");
+  const [activeIndex, setActiveIndex] =
+    (React.useState < number) | (null > null);
+
+  const listRef = React.useRef < HTMLDivElement > null;
+
+  const handleKeyDown = (e) => {
+    if (!open) return;
+    const maxIndex = frameworks.length - 1;
+
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setActiveIndex((prev) =>
+        prev === null ? 0 : Math.min(prev + 1, maxIndex)
+      );
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setActiveIndex((prev) =>
+        prev === null ? maxIndex : Math.max(prev - 1, 0)
+      );
+    } else if (e.key === "Enter" && activeIndex !== null) {
+      e.preventDefault();
+      const selected = frameworks[activeIndex];
+      setValue(selected.value);
+      setOpen(false);
+    } else if (e.key === "Escape") {
+      setOpen(false);
+    }
+  };
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -51,6 +64,8 @@ export function SearchBox() {
           variant="outline"
           role="combobox"
           aria-expanded={open}
+          aria-controls="framework-listbox"
+          aria-haspopup="listbox"
           className="w-[200px] justify-between"
         >
           {value
@@ -59,13 +74,18 @@ export function SearchBox() {
           <ChevronsUpDown className="opacity-50" />
         </Button>
       </PopoverTrigger>
+
       <PopoverContent className="w-[200px] p-0">
-        <Command>
-          <CommandInput placeholder="Search framework..." />
-          <CommandList>
+        <Command onKeyDown={handleKeyDown}>
+          <CommandInput
+            placeholder="Search framework..."
+            autoFocus
+            aria-label="Search frameworks"
+          />
+          <CommandList id="framework-listbox" role="listbox" ref={listRef}>
             <CommandEmpty>No framework found.</CommandEmpty>
             <CommandGroup>
-              {frameworks.map((framework) => (
+              {frameworks.map((framework, index) => (
                 <CommandItem
                   key={framework.value}
                   value={framework.value}
@@ -73,6 +93,12 @@ export function SearchBox() {
                     setValue(currentValue === value ? "" : currentValue);
                     setOpen(false);
                   }}
+                  role="option"
+                  aria-selected={value === framework.value}
+                  className={cn(
+                    "relative flex items-center justify-between",
+                    activeIndex === index ? "bg-gray-100" : ""
+                  )}
                 >
                   {framework.label}
                   <Check

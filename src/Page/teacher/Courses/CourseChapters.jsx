@@ -40,8 +40,6 @@ export default function CoursesChapter() {
   const { course, setCourse, courseLoading, setCourseLoading } =
     useContext(CourseContext);
 
-  console.log(course, "course");
-
   const handleDeleteChapter = (chapterId) => {
     console.log(chapterId, "chapterId");
 

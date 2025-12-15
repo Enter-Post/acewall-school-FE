@@ -23,6 +23,7 @@ const CourseCards = () => {
           const res = await axiosInstance.get("/enrollment/studentCourses", {
             params: { search: searchQuery },
           });
+
           setEnrollment(res.data.enrolledCourses || []);
         } catch (error) {
           console.error("Error fetching courses:", error);
@@ -33,48 +34,71 @@ const CourseCards = () => {
       };
 
       fetchCourses();
-    }, 500); // debounce delay
+    }, 500);
 
-    return () => clearTimeout(timeoutId); // cleanup
+    return () => clearTimeout(timeoutId);
   }, [searchQuery]);
 
   return (
-    <section className="p-3 md:p-0">
-      <div className="flex flex-col pb-5 gap-5 mb-10">
-        <div>
-          <p className="text-xl py-4 mb-8 pl-6 font-semibold bg-acewall-main text-white rounded-lg">
-            My Courses
-          </p>
-        </div>
-        <SearchBox query={searchQuery} setQuery={setSearchQuery} />
-      </div>
+    <section
+      className="p-3 md:p-0"
+      aria-labelledby="my-courses-title"
+      aria-live="polite"
+    >
+      <header className="flex flex-col pb-5 gap-5 mb-10">
+        <h1
+          id="my-courses-title"
+          className="text-xl py-4 mb-8 pl-6 font-semibold bg-acewall-main text-white rounded-lg"
+        >
+          My Courses
+        </h1>
 
+        <div role="search" aria-label="Search my courses">
+          <SearchBox query={searchQuery} setQuery={setSearchQuery} />
+        </div>
+      </header>
+
+      {/* LOADING */}
       {loading ? (
-        <div className="flex justify-center items-center py-10">
-          <Loader className="animate-spin" />
+        <div
+          className="flex justify-center items-center py-10"
+          role="status"
+          aria-busy="true"
+          aria-live="assertive"
+        >
+          <Loader className="animate-spin" aria-hidden="true" />
+          <span className="sr-only">Loading courses...</span>
         </div>
       ) : enrollment.length === 0 ? (
-        <div className="flex flex-col items-center justify-center text-center px-4">
+        /* EMPTY LIST */
+        <div
+          className="flex flex-col items-center justify-center text-center px-4"
+          aria-live="polite"
+        >
           {searching ? (
             <>
-              <h1 className="text-2xl font-semibold text-muted-foreground">
-                No course found for "{searchQuery}"
-              </h1>
+              <h2 className="text-2xl font-semibold text-muted-foreground">
+                No courses found for "{searchQuery}"
+              </h2>
+
               <p className="text-md mt-4 text-muted-foreground">
                 Try a different keyword or explore all courses.
               </p>
+
               <Button
                 className="mt-6 bg-green-500 text-white hover:bg-acewall-main"
                 onClick={() => setSearchQuery("")}
+                aria-label="Reset search and show all courses"
               >
                 Reset Search
               </Button>
             </>
           ) : (
             <>
-              <h1 className="text-2xl font-semibold text-muted-foreground">
+              <h2 className="text-2xl font-semibold text-muted-foreground">
                 Kickstart your learning journey
-              </h1>
+              </h2>
+
               <p className="text-lg text-muted-foreground mt-2">
                 When you enroll in a course, it will appear here.
               </p>
@@ -82,13 +106,23 @@ const CourseCards = () => {
           )}
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {enrollment.map((course, index) => (
-            <Link key={index} to={`/student/mycourses/${course._id}`}>
-              <MyCoursesCard course={course} />
-            </Link>
+        /* COURSE GRID */
+        <ul
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          aria-label="Enrolled courses list"
+        >
+          {enrollment.map((course) => (
+            <li key={course._id} className="list-none">
+              <Link
+                to={`/student/mycourses/${course._id}`}
+                aria-label={`Open course ${course.course?.courseTitle || course.course}`}
+                className="focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-green-500 rounded block"
+              >
+                <MyCoursesCard course={course} />
+              </Link>
+            </li>
           ))}
-        </div>
+        </ul>
       )}
     </section>
   );

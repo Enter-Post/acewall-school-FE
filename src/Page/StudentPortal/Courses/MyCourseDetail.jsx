@@ -87,6 +87,7 @@ export default function ChapterDetail() {
           <Button
             variant="ghost"
             size="icon"
+            aria-label="Go back to previous page"
             className="text-gray-600 hover:text-black"
             onClick={() => window.history.back()}
           >
@@ -113,6 +114,7 @@ export default function ChapterDetail() {
                   <div className="w-full max-w-screen-md rounded-lg overflow-hidden shadow-md">
                     <div className="aspect-video">
                       <iframe
+                        title={`Lesson Video - ${activeLesson.title}`}
                         className="w-full h-full"
                         src={`https://www.youtube.com/embed/${getYouTubeVideoId(
                           activeLesson.youtubeLinks
@@ -120,7 +122,6 @@ export default function ChapterDetail() {
                         frameBorder="0"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowFullScreen
-                        title="Lesson Video"
                       ></iframe>
                     </div>
                   </div>
@@ -134,7 +135,6 @@ export default function ChapterDetail() {
           </div>
         )}
 
-        {/* Tabs */}
         <Tabs defaultValue="description" className="w-full p-5">
           <TabsList className="flex flex-wrap justify-center gap-4 w-full  sm:gap-10  bg-white p-1 shadow-inner">
             {[
@@ -147,9 +147,12 @@ export default function ChapterDetail() {
               <TabsTrigger
                 key={tab}
                 value={tab}
+                role="tab"
+                aria-controls={`panel-${tab}`}
+                id={`tab-${tab}`}
                 className="px-3 py-2 text-base font-medium  capitalize transition-all duration-300 
-              text-gray-700 hover:text-green-600 hover:bg-gray-50 
-              data-[state=active]:bg-gray-100 data-[state=active]:text-green-600 data-[state=active]:shadow-sm"
+                text-gray-700 hover:text-green-600 hover:bg-gray-50 
+                data-[state=active]:bg-gray-100 data-[state=active]:text-green-600 data-[state=active]:shadow-sm"
               >
                 {tab.charAt(0).toUpperCase() + tab.slice(1)}
               </TabsTrigger>
@@ -175,7 +178,6 @@ export default function ChapterDetail() {
 
           <DiscussionTablist chapter={chapter} lesson={activeLesson} />
 
-          
           <PagesTablist chapter={chapter} lesson={activeLesson} />
         </Tabs>
       </div>
@@ -195,12 +197,22 @@ export default function ChapterDetail() {
             <button
               className="flex items-center justify-between w-full px-4 py-3 hover:bg-gray-100 transition"
               onClick={() => toggleSection(chapter.title)}
+              aria-expanded={expandedSections[chapter.title] ? "true" : "false"}
+              aria-controls={`section-${chapter._id}`}
             >
               <div className="flex items-center gap-2">
                 {expandedSections[chapter.title] ? (
-                  <ChevronDown className="w-4 h-4 text-gray-500" />
+                  <ChevronDown
+                    aria-hidden="true"
+                    focusable="false"
+                    className="w-4 h-4 text-gray-500"
+                  />
                 ) : (
-                  <ChevronRight className="w-4 h-4 text-gray-500" />
+                  <ChevronRight
+                    aria-hidden="true"
+                    focusable="false"
+                    className="w-4 h-4 text-gray-500"
+                  />
                 )}
                 <span className="text-sm font-medium text-gray-800">
                   {chapter.title}
@@ -219,6 +231,10 @@ export default function ChapterDetail() {
                   return (
                     <button
                       key={lessonIndex}
+                      type="button"
+                      aria-label={`Open lesson ${lessonIndex + 1}: ${
+                        lesson.title
+                      }`}
                       onClick={() => setActiveLesson(lesson)}
                       className={`w-full text-left flex items-center gap-2 px-3 py-2 rounded-md text-sm transition 
                   ${

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useRef } from "react";
 import { axiosInstance } from "@/lib/AxiosInstance";
 import { GlobalContext } from "@/Context/GlobalProvider";
 import { Send } from "lucide-react";
@@ -10,12 +10,12 @@ const PostComments = ({ postId, setPosts }) => {
   const [newComment, setNewComment] = useState("");
   const [loading, setLoading] = useState(false);
   const [sending, setSending] = useState(false);
+  const liveRegionRef = useRef(null);
 
   // Pagination
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
 
-  // ✅ Fetch comments
   const fetchComments = async (reset = false) => {
     try {
       setLoading(true);
@@ -23,7 +23,6 @@ const PostComments = ({ postId, setPosts }) => {
         `/postComment/getPostComment/${postId}?page=${reset ? 1 : page}&limit=5`
       );
       const newComments = res.data.comments || [];
-
       setComments((prev) => (reset ? newComments : [...prev, ...newComments]));
       setHasMore(newComments.length === 5);
     } catch (error) {
@@ -33,7 +32,6 @@ const PostComments = ({ postId, setPosts }) => {
     }
   };
 
-  // 🔁 Reset on post change
   useEffect(() => {
     if (postId) {
       setPage(1);
@@ -41,12 +39,10 @@ const PostComments = ({ postId, setPosts }) => {
     }
   }, [postId]);
 
-  // 🔁 Fetch next page
   useEffect(() => {
     if (page > 1) fetchComments();
   }, [page]);
 
-  // ✅ Handle comment submit
   const handleCommentSubmit = async (e) => {
     e.preventDefault();
     if (!newComment.trim()) return;
@@ -62,7 +58,7 @@ const PostComments = ({ postId, setPosts }) => {
       setComments((prev) => [comment, ...prev]);
       setNewComment("");
 
-      // 🔁 Update comment count in parent post state
+      // Update comment count in parent post state
       setPosts((prev) =>
         prev.map((p) =>
           p._id === postId
@@ -70,6 +66,13 @@ const PostComments = ({ postId, setPosts }) => {
             : p
         )
       );
+
+      // Announce new comment for screen readers
+      if (liveRegionRef.current) {
+        liveRegionRef.current.textContent = `New comment added by ${
+          comment.author?.firstName || "User"
+        }`;
+      }
     } catch (error) {
       console.error("Error sending comment:", error);
     } finally {
@@ -79,8 +82,11 @@ const PostComments = ({ postId, setPosts }) => {
 
   return (
     <div className="mt-3 border-t pt-3">
-      {/* 💬 Comments List */}
-      <div className="space-y-3 max-h-64 overflow-y-auto pr-1">
+      {/* Live region for screen readers */}
+      <div ref={liveRegionRef} className="sr-only" aria-live="polite" />
+
+      {/* Comments List */}
+      <div role="list" className="space-y-3 max-h-64 overflow-y-auto pr-1">
         {loading && page === 1 ? (
           <p className="text-gray-500 text-sm">Loading comments...</p>
         ) : comments.length > 0 ? (
@@ -93,6 +99,7 @@ const PostComments = ({ postId, setPosts }) => {
               return (
                 <div
                   key={comment._id}
+                  role="listitem"
                   className="flex items-start gap-3 animate-fadeIn"
                 >
                   <div className="w-9 h-9 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
@@ -125,7 +132,6 @@ const PostComments = ({ postId, setPosts }) => {
               );
             })}
 
-            {/* See More */}
             {hasMore && (
               <div className="flex justify-center">
                 <button
@@ -143,7 +149,7 @@ const PostComments = ({ postId, setPosts }) => {
         )}
       </div>
 
-      {/* ✏️ Add Comment */}
+      {/* Add Comment Form */}
       <form
         onSubmit={handleCommentSubmit}
         className="flex items-center gap-2 mt-3"
@@ -153,12 +159,15 @@ const PostComments = ({ postId, setPosts }) => {
           value={newComment}
           onChange={(e) => setNewComment(e.target.value)}
           placeholder="Write a comment..."
+          aria-label="Write a comment"
+          aria-required="true"
           className="w-full border border-gray-300 rounded-full px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         <button
           type="submit"
           disabled={sending}
           className="bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600 transition"
+          aria-label="Submit comment"
         >
           <Send size={16} />
         </button>

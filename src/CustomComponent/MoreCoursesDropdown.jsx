@@ -16,41 +16,48 @@ import { GlobalContext } from "@/Context/GlobalProvider";
 const MoreCoursesDropdown = () => {
   const [categories, setCategories] = useState([]);
   const [subCategoriesMap, setSubCategoriesMap] = useState({});
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { setSelectedSubcategoryId } = useContext(GlobalContext);
 
+  // Fetch categories and subcategories
   useEffect(() => {
     const fetchCategoriesAndSubcategories = async () => {
       try {
         const categoryRes = await axiosInstance.get("/category/get");
         const allCategories = categoryRes.data?.categories || [];
 
-        const validCategories = [];
-        const subcategoryMap = {};
+        const tempCategories = [];
+        const tempSubMap = {};
 
-        // Use Promise.allSettled to handle errors gracefully
-        const subcategoryPromises = allCategories.map(async (category) => {
-          if (!category._id) return;
+        await Promise.allSettled(
+          allCategories.map(async (category) => {
+            if (!category._id) return;
 
-          try {
-            const subRes = await axiosInstance.get(`/category/subcategories/${category._id}`);
-            const subcategories = subRes.data?.subcategories || [];
-
-            if (subcategories.length > 0) {
-              validCategories.push(category);
-              subcategoryMap[category._id] = subcategories;
+            try {
+              const subRes = await axiosInstance.get(
+                `/category/subcategories/${category._id}`
+              );
+              const subcategories = subRes.data?.subcategories || [];
+              if (subcategories.length > 0) {
+                tempCategories.push(category);
+                tempSubMap[category._id] = subcategories;
+              }
+            } catch (err) {
+              console.error(
+                `❌ Failed to load subcategories for ${category.title}:`,
+                err.message
+              );
             }
-          } catch (err) {
-            console.error(`❌ Failed to load subcategories for ${category.title}:`, err.message);
-          }
-        });
+          })
+        );
 
-        await Promise.allSettled(subcategoryPromises);
-
-        setCategories(validCategories);
-        setSubCategoriesMap(subcategoryMap);
-      } catch (error) {
-        console.error("❌ Error fetching categories:", error.message);
+        setCategories(tempCategories);
+        setSubCategoriesMap(tempSubMap);
+      } catch (err) {
+        console.error("❌ Error fetching categories:", err.message);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -67,24 +74,38 @@ const MoreCoursesDropdown = () => {
       <DropdownMenuTrigger asChild>
         <button
           type="button"
-          className="text-xs md:text-md lg:text-base font-medium text-gray-700 flex items-center gap-3"
+          aria-haspopup="menu"
+          aria-expanded={categories.length > 0}
+          aria-label="More Courses Dropdown"
+          className="text-xs md:text-md lg:text-base font-medium text-gray-700 flex items-center gap-3 focus:outline-none focus:ring-2 focus:ring-green-500 rounded"
         >
           MORE COURSES
           <ChevronDown className="w-4 h-4 transition-transform duration-300" />
         </button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent className="grid grid-cols-2 gap-4 max-h-[400px] overflow-y-auto">
-        {categories.length > 0 ? (
+      <DropdownMenuContent
+        className="grid grid-cols-2 gap-4 max-h-[400px] overflow-y-auto"
+        role="menu"
+        aria-label="More Courses Subcategories"
+      >
+        {loading ? (
+          <DropdownMenuItem disabled role="menuitem">
+            Loading...
+          </DropdownMenuItem>
+        ) : categories.length > 0 ? (
           categories.map((category) => (
             <DropdownMenuSub key={category._id}>
-              <DropdownMenuSubTrigger>{category.title}</DropdownMenuSubTrigger>
-              <DropdownMenuSubContent>
+              <DropdownMenuSubTrigger role="menuitem">
+                {category.title}
+              </DropdownMenuSubTrigger>
+              <DropdownMenuSubContent role="menu">
                 {subCategoriesMap[category._id].map((sub) => (
                   <DropdownMenuItem
                     key={sub._id}
                     className="cursor-pointer"
                     onSelect={() => handleNavigate(sub._id)}
+                    role="menuitem"
                   >
                     {sub.title}
                   </DropdownMenuItem>
@@ -93,7 +114,9 @@ const MoreCoursesDropdown = () => {
             </DropdownMenuSub>
           ))
         ) : (
-          <DropdownMenuItem disabled>No Topics available</DropdownMenuItem>
+          <DropdownMenuItem disabled role="menuitem">
+            No Topics available
+          </DropdownMenuItem>
         )}
       </DropdownMenuContent>
     </DropdownMenu>

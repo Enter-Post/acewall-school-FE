@@ -1,5 +1,3 @@
-"use client";
-
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -53,7 +51,6 @@ const EditGeneralInfo = () => {
       homeAddress: "",
       mailingAddress: "",
     },
-
   });
   const {
     homeAddressLine1 = "",
@@ -105,33 +102,28 @@ const EditGeneralInfo = () => {
     }
   }, [user, setValue]);
 
-
-
-
-
   useEffect(() => {
-    const fullHomeAddress = `${homeAddressLine1}, ${homeAddressLine2 ? homeAddressLine2 + ", " : ""
-      }${homeCity}, ${homeState} ${homeZip}`;
+    const fullHomeAddress = `${homeAddressLine1}, ${
+      homeAddressLine2 ? homeAddressLine2 + ", " : ""
+    }${homeCity}, ${homeState} ${homeZip}`;
     setValue("homeAddress", fullHomeAddress);
   }, [homeAddressLine1, homeAddressLine2, homeCity, homeState, homeZip]);
 
   // Concatenate Mailing Address
   useEffect(() => {
-    const fullMailingAddress = `${mailingAddressLine1}, ${mailingAddressLine2 ? mailingAddressLine2 + " " : ""
-      }${mailingCity}, ${mailingState} ${mailingZip}`;
+    const fullMailingAddress = `${mailingAddressLine1}, ${
+      mailingAddressLine2 ? mailingAddressLine2 + " " : ""
+    }${mailingCity}, ${mailingState} ${mailingZip}`;
     setValue("mailingAddress", fullMailingAddress);
-  },
-    [
-      mailingAddressLine1,
-      mailingAddressLine2,
-      mailingCity,
-      mailingState,
-      mailingZip,
-    ]
-  );
+  }, [
+    mailingAddressLine1,
+    mailingAddressLine2,
+    mailingCity,
+    mailingState,
+    mailingZip,
+  ]);
   // Form submission handler
   const onSubmit = async (data) => {
-
     const formData = new FormData();
     formData.append("firstName", data.firstName);
     if (data.middleName.length > 0) {
@@ -146,9 +138,9 @@ const EditGeneralInfo = () => {
     formData.append("mailingAddress", data.mailingAddress);
 
     for (var pair of formData.entries()) {
-      console.log(pair[0] + ', ' + pair[1]);
+      console.log(pair[0] + ", " + pair[1]);
     }
-    
+
     try {
       const response = await axiosInstance.put(`/auth/updateuser`, formData);
       toast.success(response.data.message);
@@ -160,14 +152,12 @@ const EditGeneralInfo = () => {
     }
   };
 
-
   return (
-
     <div className="w-full mx-auto p-4 sm:p-6 space-y-8">
       <BackButton className="mb-10" />
       {/* Page Title */}
       <div>
-        <h2 className="text-2xl font-bold text-foreground">
+        <h2 className="text-2xl font-bold text-foreground" tabIndex={0}>
           Account Information
         </h2>
       </div>
@@ -186,6 +176,11 @@ const EditGeneralInfo = () => {
                   type="text"
                   name="firstName"
                   id="firstName"
+                  aria-required="true"
+                  aria-invalid={!!errors.firstName}
+                  aria-describedby={
+                    errors.firstName ? "firstName-error" : undefined
+                  }
                   maxLength={15}
                   placeholder="John"
                   {...register("firstName")}
@@ -194,7 +189,7 @@ const EditGeneralInfo = () => {
                   }}
                 />
                 {errors.firstName && (
-                  <p className="text-red-500 text-xs mt-1">
+                  <p id="firstName-error" className="text-red-500 text-xs mt-1">
                     {errors.firstName.message}
                   </p>
                 )}
@@ -208,6 +203,11 @@ const EditGeneralInfo = () => {
                   type="text"
                   name="middleName"
                   id="middleName"
+                  aria-required="true"
+                  aria-invalid={!!errors.middleName}
+                  aria-describedby={
+                    errors.middleName ? "middleName-error" : undefined
+                  }
                   maxLength={15}
                   placeholder="M."
                   {...register("middleName")}
@@ -225,6 +225,11 @@ const EditGeneralInfo = () => {
                   type="text"
                   name="lastName"
                   id="lastName"
+                  aria-required="true"
+                  aria-invalid={!!errors.lastName}
+                  aria-describedby={
+                    errors.lastName ? "lastName-error" : undefined
+                  }
                   maxLength={15}
                   placeholder="Doe"
                   {...register("lastName")}
@@ -233,7 +238,7 @@ const EditGeneralInfo = () => {
                   }}
                 />
                 {errors.lastName && (
-                  <p className="text-red-500 text-xs mt-1">
+                  <p id="lastName-error" className="text-red-500 text-xs mt-1">
                     {errors.lastName.message}
                   </p>
                 )}
@@ -250,6 +255,7 @@ const EditGeneralInfo = () => {
               <Textarea
                 name="bio"
                 id="bio"
+                aria-label="Teacher Bio"
                 placeholder="Write your bio here..."
                 {...register("Bio")}
               />
@@ -260,16 +266,23 @@ const EditGeneralInfo = () => {
               )}
             </section>
           )}
-          
-
 
           {/* Pronouns & Gender Selection */}
           <section className="space-y-6">
-            <h3 className="text-lg font-semibold">Identity Information</h3>
+            <h3 className="text-lg font-semibold" tabIndex={0}>
+              Identity Information
+            </h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
               {/* Pronouns */}
-              <div className="space-y-2">
-                <Label className="block text-sm font-medium text-gray-900 dark:text-white">
+              <div
+                role="radiogroup"
+                aria-labelledby="pronoun-label"
+                className="space-y-2"
+              >
+                <Label
+                  id="pronoun-label"
+                  className="block text-sm font-medium text-gray-900 dark:text-white"
+                >
                   Preferred Pronoun
                 </Label>
                 <div className="grid grid-cols-1 gap-2">
@@ -286,9 +299,11 @@ const EditGeneralInfo = () => {
                         id={`pronoun-${pronoun.toLowerCase()}`}
                         value={pronoun.toLowerCase()}
                         {...register("pronoun")}
+                        aria-labelledby={`${index}-label`}
                         className="w-4 h-4 accent-blue-600"
                       />
                       <label
+                        id={`${index}-label`}
                         htmlFor={`pronoun-${pronoun.toLowerCase()}`}
                         className="text-sm text-gray-900 dark:text-white"
                       >
@@ -300,8 +315,15 @@ const EditGeneralInfo = () => {
               </div>
 
               {/* Gender */}
-              <div className="space-y-2">
-                <Label className="block text-sm font-medium text-gray-900 dark:text-white">
+              <div
+                role="radiogroup"
+                aria-labelledby="gender-label"
+                className="space-y-2"
+              >
+                <Label
+                  id="gender-label"
+                  className="block text-sm font-medium text-gray-900 dark:text-white"
+                >
                   Gender Identity
                 </Label>
                 <div className="grid grid-cols-1 gap-2">
@@ -311,11 +333,12 @@ const EditGeneralInfo = () => {
                     "Non-binary",
                     "Other",
                     "prefer not to say",
-                  ].map((gender) => (
+                  ].map((gender, index) => (
                     <div key={gender} className="flex items-center space-x-2">
                       <input
                         type="radio"
                         id={`gender-${gender.toLowerCase()}`}
+                        aria-labelledby={`${index}-label`}
                         value={gender.toLowerCase()}
                         {...register("gender")}
                         className="w-4 h-4 accent-blue-600"
@@ -335,7 +358,9 @@ const EditGeneralInfo = () => {
 
           {/* Address Information */}
           <section className="space-y-6">
-            <h3 className="text-lg font-semibold">Address Information</h3>
+            <h3 className="text-lg font-semibold" tabIndex={0}>
+              Address Information
+            </h3>
             {/* Home Address */}
             <div className="mb-6">
               <Label>Home Address</Label>
@@ -344,6 +369,7 @@ const EditGeneralInfo = () => {
                 {...register("homeAddressLine1", {
                   required: "Address Line 1 is required",
                 })}
+                id="homeAddressLine1"
                 placeholder="Address Line 1"
                 className="mt-2"
               />
@@ -353,6 +379,7 @@ const EditGeneralInfo = () => {
 
               <Input
                 {...register("homeAddressLine2")}
+                id="homeAddressLine2"
                 placeholder="Address Line 2 (Optional)"
                 className="mt-2"
               />
@@ -361,25 +388,38 @@ const EditGeneralInfo = () => {
                 <div className="flex-1">
                   <Input
                     {...register("homeCity", { required: "City is required" })}
+                    id="homeCity"
                     placeholder="City / Town"
                   />
-                  <p className="text-xs text-red-600">{errors?.homeCity?.message}</p>
+                  <p className="text-xs text-red-600">
+                    {errors?.homeCity?.message}
+                  </p>
                 </div>
 
                 <div className="flex-1">
                   <Input
-                    {...register("homeState", { required: "State is required" })}
+                    {...register("homeState", {
+                      required: "State is required",
+                    })}
+                    id="homeState"
                     placeholder="State / Province"
                   />
-                  <p className="text-xs text-red-600">{errors?.homeState?.message}</p>
+                  <p className="text-xs text-red-600">
+                    {errors?.homeState?.message}
+                  </p>
                 </div>
 
                 <div className="flex-1">
                   <Input
-                    {...register("homeZip", { required: "ZIP Code is required" })}
+                    {...register("homeZip", {
+                      required: "ZIP Code is required",
+                    })}
+                    id="homeZip"
                     placeholder="ZIP / Postal"
                   />
-                  <p className="text-xs text-red-600">{errors?.homeZip?.message}</p>
+                  <p className="text-xs text-red-600">
+                    {errors?.homeZip?.message}
+                  </p>
                 </div>
               </div>
             </div>
@@ -392,6 +432,7 @@ const EditGeneralInfo = () => {
                 {...register("mailingAddressLine1", {
                   required: "Address Line 1 is required",
                 })}
+                id="mailingAddressLine1"
                 placeholder="Address Line 1"
                 className="mt-2"
               />
@@ -401,6 +442,7 @@ const EditGeneralInfo = () => {
 
               <Input
                 {...register("mailingAddressLine2")}
+                id="mailingAddressLine2"
                 placeholder="Address Line 2 (Optional)"
                 className="mt-2"
               />
@@ -408,7 +450,10 @@ const EditGeneralInfo = () => {
               <div className="flex gap-2 mt-2">
                 <div className="flex-1">
                   <Input
-                    {...register("mailingCity", { required: "City is required" })}
+                    {...register("mailingCity", {
+                      required: "City is required",
+                    })}
+                    id="mailingCity"
                     placeholder="City / Town"
                   />
                   <p className="text-xs text-red-600">
@@ -418,7 +463,10 @@ const EditGeneralInfo = () => {
 
                 <div className="flex-1">
                   <Input
-                    {...register("mailingState", { required: "State is required" })}
+                    {...register("mailingState", {
+                      required: "State is required",
+                    })}
+                    id="mailingState"
                     placeholder="State / Province"
                   />
                   <p className="text-xs text-red-600">
@@ -428,13 +476,15 @@ const EditGeneralInfo = () => {
 
                 <div className="flex-1">
                   <Input
-                    {...register("mailingZip", { required: "ZIP Code is required" })}
+                    {...register("mailingZip", {
+                      required: "ZIP Code is required",
+                    })}
+                    id="mailingZip"
                     placeholder="ZIP / Postal"
                   />
                   <p className="text-xs text-red-600">
                     {errors?.mailingZip?.message}
                   </p>
-
                 </div>
               </div>
             </div>
@@ -445,11 +495,12 @@ const EditGeneralInfo = () => {
             <Button
               type="submit"
               disabled={isSubmitting}
+              aria-label="Save changes"
               className="text-white bg-green-600 hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-5 py-2.5"
             >
               {isSubmitting ? (
                 <div className="flex items-center gap-2">
-                  <Loader className="animate-spin" />
+                  <Loader aria-hidden="true" className="animate-spin" />
                   Saving...
                 </div>
               ) : (

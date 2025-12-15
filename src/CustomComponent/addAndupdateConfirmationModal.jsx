@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -7,32 +7,45 @@ import {
   DialogDescription,
   DialogFooter,
   DialogTrigger
-} from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
-export default function ConfirmationDialog({ triggerText = "Open", title = "Confirm Action", description = "Are you sure you want to proceed?", onConfirm }) {
-  const [open, setOpen] = useState(false)
+export default function ConfirmationDialog({
+  triggerText = "Open",
+  title = "Confirm Action",
+  description = "Are you sure you want to proceed?",
+  onConfirm
+}) {
+  const [open, setOpen] = useState(false);
 
   const handleConfirm = () => {
-    if (onConfirm) onConfirm()
-    setOpen(false)
-  }
+    if (onConfirm) onConfirm();
+    setOpen(false);
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>{triggerText}</Button>
+        <Button aria-haspopup="dialog" aria-expanded={open}>
+          {triggerText}
+        </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent
+        role="alertdialog"
+        aria-labelledby="dialog-title"
+        aria-describedby="dialog-description"
+      >
         <DialogHeader>
-          <DialogTitle>{title}</DialogTitle>
-          <DialogDescription>{description}</DialogDescription>
+          <DialogTitle id="dialog-title">{title}</DialogTitle>
+          <DialogDescription id="dialog-description">{description}</DialogDescription>
         </DialogHeader>
         <DialogFooter>
-          <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
+          <Button variant="outline" onClick={() => setOpen(false)}>
+            Cancel
+          </Button>
           <Button onClick={handleConfirm}>Confirm</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

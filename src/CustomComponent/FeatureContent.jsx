@@ -10,35 +10,46 @@ export const StackedCard = ({ cardsData }) => {
         {cardsData.map(({ id, heading, text, bulletPoints }, index) => (
           <li
             key={id}
-            id={id} // 👈 ID for smooth scroll target
-            className={`sticky top-0 pt-[calc(${index + 1}*var(--cardTopPadding))] 
+            id={id} // For smooth scroll
+            className={`sticky top-0 pt-[calc(${
+              index + 1
+            }*var(--cardTopPadding))] 
               w-full max-w-7xl transition-transform duration-300 ease-in-out`}
             style={{ "--cards": cardsData.length, "--cardTopPadding": "2rem" }}
           >
             <div
+              role="region"
+              aria-labelledby={`${id}-heading`}
+              tabIndex={0} // Makes the card focusable
               className="flex flex-col justify-start items-start 
               bg-white rounded-2xl shadow-sm hover:shadow-lg 
               transition-shadow duration-300 border border-gray-200 
               w-full mx-auto 
               px-4 py-6 sm:px-6 sm:py-8 md:px-10 md:py-14 
-              space-y-10"
+              space-y-10 focus:outline-none focus:ring-2 focus:ring-green-600"
             >
               {/* Header Section */}
               <div className="w-full space-y-4">
-                <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900">
+                <h2
+                  id={`${id}-heading`}
+                  className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900"
+                >
                   {heading}
                 </h2>
-                <p className="text-base sm:text-lg text-gray-600 leading-relaxed max-w-5xl">
+                <p className="text-base sm:text-lg text-gray-700 leading-relaxed max-w-5xl">
                   {text}
                 </p>
               </div>
 
               {/* Bullet Points */}
-              <div className="w-full ">
+              <div className="w-full">
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-8 gap-y-3">
                   {bulletPoints.map((point, idx) => (
                     <div key={idx} className="flex items-start gap-3">
-                      <div className="w-2 h-2 mt-2 bg-green-600 rounded-full flex-shrink-0"></div>
+                      <div
+                        className="w-2 h-2 mt-2 bg-green-600 rounded-full flex-shrink-0"
+                        aria-hidden="true"
+                      ></div>
                       <span className="text-sm sm:text-base text-gray-800 font-medium leading-snug">
                         {point}
                       </span>

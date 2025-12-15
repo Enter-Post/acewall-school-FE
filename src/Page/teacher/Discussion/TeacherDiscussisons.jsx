@@ -1,83 +1,90 @@
 import { CreateDiscussionDialog } from "@/CustomComponent/createDiscussionModal";
 import { axiosInstance } from "@/lib/AxiosInstance";
 import React, { useEffect, useState } from "react";
-import { Link, useParams, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import { TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tabs } from "@radix-ui/react-tabs";
-import { cn } from "@/lib/utils";
 import BackButton from "@/CustomComponent/BackButton";
 import { DiscussionCard } from "@/CustomComponent/Card";
 
 const TeacherDiscussion = () => {
   const [discussion, setDiscussion] = useState([]);
-  const [loading, setloading] = useState(true);
+  const [loading, setLoading] = useState(true);
   const [refresh, setRefresh] = useState(false);
   const [activeTab, setActiveTab] = useState("course");
 
   const [searchParams] = useSearchParams();
-
   const type = searchParams.get("type");
   const typeId = searchParams.get("typeId");
   const courseId = searchParams.get("course");
   const semesterId = searchParams.get("semester");
   const quarterId = searchParams.get("quarter");
 
-  console.log(discussion, "discussion");
-  // console.log(quarterId, "quarterId");
-
   useEffect(() => {
     const fetchDiscussions = async () => {
-      setloading(true);
+      setLoading(true);
       const url =
         type === "all" ? `/discussion/all` : `/discussion/${type}/${typeId}`;
       try {
         const res = await axiosInstance.get(url);
-        console.log(res, "Teacher Discussion Data");
         setDiscussion(res.data.discussion);
       } catch (err) {
-        // handle error if needed
+        console.error("Error fetching discussions:", err);
       } finally {
-        setloading(false);
+        setLoading(false);
       }
     };
     fetchDiscussions();
-  }, [refresh]);
+  }, [refresh, type, typeId]);
+
+  const discussionHeading = `${
+    type?.charAt(0).toUpperCase() + type?.slice(1)
+  } Discussions`;
 
   return (
-    <div>
-      <div className="mb-3">
+    <main
+      role="main"
+      aria-labelledby="discussion-page-title"
+      className="w-full"
+    >
+      <section className="mb-3">
         <BackButton />
-      </div>
+      </section>
 
-      <div className="flex flex-col pb-2 gap-5">
-        <p className="text-xl py-4 mb-8 pl-6 font-semibold bg-acewall-main text-white rounded-lg">
-          {type?.slice(0, 1).toUpperCase() + type?.slice(1)} Discussions
-        </p>
-      </div>
+      <section className="flex flex-col pb-2 gap-5">
+        <h1
+          id="discussion-page-title"
+          className="text-xl py-4 mb-8 pl-6 font-semibold bg-acewall-main text-white rounded-lg"
+        >
+          {discussionHeading}
+        </h1>
+      </section>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
+      <Tabs
+        value={activeTab}
+        onValueChange={setActiveTab}
+        aria-label="Discussion Tabs"
+      >
         {type !== "all" && (
-          <section className="flex justify-end">
-            <div className="flex justify-end pb-5">
-              <CreateDiscussionDialog
-                setRefresh={setRefresh}
-                refresh={refresh}
-                semester={semesterId}
-                quarter={quarterId}
-              />
-            </div>
+          <section className="flex justify-end mb-5">
+            <CreateDiscussionDialog
+              setRefresh={setRefresh}
+              refresh={refresh}
+              semester={semesterId}
+              quarter={quarterId}
+            />
           </section>
         )}
 
-        <div className="w-full flex justify-center">
+        <section className="w-full flex justify-center" aria-live="polite">
           {loading ? (
-            <p className="text-center">Loading...</p>
+            <p className="text-center">Loading discussions...</p>
           ) : discussion?.length === 0 ? (
-            <p className="text-center">No Discussion found</p>
+            <p className="text-center">No discussions found</p>
           ) : null}
-        </div>
+        </section>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 font-sans">
+        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 font-sans">
           {!loading &&
             discussion?.map(
               (item) =>
@@ -89,9 +96,9 @@ const TeacherDiscussion = () => {
                   />
                 )
             )}
-        </div>
+        </section>
       </Tabs>
-    </div>
+    </main>
   );
 };
 

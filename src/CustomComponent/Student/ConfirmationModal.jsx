@@ -1,3 +1,4 @@
+"use client";
 import { useState } from "react";
 import {
   Dialog,
@@ -19,45 +20,62 @@ export default function PurchaseConfirmationModal({ courseID }) {
   const navigate = useNavigate();
 
   const handleConfirm = async () => {
-    await axiosInstance
-      .post(`enrollment/create/${courseID}`,)
-      .then((res) => {
-        console.log(res);
-        toast.success(res.data.message);
-        navigate("/student/mycourses");
-      })
-      .catch((err) => {
-        console.log(err);
-        toast.error(err.response.data.error || "Something went wrong");
-      });
-    setOpen(false);
+    try {
+      const res = await axiosInstance.post(`enrollment/create/${courseID}`);
+      toast.success(res.data.message);
+      navigate("/student/mycourses");
+      setOpen(false);
+    } catch (err) {
+      console.error(err);
+      toast.error(err.response?.data?.error || "Something went wrong");
+    }
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button
-          className={
-            "w-full text-white text-sm py-2 bg-green-600 hover:bg-green-700 rounded-xl transition-colors duration-300"
-          }
-          variant="default"
+          className="w-full text-white text-sm py-2 bg-green-600 hover:bg-green-700 rounded-xl transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2"
+          aria-haspopup="dialog"
+          aria-expanded={open}
         >
           Enroll Now
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
+
+      <DialogContent
+        className="sm:max-w-md"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="enroll-dialog-title"
+        aria-describedby="enroll-dialog-description"
+      >
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-green-400">
-            <CheckCircle2 className="h-5 w-5 " /> Enroll in Course
+          <DialogTitle
+            id="enroll-dialog-title"
+            className="flex items-center gap-2 text-green-600"
+          >
+            <CheckCircle2 className="h-5 w-5" /> Enroll in Course
           </DialogTitle>
-          <DialogDescription>
-            Click below to enroll and get started          </DialogDescription>
+          <DialogDescription id="enroll-dialog-description">
+            Click below to enroll and get started
+          </DialogDescription>
         </DialogHeader>
-        <DialogFooter>
-          <Button variant="outline" onClick={() => setOpen(false)}>
+
+        <DialogFooter className="flex justify-end gap-2">
+          <Button
+            variant="outline"
+            onClick={() => setOpen(false)}
+            className="focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2"
+          >
             Cancel
           </Button>
-          <Button variant="default" onClick={handleConfirm}>
+          <Button
+            variant="default"
+            onClick={handleConfirm}
+            className="focus:outline-none focus:ring-2 focus:ring-green-400 focus:ring-offset-2"
+            aria-label="Confirm Enrollment"
+          >
             Enroll Now
           </Button>
         </DialogFooter>

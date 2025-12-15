@@ -27,11 +27,10 @@ const Support = () => {
       const res = await axiosInstance.post("/support/send", formData);
       setMessage(res.data.message);
       setFormData({ fullName: "", email: "", feedback: "" });
-      console.log(res.data.message);
-      
     } catch (error) {
       setMessage(
-        error.response?.data?.message || "Something went wrong. Try again later."
+        error.response?.data?.message ||
+          "Something went wrong. Try again later."
       );
     } finally {
       setLoading(false);
@@ -42,31 +41,89 @@ const Support = () => {
     <div className="w-full max-w-2xl mx-auto">
       <div className="bg-white dark:bg-muted rounded-2xl p-8 space-y-8">
         <div className="text-center">
-          <h2 className="text-3xl font-extrabold text-foreground">Contact Support</h2>
+          <h2 className="text-3xl font-extrabold text-foreground">
+            Contact Support
+          </h2>
           <p className="mt-2 text-muted-foreground text-sm">
-            We're here to help. Please fill out the form and our team will get back to you soon.
+            We're here to help. Please fill out the form and our team will get
+            back to you soon.
           </p>
         </div>
 
-        <form className="space-y-6" onSubmit={handleSubmit}>
+        <form className="space-y-6" onSubmit={handleSubmit} noValidate>
+          
+          {/* Full Name */}
           <div className="space-y-2">
             <Label htmlFor="fullName">Full Name *</Label>
-            <Input name="fullName" value={formData.fullName} onChange={handleChange} required />
+            <Input
+              id="fullName"
+              name="fullName"
+              value={formData.fullName}
+              onChange={handleChange}
+              required
+              aria-invalid={formData.fullName === ""}
+              aria-describedby="fullName-error"
+            />
+            {formData.fullName === "" && (
+              <p id="fullName-error" className="text-xs text-red-600">
+                Full name is required.
+              </p>
+            )}
           </div>
 
+          {/* Email */}
           <div className="space-y-2">
             <Label htmlFor="email">Email *</Label>
-            <Input type="email" name="email" value={formData.email} onChange={handleChange} required />
+            <Input
+              id="email"
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              required
+              aria-invalid={formData.email === ""}
+              aria-describedby="email-error"
+            />
+            {formData.email === "" && (
+              <p id="email-error" className="text-xs text-red-600">
+                Email is required.
+              </p>
+            )}
           </div>
 
+          {/* Feedback */}
           <div className="space-y-2">
             <Label htmlFor="feedback">Feedback *</Label>
-            <Textarea name="feedback" value={formData.feedback} onChange={handleChange} required />
+            <Textarea
+              id="feedback"
+              name="feedback"
+              value={formData.feedback}
+              onChange={handleChange}
+              required
+              aria-invalid={formData.feedback === ""}
+              aria-describedby="feedback-error"
+            />
+            {formData.feedback === "" && (
+              <p id="feedback-error" className="text-xs text-red-600">
+                Feedback is required.
+              </p>
+            )}
           </div>
 
-          {message && <p className="text-sm text-center">{message}</p>}
+          {/* Server Response */}
+          {message && (
+            <p className="text-sm text-center" role="alert">
+              {message}
+            </p>
+          )}
 
-          <Button type="submit" disabled={loading} className="w-full">
+          {/* Submit Button */}
+          <Button
+            type="submit"
+            disabled={loading}
+            aria-busy={loading}
+            className="w-full"
+          >
             {loading ? "Sending..." : "Submit"}
           </Button>
         </form>

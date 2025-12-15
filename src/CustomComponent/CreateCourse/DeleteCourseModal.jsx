@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Dialog,
   DialogFooter,
@@ -8,7 +8,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
 import { axiosInstance } from "@/lib/AxiosInstance";
 import { toast } from "sonner";
 
@@ -19,21 +18,28 @@ const DeleteCourseModal = ({
   setSuccessOpen,
   fetchCourseDetail,
 }) => {
-  const handleDeleteCourse = async ({ fetchCourseDetail }) => {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleDeleteCourse = async () => {
     try {
+      setIsLoading(true);
       await axiosInstance.delete(`/course/delete/${id}`);
+
       setConfirmOpen(false);
       setSuccessOpen(true);
 
-      // Wait 2 seconds before redirecting
+      // Optional: fetch updated course detail before redirect
+      if (fetchCourseDetail) await fetchCourseDetail();
+
       setTimeout(() => {
         setSuccessOpen(false);
         window.location.href = "/teacher/courses";
-        fetchCourseDetail();
       }, 2000);
     } catch (error) {
       console.error("Error deleting course:", error);
-      toast.error("Failed to delete course.");
+      toast.error(error?.response?.data?.message || "Failed to delete course.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -42,7 +48,7 @@ const DeleteCourseModal = ({
       <DialogTrigger asChild>
         <Button
           className="bg-red-600 hover:bg-red-800 text-white font-bold py-2 px-4 rounded shadow-md transition-all duration-150"
-          onClick={() => setConfirmOpen(true)}
+          aria-label="Delete Course"
         >
           Delete Course
         </Button>
@@ -60,10 +66,15 @@ const DeleteCourseModal = ({
           <Button
             className="bg-red-600 text-white hover:bg-red-700"
             onClick={handleDeleteCourse}
+            disabled={isLoading}
           >
-            Yes, Delete
+            {isLoading ? "Deleting..." : "Yes, Delete"}
           </Button>
-          <Button variant="outline" onClick={() => setConfirmOpen(false)}>
+          <Button
+            variant="outline"
+            onClick={() => setConfirmOpen(false)}
+            disabled={isLoading}
+          >
             Cancel
           </Button>
         </DialogFooter>

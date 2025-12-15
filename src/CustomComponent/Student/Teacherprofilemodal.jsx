@@ -1,10 +1,11 @@
 import { axiosInstance } from "@/lib/AxiosInstance";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Link } from "react-router-dom";
 
 const TeacherProfileModal = ({ isOpen, onClose, instructor, avatar }) => {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(false);
+  const modalRef = useRef(null);
 
   useEffect(() => {
     if (!instructor?._id || !isOpen) return;
@@ -16,7 +17,6 @@ const TeacherProfileModal = ({ isOpen, onClose, instructor, avatar }) => {
           params: { teacherId: instructor._id },
         });
         setCourses(res.data.courses || []);
-        console.log("res", res);
       } catch (error) {
         console.error("Error fetching teacher's courses:", error);
         setCourses([]);
@@ -28,6 +28,13 @@ const TeacherProfileModal = ({ isOpen, onClose, instructor, avatar }) => {
     fetchTeacherCourses();
   }, [instructor?._id, isOpen]);
 
+  // Focus modal on open for accessibility
+  useEffect(() => {
+    if (isOpen && modalRef.current) {
+      modalRef.current.focus();
+    }
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   return (
@@ -36,7 +43,13 @@ const TeacherProfileModal = ({ isOpen, onClose, instructor, avatar }) => {
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-lg shadow-xl w-full max-w-lg p-6 relative overflow-y-auto max-h-[90vh]"
+        ref={modalRef}
+        tabIndex={-1}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="teacher-modal-title"
+        aria-describedby="teacher-modal-desc"
+        className="bg-white rounded-lg shadow-xl w-full max-w-lg p-6 relative overflow-y-auto max-h-[90vh] focus:outline-none"
         onClick={(e) => e.stopPropagation()}
       >
         <button
@@ -50,23 +63,29 @@ const TeacherProfileModal = ({ isOpen, onClose, instructor, avatar }) => {
         <div className="flex items-center gap-4">
           <img
             src={instructor?.profileImg?.url || avatar}
-            alt="Instructor"
+            alt={`Profile image of ${instructor.firstName} ${instructor.lastName}`}
             className="w-20 h-20 rounded-full object-cover"
           />
           <div>
-            <h2 className="text-2xl font-semibold">
-              {instructor.firstName} {instructor.middleName} {instructor.lastName}
+            <h2 id="teacher-modal-title" className="text-2xl font-semibold">
+              {instructor.firstName} {instructor.middleName}{" "}
+              {instructor.lastName}
             </h2>
             <p className="text-sm text-gray-500">Instructor</p>
           </div>
         </div>
 
-        <div className="mt-4 text-gray-700 whitespace-pre-wrap text-sm">
+        <div
+          id="teacher-modal-desc"
+          className="mt-4 text-gray-700 whitespace-pre-wrap text-sm"
+        >
           {instructor.Bio || "No bio provided."}
         </div>
 
         <div className="mt-6">
-          <h3 className="text-lg font-semibold mb-2">Courses by this Instructor</h3>
+          <h3 className="text-lg font-semibold mb-2">
+            Courses by this Instructor
+          </h3>
           {loading ? (
             <p className="text-sm text-gray-500">Loading courses...</p>
           ) : courses.length > 0 ? (
@@ -80,7 +99,7 @@ const TeacherProfileModal = ({ isOpen, onClose, instructor, avatar }) => {
                   >
                     <img
                       src={course.courseImageUrl || "/placeholder.svg"}
-                      alt={course.courseTitle}
+                      alt={`Course image for ${course.courseTitle}`}
                       className="w-16 h-16 object-cover rounded"
                     />
                     <div>
@@ -94,7 +113,9 @@ const TeacherProfileModal = ({ isOpen, onClose, instructor, avatar }) => {
               ))}
             </ul>
           ) : (
-            <p className="text-sm text-gray-500">No courses found for this instructor.</p>
+            <p className="text-sm text-gray-500">
+              No courses found for this instructor.
+            </p>
           )}
         </div>
       </div>

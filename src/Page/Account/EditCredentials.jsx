@@ -130,7 +130,7 @@ export function EditCredentials() {
   const handlePhoneSubmit = async (data) => {
     setSendingOTP(true);
     await axiosInstance
-      .post("auth/updatePhoneOTP", { newPhone: data.phone})
+      .post("auth/updatePhoneOTP", { newPhone: data.phone })
       .then((res) => {
         toast.success(res.data.message);
         setIsOTPDialogOpen(true);
@@ -152,7 +152,7 @@ export function EditCredentials() {
     <section className="flex justify-center flex-col items-center h-full">
       <div className="flex w-full max-w-sm flex-col gap-6">
         <Tabs defaultValue="account">
-          <TabsList>
+          <TabsList role="tab">
             <TabsTrigger value="account">Email</TabsTrigger>
             <TabsTrigger value="password">Password</TabsTrigger>
             <TabsTrigger value="phone">Phone Number</TabsTrigger>
@@ -172,9 +172,14 @@ export function EditCredentials() {
                 <CardContent className="grid gap-6">
                   <div className="grid gap-3">
                     <Label htmlFor="email">Email</Label>
-                    <Input id="email" {...emailForm.register("email")} />
+                    <Input
+                      id="email"
+                      aria-invalid={!!emailForm.formState.errors.email}
+                      aria-describedby="email-error"
+                      {...emailForm.register("email")}
+                    />
                     {emailForm.formState.errors.email && (
-                      <p className="text-xs text-red-600 mt-1">
+                      <p id="email-error" className="text-xs text-red-600 mt-1">
                         {emailForm.formState.errors.email.message}
                       </p>
                     )}
@@ -214,10 +219,14 @@ export function EditCredentials() {
                     {oldPassword && (
                       <button
                         type="button"
-                        aria-label="Toggle current password visibility"
+                        aria-label={
+                          showPassword
+                            ? "Hide current password"
+                            : "Show current password"
+                        }
                         className="absolute right-2 top-9 text-xs"
                         onClick={() => setShowPassword((prev) => !prev)}
-                        tabIndex={-1}
+                        role="button"
                       >
                         {showPassword ? (
                           <Eye size={18} />
@@ -239,6 +248,7 @@ export function EditCredentials() {
                     <Label htmlFor="newPassword">New password</Label>
                     <Input
                       id="newPassword"
+                      aria-label="Toggle new password visibility"
                       type={showNewPassword ? "text" : "password"}
                       {...passwordForm.register("newPassword")}
                     />
@@ -251,10 +261,14 @@ export function EditCredentials() {
                     {newPasswordValue && (
                       <button
                         type="button"
-                        aria-label="Toggle new password visibility"
+                        aria-label={
+                          showNewPassword
+                            ? "Hide new password"
+                            : "Show new password"
+                        }
                         className="absolute right-2 top-9 text-xs"
                         onClick={() => setShowNewPassword((prev) => !prev)}
-                        tabIndex={-1}
+                        role="button"
                       >
                         {showNewPassword ? (
                           <Eye size={18} />
@@ -287,10 +301,14 @@ export function EditCredentials() {
                     {confirmPassword && (
                       <button
                         type="button"
-                        aria-label="Toggle confirm password visibility"
+                        aria-label={
+                          showConfirmPassword
+                            ? "Hide confirm password"
+                            : "Show confirm password"
+                        }
                         className="absolute right-2 top-9 text-xs"
                         onClick={() => setShowConfirmPassword((prev) => !prev)}
-                        tabIndex={-1}
+                        role="button"
                       >
                         {showConfirmPassword ? (
                           <Eye size={18} />
@@ -351,17 +369,26 @@ export function EditCredentials() {
                     <Label htmlFor="phone">
                       Phone Number <span className="text-red-600">*</span>
                     </Label>
+
                     <PhoneInput
                       country={"us"}
                       value={phoneWatch}
                       onChange={(value) => {
                         phoneNumberForm.setValue("phone", value);
                       }}
-                      // {...phoneNumberForm.register("phone")}
                       inputClass="w-full rounded-lg pl-12 py-2 bg-gray-50"
                       disableDropdown={false}
+                      inputProps={{
+                        id: "phone",
+                        name: "phone",
+                        "aria-label": "Phone number",
+                        "aria-invalid":
+                          !!phoneNumberForm.formState.errors?.phone,
+                        "aria-describedby": "phone-error",
+                      }}
                     />
-                    <p className="text-xs text-red-600 mt-1">
+
+                    <p id="phone-error" className="text-xs text-red-600 mt-1">
                       {phoneNumberForm.formState.errors?.phone?.message}
                     </p>
                   </div>

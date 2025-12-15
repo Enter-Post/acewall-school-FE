@@ -7,10 +7,14 @@ import JoditEditor from "jodit-react";
 const CreatePostModal = ({ onClose, onCreate }) => {
   const [text, setText] = useState("");
   const [image, setImage] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
   const [video, setVideo] = useState(null);
+  const [videoPreview, setVideoPreview] = useState(null);
   const [loading, setLoading] = useState(false);
   const modalRef = useRef(null);
+  const editorRef = useRef(null);
 
+  // Animate modal on mount
   useEffect(() => {
     if (modalRef.current) {
       gsap.fromTo(
@@ -21,23 +25,31 @@ const CreatePostModal = ({ onClose, onCreate }) => {
     }
 
     return () => {
-      if (image) URL.revokeObjectURL(image);
-      if (video) URL.revokeObjectURL(video);
+      if (imagePreview) URL.revokeObjectURL(imagePreview);
+      if (videoPreview) URL.revokeObjectURL(videoPreview);
     };
   }, []);
 
   const handleImageUpload = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (image) URL.revokeObjectURL(image);
+    if (imagePreview) URL.revokeObjectURL(imagePreview);
+
     setImage(file);
+    setImagePreview(URL.createObjectURL(file));
+    setVideo(null);
+    setVideoPreview(null);
   };
 
   const handleVideoUpload = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (video) URL.revokeObjectURL(video);
+    if (videoPreview) URL.revokeObjectURL(videoPreview);
+
     setVideo(file);
+    setVideoPreview(URL.createObjectURL(file));
+    setImage(null);
+    setImagePreview(null);
   };
 
   const handleSubmit = async () => {
@@ -63,6 +75,8 @@ const CreatePostModal = ({ onClose, onCreate }) => {
         setText("");
         setImage(null);
         setVideo(null);
+        setImagePreview(null);
+        setVideoPreview(null);
         onClose();
       }
     } catch (error) {
@@ -77,13 +91,15 @@ const CreatePostModal = ({ onClose, onCreate }) => {
     <div
       className="fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center items-center z-50"
       onClick={onClose}
+      role="dialog"
+      aria-modal="true"
     >
       <div
         ref={modalRef}
         onClick={(e) => e.stopPropagation()}
         className="bg-white rounded-xl shadow-lg w-full max-w-2xl p-5 relative"
       >
-        {/* ❌ Close Button */}
+        {/* Close Button */}
         <button
           onClick={onClose}
           className="absolute top-3 right-3 text-gray-500 hover:text-gray-700"
@@ -94,45 +110,38 @@ const CreatePostModal = ({ onClose, onCreate }) => {
 
         <h2 className="text-lg font-semibold mb-3">Create Post</h2>
 
-        {/* 📝 Post Text */}
-        {/* <div className="rounded-lg border p-3 mb-3 bg-white">
-          <textarea
-            placeholder="What's on your mind?"
-            className="w-full h-24 bg-transparent text-sm resize-none focus:outline-none placeholder-gray-500"
+        {/* Post Editor */}
+        <div className="mb-3">
+          <JoditEditor
+            ref={editorRef}
             value={text}
-            onChange={(e) => setText(e.target.value)}
+            onChange={(value) => setText(value)}
+            placeholder="What's on your mind?"
           />
-        </div> */}
-        <JoditEditor
-          placeholder="What's on your mind?"
-          value={text}
-          onChange={(e) => {
-            setText(e)
-          }}
-        />
+        </div>
 
-        {/* 📸 Media Preview */}
-        {(image || video) && (
+        {/* Media Preview */}
+        {(imagePreview || videoPreview) && (
           <div className="mt-2">
-            {image && (
+            {imagePreview && (
               <img
-                src={URL.createObjectURL(image)}
+                src={imagePreview}
                 alt="Preview"
                 className="rounded-lg max-h-[200px] object-cover mb-2 w-full"
               />
             )}
-            {video && (
+            {videoPreview && (
               <video
                 controls
                 className="rounded-lg max-h-[200px] object-cover mb-2 w-full"
               >
-                <source src={URL.createObjectURL(video)} type="video/mp4" />
+                <source src={videoPreview} type="video/mp4" />
               </video>
             )}
           </div>
         )}
 
-        {/* 📂 Upload Buttons */}
+        {/* Upload Buttons */}
         <div className="flex items-center gap-4 mt-3 text-gray-700">
           <label className="flex items-center gap-2 cursor-pointer hover:text-green-600 transition">
             <Image className="w-5 h-5" />
@@ -157,7 +166,7 @@ const CreatePostModal = ({ onClose, onCreate }) => {
           </label>
         </div>
 
-        {/* ✅ Post Button */}
+        {/* Post Button */}
         <button
           onClick={handleSubmit}
           disabled={loading}

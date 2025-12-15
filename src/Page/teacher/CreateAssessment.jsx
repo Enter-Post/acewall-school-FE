@@ -504,55 +504,104 @@ export default function CreateAssessmentPage() {
         >
           <ChevronLeft className="h-4 w-4" />
         </Button>
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-blue-600 focus:text-white focus:rounded-md"
+        >
+          Skip to main content
+        </a>
       </div>
 
-      <h2 className="text-2xl font-bold mb-4">Create New Assessment</h2>
+      <h2 id="main-content" className="text-2xl font-bold mb-4">
+        Create New Assessment
+      </h2>
       <p className="text-gray-600 mb-6">
         Create a new Assessment for students.
       </p>
+
+      <div
+        role="status"
+        aria-live="polite"
+        aria-atomic="true"
+        className="sr-only"
+        id="form-announcements"
+      >
+        {/* This will be used for screen reader announcements */}
+      </div>
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           {/* Assessment Type Selection */}
           <div className="space-y-4">
             <Label className="text-lg font-semibold">Assessment Type</Label>
-            <div className="grid grid-cols-2 gap-4 mt-3">
-              <Card
-                className={`cursor-pointer transition-all ${
+            <div
+              className="grid grid-cols-2 gap-4 mt-3"
+              role="radiogroup"
+              aria-labelledby="assessment-type-label"
+            >
+              <div
+                role="radio"
+                aria-checked={assessmentType === "question"}
+                tabIndex={0}
+                className={`cursor-pointer transition-all rounded-lg ${
                   assessmentType === "question"
-                    ? "border-blue-500 bg-blue-50"
-                    : "border-gray-200 hover:border-gray-300"
-                }`}
+                    ? "border-2 border-blue-500 bg-blue-50"
+                    : "border-2 border-gray-200 hover:border-gray-300"
+                } focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2`}
                 onClick={() => handleAssessmentTypeChange("question")}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    handleAssessmentTypeChange("question");
+                  }
+                }}
               >
                 <CardContent className="p-4 text-center">
-                  <HelpCircle className="h-8 w-8 mx-auto mb-2 text-blue-600" />
+                  <HelpCircle
+                    className="h-8 w-8 mx-auto mb-2 text-blue-600"
+                    aria-hidden="true"
+                  />
                   <h3 className="font-medium">Question-Based</h3>
-                  <p className="text-sm text-gray-600 mt-1">
+                  <p className="text-sm text-gray-700 mt-1">
                     Create custom questions (MCQ, True/False, Q&A)
                   </p>
                 </CardContent>
-              </Card>
+              </div>
 
-              <Card
-                className={`cursor-pointer transition-all ${
+              <div
+                role="radio"
+                aria-checked={assessmentType === "file"}
+                tabIndex={0}
+                className={`cursor-pointer transition-all rounded-lg ${
                   assessmentType === "file"
-                    ? "border-blue-500 bg-blue-50"
-                    : "border-gray-200 hover:border-gray-300"
-                }`}
+                    ? "border-2 border-blue-500 bg-blue-50"
+                    : "border-2 border-gray-200 hover:border-gray-300"
+                } focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2`}
                 onClick={() => handleAssessmentTypeChange("file")}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    handleAssessmentTypeChange("file");
+                  }
+                }}
               >
                 <CardContent className="p-4 text-center">
                   <div className="flex justify-center gap-2 mb-2">
-                    <FileText className="h-6 w-6 text-blue-600" />
-                    <ImageIcon className="h-6 w-6 text-blue-600" />
+                    <FileText
+                      className="h-6 w-6 text-blue-600"
+                      aria-hidden="true"
+                    />
+                    <ImageIcon
+                      className="h-6 w-6 text-blue-600"
+                      aria-hidden="true"
+                    />
                   </div>
                   <h3 className="font-medium">File-Based</h3>
-                  <p className="text-sm text-gray-600 mt-1">
+                  <p className="text-sm text-gray-700 mt-1">
                     Upload PDF files or images (1-5 files, max 5MB total)
                   </p>
                 </CardContent>
-              </Card>
+              </div>
             </div>
           </div>
 
@@ -669,8 +718,9 @@ export default function CreateAssessmentPage() {
                           onClick={() => moveQuestion(questionIndex, "up")}
                           disabled={questionIndex === 0}
                           className="h-8 w-8 p-0"
+                          aria-label={`Move question ${questionIndex + 1} up`}
                         >
-                          <ChevronUp size={16} />
+                          <ChevronUp size={16} aria-hidden="true" />
                         </Button>
                         <Button
                           type="button"
@@ -679,8 +729,9 @@ export default function CreateAssessmentPage() {
                           onClick={() => moveQuestion(questionIndex, "down")}
                           disabled={questionIndex === fields.length - 1}
                           className="h-8 w-8 p-0"
+                          aria-label={`Move question ${questionIndex + 1} down`}
                         >
-                          <ChevronDown size={16} />
+                          <ChevronDown size={16} aria-hidden="true" />
                         </Button>
                         <Button
                           type="button"
@@ -693,8 +744,9 @@ export default function CreateAssessmentPage() {
                               fields.length <= 1)
                           }
                           className="h-8 w-8 p-0 text-red-500 hover:text-red-700"
+                          aria-label={`Delete question ${questionIndex + 1}`}
                         >
-                          <Trash2 size={16} />
+                          <Trash2 size={16} aria-hidden="true" />
                         </Button>
                       </div>
                     </div>
@@ -803,36 +855,56 @@ export default function CreateAssessmentPage() {
                           name={`questions.${questionIndex}.files`}
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Upload Files</FormLabel>
+                              <FormLabel
+                                id={`file-upload-label-${questionIndex}`}
+                              >
+                                Upload Files (PDF or Images, max 5MB total)
+                              </FormLabel>
                               <FormControl>
                                 <div className="space-y-4">
                                   <div className="flex items-center justify-center w-full">
-                                    <label className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
+                                    <label
+                                      htmlFor={`file-input-${questionIndex}`}
+                                      className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500"
+                                      aria-labelledby={`file-upload-label-${questionIndex}`}
+                                    >
                                       <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                                        <Upload className="w-8 h-8 mb-4 text-gray-500" />
-                                        <p className="mb-2 text-sm text-gray-500">
+                                        <Upload
+                                          className="w-8 h-8 mb-4 text-gray-500"
+                                          aria-hidden="true"
+                                        />
+                                        <p className="mb-2 text-sm text-gray-700">
                                           <span className="font-semibold">
                                             Click to upload
                                           </span>
                                         </p>
-                                        <p className="text-xs text-gray-500">
-                                          PDF or Images (5MB)
+                                        <p className="text-xs text-gray-600">
+                                          PDF or Images (5MB max)
                                         </p>
                                       </div>
                                       <input
+                                        id={`file-input-${questionIndex}`}
                                         type="file"
                                         multiple
                                         accept=".pdf,image/*"
-                                        className="hidden"
+                                        className="sr-only"
                                         onChange={(e) =>
                                           handleFileChange(
                                             questionIndex,
                                             e.target.files
                                           )
                                         }
+                                        aria-describedby={`file-help-${questionIndex}`}
                                       />
                                     </label>
                                   </div>
+                                  <p
+                                    id={`file-help-${questionIndex}`}
+                                    className="text-xs text-gray-600 sr-only"
+                                  >
+                                    Upload up to 5 PDF or image files. Total
+                                    size must be less than 5 megabytes.
+                                  </p>
 
                                   {/* Display selected files */}
                                   {field.value && field.value.length > 0 && (
@@ -870,9 +942,16 @@ export default function CreateAssessmentPage() {
                                                 fileIndex
                                               )
                                             }
+                                            aria-label={`Remove file ${file.name}`}
                                             className="text-red-500 hover:text-red-700"
                                           >
-                                            <Trash2 size={16} />
+                                            <Trash2
+                                              size={16}
+                                              aria-hidden="true"
+                                            />
+                                            <span className="sr-only">
+                                              Remove
+                                            </span>
                                           </Button>
                                         </div>
                                       ))}
@@ -929,39 +1008,45 @@ export default function CreateAssessmentPage() {
                         name={`questions.${questionIndex}.correctAnswer`}
                         render={({ field }) => (
                           <FormItem className="space-y-3">
-                            <FormLabel>Correct Answer</FormLabel>
-                            <FormControl>
-                              <RadioGroup
-                                onValueChange={field.onChange}
-                                value={field.value}
-                                className="flex space-x-4"
-                              >
-                                <div className="flex items-center space-x-2">
-                                  <RadioGroupItem
-                                    value="true"
-                                    id={`true-${question.id}`}
-                                  />
-                                  <Label
-                                    htmlFor={`true-${question.id}`}
-                                    className="font-normal"
-                                  >
-                                    True
-                                  </Label>
-                                </div>
-                                <div className="flex items-center space-x-2">
-                                  <RadioGroupItem
-                                    value="false"
-                                    id={`false-${question.id}`}
-                                  />
-                                  <Label
-                                    htmlFor={`false-${question.id}`}
-                                    className="font-normal"
-                                  >
-                                    False
-                                  </Label>
-                                </div>
-                              </RadioGroup>
-                            </FormControl>
+                            <fieldset>
+                              <legend className="text-sm font-medium mb-3">
+                                Correct Answer
+                              </legend>
+                              <FormControl>
+                                <RadioGroup
+                                  onValueChange={field.onChange}
+                                  value={field.value}
+                                  className="flex space-x-4"
+                                >
+                                  <div className="flex items-center space-x-2">
+                                    <RadioGroupItem
+                                      value="true"
+                                      id={`true-${question.id}`}
+                                      aria-describedby={`true-desc-${question.id}`}
+                                    />
+                                    <Label
+                                      htmlFor={`true-${question.id}`}
+                                      className="font-normal cursor-pointer"
+                                    >
+                                      True
+                                    </Label>
+                                  </div>
+                                  <div className="flex items-center space-x-2">
+                                    <RadioGroupItem
+                                      value="false"
+                                      id={`false-${question.id}`}
+                                      aria-describedby={`false-desc-${question.id}`}
+                                    />
+                                    <Label
+                                      htmlFor={`false-${question.id}`}
+                                      className="font-normal cursor-pointer"
+                                    >
+                                      False
+                                    </Label>
+                                  </div>
+                                </RadioGroup>
+                              </FormControl>
+                            </fieldset>
                             <FormMessage />
                           </FormItem>
                         )}

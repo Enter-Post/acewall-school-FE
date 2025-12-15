@@ -32,7 +32,7 @@ const VerifyOTPDialog = ({
   const [cooldown, setCooldown] = useState(0);
   const [otpExpiresAt, setOtpExpiresAt] = useState(null);
   const [timeLeft, setTimeLeft] = useState(0);
-  const { user } = useContext(GlobalContext);
+  const { user, UpdatedUser } = useContext(GlobalContext);
   const navigate = useNavigate();
 
   // Reset OTP on dialog open
@@ -149,7 +149,7 @@ const VerifyOTPDialog = ({
 
     try {
       const res = await axiosInstance.post(endpoint, {
-        email: user.email,
+        email: UpdatedUser.email,
       });
       toast.success(res.data.message);
       const expiresAt = Date.now() + 10 * 60 * 1000;

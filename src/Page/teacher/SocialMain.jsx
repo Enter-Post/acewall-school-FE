@@ -18,18 +18,20 @@ const SocialMain = ({ posts: externalPosts, setPosts: setExternalPosts }) => {
   const posts = externalPosts || localPosts;
   const setPosts = setExternalPosts || setLocalPosts;
 
-  // Refs for GSAP animation
   const postRefs = useRef({});
   const previousPostCount = useRef(0);
 
-  // ✅ Fetch paginated posts
+  // Fetch paginated posts
   const fetchPosts = async (pageNum = 1) => {
     try {
       setLoading(true);
-      const response = await axiosInstance.get(`/posts/getPosts?page=${pageNum}&limit=10`);
+      const response = await axiosInstance.get(
+        `/posts/getPosts?page=${pageNum}&limit=10`
+      );
       const fetched = response.data?.posts || [];
 
-      // 🧹 Normalize data and handle deleted users
+      console.log(fetched, "fetched posts");
+
       const normalized = fetched.map((post) => ({
         _id: post._id,
         text: post.text || "",
@@ -39,9 +41,12 @@ const SocialMain = ({ posts: externalPosts, setPosts: setExternalPosts }) => {
           firstName: post?.author?.firstName || "Deleted",
           middleName: post?.author?.middleName || "",
           lastName: post?.author?.lastName || "User",
-          profileImg:
-            post?.author?.profileImg?.url ||
-            "https://imgs.search.brave.com/F09pGxti9Zp8AhLyRRrgNIfE6cmyTUR3aeyqv7kLJ6E/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9pLnBp/bmltZy5jb20vb3Jp/Z2luYWxzLzVhL2Jk/Lzk4LzVhYmQ5ODU3/MzVhOGZkNGFkY2Iw/ZTc5NWRlNmExMDA1/LmpwZw",
+          profileImg: {
+            url:
+              post?.author?.profileImg?.url ||
+              "https://via.placeholder.com/150",
+              
+          },
         },
         createdAt: post.createdAt || new Date().toISOString(),
         likes: post.likes || [],
@@ -67,12 +72,12 @@ const SocialMain = ({ posts: externalPosts, setPosts: setExternalPosts }) => {
     }
   };
 
-  // ✅ Initial load
+  // Initial load
   useEffect(() => {
     fetchPosts(1);
   }, []);
 
-  // ✅ Infinite scroll
+  // Infinite scroll
   useEffect(() => {
     const handleScroll = () => {
       if (
@@ -84,17 +89,16 @@ const SocialMain = ({ posts: externalPosts, setPosts: setExternalPosts }) => {
         setPage((prev) => prev + 1);
       }
     };
-
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, [loading, hasMore]);
 
-  // ✅ Load more when page changes
+  // Load more on page change
   useEffect(() => {
     if (page > 1) fetchPosts(page);
   }, [page]);
 
-  // ✅ Animate new posts with GSAP
+  // Animate new posts with GSAP
   useEffect(() => {
     const postElements = Object.values(postRefs.current).filter(Boolean);
     const newPosts = postElements.slice(previousPostCount.current);
@@ -103,56 +107,52 @@ const SocialMain = ({ posts: externalPosts, setPosts: setExternalPosts }) => {
       gsap.fromTo(
         newPosts,
         { autoAlpha: 0, y: 40 },
-        {
-          autoAlpha: 1,
-          y: 0,
-          duration: 0.6,
-          stagger: 0.08,
-          ease: "power2.out",
-        }
+        { autoAlpha: 1, y: 0, duration: 0.6, stagger: 0.08, ease: "power2.out" }
       );
     }
 
     previousPostCount.current = postElements.length;
   }, [posts]);
 
-  // ✅ After post creation, refresh posts
+  // Refresh posts after creation
   const handleCreatePost = async () => {
     setIsModalOpen(false);
     await fetchPosts(1);
   };
 
   return (
-    <div className="min-h-screen bg-blue-300">
-      {/* 🔝 Navbar */}
-      <div className="bg-green-600 text-white rounded-lg shadow-sm sticky top-0 flex items-center justify-between px-6 py-3 border-b ">
+    <div className="min-h-screen bg-blue-50">
+      {/* Navbar */}
+      <header className="bg-green-600 text-white rounded-lg shadow-sm sticky top-0 flex items-center justify-between px-6 py-3 border-b z-10">
         <div className="flex items-center gap-3">
-          <Coffee className="w-6 h-6" />
+          <Coffee className="w-6 h-6" aria-hidden="true" />
           <h1 className="text-xl font-bold tracking-wide">Spill The Tea</h1>
         </div>
 
         <div className="flex items-center gap-3">
-          {/* 👤 Profile */}
           <Link to={`socialprofile/${user._id}`}>
-            <button className="flex items-center gap-2 bg-white hover:bg-gray-100 text-green-600 px-4 py-2 rounded-full transition text-sm font-medium">
+            <button
+              className="flex items-center gap-2 bg-white hover:bg-gray-100 text-green-600 px-4 py-2 rounded-full transition text-sm font-medium"
+              aria-label="Go to profile"
+            >
               <User className="w-4 h-4" />
-              <span>Profile</span>
+              Profile
             </button>
           </Link>
 
-          {/* ➕ Create */}
           <button
             onClick={() => setIsModalOpen(true)}
             className="flex items-center gap-2 bg-white hover:bg-gray-100 text-green-600 px-5 py-2 rounded-full transition"
+            aria-label="Create new post"
           >
             <PlusCircle className="w-5 h-5" />
-            <span>Create</span>
+            Create
           </button>
         </div>
-      </div>
+      </header>
 
-      {/* 🧾 Posts */}
-      <div className="max-w-3xl mx-auto mt-6 space-y-4 px-2 sm:px-4 pb-10">
+      {/* Posts List */}
+      <main className="max-w-3xl mx-auto mt-6 space-y-4 px-2 sm:px-4 pb-10">
         {posts.length > 0 ? (
           posts.map((post) => (
             <div
@@ -165,17 +165,29 @@ const SocialMain = ({ posts: externalPosts, setPosts: setExternalPosts }) => {
             </div>
           ))
         ) : loading ? (
-          <div className="text-center text-gray-500 py-6">Loading posts...</div>
+          <div
+            role="status"
+            aria-live="polite"
+            className="text-center text-gray-500 py-6"
+          >
+            Loading posts...
+          </div>
         ) : (
           <div className="text-center text-gray-500 py-6">No posts found</div>
         )}
 
-        {loading && (
-          <div className="text-center text-gray-500 py-6">Loading more posts...</div>
+        {loading && posts.length > 0 && (
+          <div
+            role="status"
+            aria-live="polite"
+            className="text-center text-gray-500 py-6"
+          >
+            Loading more posts...
+          </div>
         )}
-      </div>
+      </main>
 
-      {/* ✏️ Create Post Modal */}
+      {/* Create Post Modal */}
       {isModalOpen && (
         <CreatePostModal
           onClose={() => setIsModalOpen(false)}
