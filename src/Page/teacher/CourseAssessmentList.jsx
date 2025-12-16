@@ -1,13 +1,19 @@
 "use client";
 
 import { useEffect, useState, useMemo } from "react";
-import { BadgePlus, Library, Loader } from "lucide-react";
+import { BadgePlus, Library, Loader, AlertCircle } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { format } from "date-fns";
 import { axiosInstance } from "@/lib/AxiosInstance";
 import { Link, useParams } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
-import { Select, SelectTrigger, SelectContent, SelectItem } from "@/components/ui/select";
+import {
+  Select,
+  SelectTrigger,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 
 export default function CourseAssessmentList() {
   const { id } = useParams(); // courseId
@@ -17,15 +23,56 @@ export default function CourseAssessmentList() {
   const [selectedType, setSelectedType] = useState("all");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [allCategories, setAllCategories] = useState([]);
+  const [sendingReminderId, setSendingReminderId] = useState(null);
+  const [reminderStatus, setReminderStatus] = useState(null);
+
+  const handleSendReminder = async (assessmentId) => {
+    try {
+      setSendingReminderId(assessmentId);
+      setReminderStatus(null);
+
+      const res = await axiosInstance.post(
+        `/assessment/${assessmentId}/send-reminder`
+      );
+
+      const students = res.data?.data?.allStudents || [];
+      const studentCount = students.length;
+
+      setReminderStatus({
+        type: "success",
+        message: `Reminder emails sent to ${studentCount} student${studentCount !== 1 ? "s" : ""} successfully.`,
+      });
+
+      // Optional: log student emails for debugging
+      if (studentCount > 0) {
+        const studentList = students
+          .map((s) => `• ${s.name} (${s.email})`)
+          .join("\n");
+        console.log(`Assessment ID: ${assessmentId}\nEnrolled Students:\n${studentList}`);
+      }
+    } catch (error) {
+      console.error("Reminder error:", error);
+      setReminderStatus({
+        type: "error",
+        message: error?.response?.data?.message || "Failed to send reminder",
+      });
+    } finally {
+      setSendingReminderId(null);
+    }
+  };
 
   useEffect(() => {
     const fetchAssessments = async () => {
       try {
-        const response = await axiosInstance.get("assessment/allAssessmentByTeacher");
+        const response = await axiosInstance.get(
+          "assessment/allAssessmentByTeacher"
+        );
         const data = response.data;
 
         // Filter assessments by course ID
-        const filtered = data.filter((assessment) => assessment?.course?._id === id);
+        const filtered = data.filter(
+          (assessment) => assessment?.course?._id === id
+        );
         setAssessments(filtered);
 
         // Extract unique categories for dropdown
@@ -49,7 +96,8 @@ export default function CourseAssessmentList() {
       const matchesType =
         selectedType === "all" || assessment.type === selectedType;
       const matchesCategory =
-        selectedCategory === "all" || assessment.category?.name === selectedCategory;
+        selectedCategory === "all" ||
+        assessment.category?.name === selectedCategory;
       return matchesType && matchesCategory;
     });
   }, [assessments, selectedType, selectedCategory]);
@@ -61,23 +109,47 @@ export default function CourseAssessmentList() {
           Assessments for this Course
         </h1>
 
+        {/* Reminder Status */}
+        {reminderStatus && (
+          <div
+            className={`mb-6 flex items-center gap-2 p-3 rounded text-sm ${
+              reminderStatus.type === "error"
+                ? "bg-red-50 text-red-700"
+                : "bg-green-50 text-green-700"
+            }`}
+            role="status"
+            aria-live="polite"
+          >
+            <AlertCircle size={16} />
+            <span>{reminderStatus.message}</span>
+          </div>
+        )}
+
         {/* Filters */}
         <div className="flex flex-col md:flex-row md:items-center gap-4 mb-6">
-          {/* Assessment Type */}
           <Select value={selectedType} onValueChange={setSelectedType}>
-            <SelectTrigger className="w-full md:w-1/3" aria-label="Assessment type filter">
+            <SelectTrigger
+              className="w-full md:w-1/3"
+              aria-label="Assessment type filter"
+            >
               {selectedType === "all" ? "All Types" : selectedType}
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Types</SelectItem>
-              <SelectItem value="chapter-assessment">Chapter Assessment</SelectItem>
-              <SelectItem value="lesson-assessment">Lesson Assessment</SelectItem>
+              <SelectItem value="chapter-assessment">
+                Chapter Assessment
+              </SelectItem>
+              <SelectItem value="lesson-assessment">
+                Lesson Assessment
+              </SelectItem>
             </SelectContent>
           </Select>
 
-          {/* Category Filter */}
           <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-            <SelectTrigger className="w-full md:w-1/3" aria-label="Category filter">
+            <SelectTrigger
+              className="w-full md:w-1/3"
+              aria-label="Category filter"
+            >
               {selectedCategory === "all" ? "All Categories" : selectedCategory}
             </SelectTrigger>
             <SelectContent>
@@ -150,8 +222,30 @@ export default function CourseAssessmentList() {
                     </p>
 
                     <p className="text-xs text-gray-500">
-                      Created: {format(new Date(assessment.createdAt), "MMM d, yyyy")}
+                      Created:{" "}
+                      {format(new Date(assessment.createdAt), "MMM d, yyyy")}
                     </p>
+
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full mt-2"
+                      disabled={sendingReminderId === assessment._id}
+                      onClick={(e) => {
+                        e.preventDefault(); // prevent Link navigation
+                        e.stopPropagation();
+                        handleSendReminder(assessment._id);
+                      }}
+                    >
+                      {sendingReminderId === assessment._id ? (
+                        <>
+                          <Loader className="w-4 h-4 mr-2 animate-spin" />
+                          Sending Reminder...
+                        </>
+                      ) : (
+                        "Send Reminder"
+                      )}
+                    </Button>
                   </CardContent>
                 </Card>
               </Link>
