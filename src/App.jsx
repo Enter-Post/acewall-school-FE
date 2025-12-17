@@ -94,6 +94,9 @@ import CourseAssessmentList from "./Page/teacher/CourseAssessmentList";
 import TeacherAssessmentByCourse from "./Page/teacher/TeacherAssessmentByCourse";
 import StudentCourseByCard from "./Page/StudentPortal/Assessment/StudentCourseByCard";
 import AiChatbot from "./Page/StudentPortal/AiChatbot";
+import TeacherCoursesForConversation from "./Page/teacher/Conversation/AllcoursesforConversation";
+import StudentsList from "./Page/teacher/Conversation/StudentList";
+import TeacherCoursesForDiscussion from "./Page/teacher/Discussion/AllcoursesforDiscussion";
 
 function App() {
   const {
@@ -340,6 +343,17 @@ function App() {
               element={<StudentCourseGrades />}
             />
 
+            <Route path="conversation">
+              <Route
+                path="courses"
+                element={<TeacherCoursesForConversation />}
+              />
+              <Route
+                path="students/:courseId"
+                element={<StudentsList />}
+              />
+            </Route>
+
             <Route path="messages">
               <Route index element={<Messages />} />
               <Route path=":id" element={<ChatWindow />} />
@@ -355,7 +369,8 @@ function App() {
             />
 
             <Route path="discussions">
-              <Route index element={<TeacherDiscussion />} />
+              <Route path="allCourses" element={<TeacherCoursesForDiscussion />} />
+              <Route path="course/:courseId" element={<TeacherDiscussion />} />
               <Route path=":id" element={<TeacherDiscussionChat />} />
             </Route>
 

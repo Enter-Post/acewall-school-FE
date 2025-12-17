@@ -20,6 +20,9 @@ const TeacherDiscussion = () => {
   const semesterId = searchParams.get("semester");
   const quarterId = searchParams.get("quarter");
 
+  console.log(type, "type");
+  console.log(typeId, "typeId");
+
   useEffect(() => {
     const fetchDiscussions = async () => {
       setLoading(true);
@@ -65,7 +68,7 @@ const TeacherDiscussion = () => {
         onValueChange={setActiveTab}
         aria-label="Discussion Tabs"
       >
-        {type !== "all" && (
+        {type !== "all" && type !== "course" && (
           <section className="flex justify-end mb-5">
             <CreateDiscussionDialog
               setRefresh={setRefresh}

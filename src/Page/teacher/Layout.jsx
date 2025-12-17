@@ -38,6 +38,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { axiosInstance } from "@/lib/AxiosInstance";
 import { FaHandFist } from "react-icons/fa6";
+import FloatingMessagesDialog from "../StudentPortal/Messages";
 
 const sideBarTabs = [
   {
@@ -74,12 +75,12 @@ const sideBarTabs = [
     id: 12,
     name: "Messages",
     icon: <MessageCircleDashed aria-hidden="true" />,
-    path: "/teacher/messages",
+    path: "/teacher/conversation/courses",
   },
   {
     name: "Discussion Rooms",
     icon: <MessagesSquareIcon aria-hidden="true" />,
-    path: "/teacher/discussions?type=all",
+    path: "/teacher/discussions/allCourses",
   },
   {
     id: 13,
@@ -403,6 +404,8 @@ export default function TeacherLayout() {
             </div>
           </div>
         </aside>
+
+        <FloatingMessagesDialog />
 
         <main
           id="maincontent"
