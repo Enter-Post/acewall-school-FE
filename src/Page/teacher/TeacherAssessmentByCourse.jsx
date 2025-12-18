@@ -2,7 +2,8 @@
 
 import { useEffect, useState, useMemo } from "react";
 import { axiosInstance } from "@/lib/AxiosInstance";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 import { Loader } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Select, SelectTrigger, SelectContent, SelectItem } from "@/components/ui/select";
@@ -12,15 +13,12 @@ export default function TeacherAssessmentByCourse() {
   const [loading, setLoading] = useState(true);
   const [searchText, setSearchText] = useState("");
   const [selectedCourseName, setSelectedCourseName] = useState("all");
-
   const [allCourseNames, setAllCourseNames] = useState([]);
 
   useEffect(() => {
     const fetchAssessments = async () => {
       try {
-        const response = await axiosInstance.get(
-          "assessment/allAssessmentByTeacher"
-        );
+        const response = await axiosInstance.get("assessment/allAssessmentByTeacher");
         const data = response.data;
 
         // Extract unique courses
@@ -34,6 +32,9 @@ export default function TeacherAssessmentByCourse() {
                 _id: item.course._id,
                 title: item.course.courseTitle,
                 thumbnail: item.course.thumbnail || { url: "https://via.placeholder.com/150" },
+                category: item.course.category,
+                createdby: item.course.createdby,
+                language: item.course.language,
               });
             }
             courseNamesSet.add(item.course.courseTitle);
@@ -52,7 +53,6 @@ export default function TeacherAssessmentByCourse() {
     fetchAssessments();
   }, []);
 
-  // Filter courses based on search text and selected course from dropdown
   const filteredCourses = useMemo(() => {
     return courses.filter((course) => {
       const matchesSearch = course.title.toLowerCase().includes(searchText.toLowerCase());
@@ -70,7 +70,6 @@ export default function TeacherAssessmentByCourse() {
 
       {/* Filters */}
       <div className="flex flex-col md:flex-row md:items-center gap-4 mb-6">
-        {/* Search */}
         <input
           type="text"
           placeholder="Search by course name..."
@@ -79,7 +78,6 @@ export default function TeacherAssessmentByCourse() {
           onChange={(e) => setSearchText(e.target.value)}
         />
 
-        {/* Dropdown */}
         <Select value={selectedCourseName} onValueChange={setSelectedCourseName}>
           <SelectTrigger className="w-full md:w-1/3" aria-label="Course filter">
             {selectedCourseName === "all" ? "All Courses" : selectedCourseName}
@@ -105,22 +103,55 @@ export default function TeacherAssessmentByCourse() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {filteredCourses.map((course) => (
-            <Link
-              key={course._id}
-              to={`/teacher/assessments/bycourse/${course._id}`}
-              className="block"
-            >
-              <Card className="hover:shadow-md hover:border-green-300 transition cursor-pointer">
-                <CardContent className="p-4 space-y-3">
-                  <img
-                    src={course?.thumbnail?.url || "https://via.placeholder.com/150"}
-                    className="w-full h-36 object-cover rounded-lg"
-                    alt={course.title}
-                  />
-                  <h3 className="text-lg font-semibold text-gray-800">{course.title}</h3>
-                </CardContent>
-              </Card>
-            </Link>
+            <article key={course._id} role="listitem">
+              <Link
+                to={`/teacher/assessments/bycourse/${course._id}`}
+                className="block focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2 rounded-lg"
+                aria-label={`View assessments for ${course.title}`}
+              >
+                <Card className="pb-6 pt-0 w-full overflow-hidden cursor-pointer hover:shadow-lg transition-shadow">
+                  <AspectRatio ratio={16 / 9}>
+                    <img
+                      src={course?.thumbnail?.url || "https://via.placeholder.com/300x170"}
+                      alt={
+                        course?.thumbnail?.url
+                          ? `${course.title} course thumbnail`
+                          : "Course thumbnail placeholder"
+                      }
+                      className="object-cover w-full h-full"
+                    />
+                  </AspectRatio>
+
+                  <CardHeader className="space-y-2">
+                    {course.category?.title && (
+                      <div className="uppercase text-indigo-600 bg-indigo-100 text-xs font-medium w-fit px-2 rounded">
+                        <span aria-label={`Category: ${course.category.title}`}>
+                          {course.category.title}
+                        </span>
+                      </div>
+                    )}
+                    <CardTitle>
+                      <h3 className="text-lg font-semibold text-gray-800">{course.title}</h3>
+                    </CardTitle>
+                    {course.createdby?.firstName && (
+                      <p className="text-xs text-muted-foreground">
+                        <span className="sr-only">Instructor:</span>
+                        Teacher: {course.createdby.firstName}
+                      </p>
+                    )}
+                  </CardHeader>
+
+                  {course.language && (
+                    <CardContent>
+                      <p className="text-sm text-muted-foreground">
+                        <span className="sr-only">Course language:</span>
+                        Language: {course.language}
+                      </p>
+                    </CardContent>
+                  )}
+                </Card>
+              </Link>
+            </article>
           ))}
         </div>
       )}

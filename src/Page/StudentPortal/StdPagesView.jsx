@@ -15,6 +15,8 @@ import {
 import { toast } from "sonner";
 import { axiosInstance } from "@/lib/AxiosInstance";
 import { GlobalContext } from "@/Context/GlobalProvider";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 
 const StdPagesView = () => {
   const { user } = useContext(GlobalContext);
@@ -32,6 +34,8 @@ const StdPagesView = () => {
         url += `&courseId=${courseId}`;
       }
       const res = await axiosInstance.get(url);
+      console.log(res);
+      
       setPages(res.data.pages || []);
     } catch (err) {
       toast.error(err.response?.data?.message || "Failed to fetch pages");
@@ -97,28 +101,35 @@ const StdPagesView = () => {
       ) : (
         <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {pages.map((post) => (
-            <button
-              key={post._id}
-              id={`page-${post._id}`}
-              className="bg-white border rounded-lg shadow-sm p-4 space-y-4 hover:shadow-md cursor-pointer"
-              onClick={() => setSelectedPost(post)}
-            >
-              <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold truncate max-w-[80%]">
-                  {post.title}
-                </h2>
-              </div>
-              <p className="text-sm text-gray-600 line-clamp-3 whitespace-pre-line">
-                {post.description}
-              </p>
-              {post.image?.url && (
-                <img
-                  src={post.image.url}
-                  alt="Post visual"
-                  className="w-full h-48 object-cover rounded-md border"
-                />
-              )}
-            </button>
+            <article key={post._id} role="listitem">
+              <Card
+                className="cursor-pointer hover:shadow-lg transition-shadow rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2"
+                onClick={() => setSelectedPost(post)}
+                aria-label={`View page: ${post.title}`}
+              >
+                {post.image?.url && (
+                  <AspectRatio ratio={16 / 9}>
+                    <img
+                      src={post.image.url}
+                      alt={post.title}
+                      className="object-cover w-full h-full"
+                    />
+                  </AspectRatio>
+                )}
+                <CardHeader className="px-4 pt-3 space-y-2">
+                  <CardTitle>
+                    <h3 className="text-lg font-semibold text-gray-800 truncate">
+                      {post.title}
+                    </h3>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="px-4 pt-0 pb-4">
+                  <p className="text-sm text-gray-600 line-clamp-3 whitespace-pre-line">
+                    {post.description}
+                  </p>
+                </CardContent>
+              </Card>
+            </article>
           ))}
         </div>
       )}
@@ -129,11 +140,9 @@ const StdPagesView = () => {
           open={!!selectedPost}
           onOpenChange={() => setSelectedPost(null)}
         >
-          <DialogContent className=" !max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="!max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle className="text-xl">
-                {selectedPost?.title}
-              </DialogTitle>
+              <DialogTitle className="text-xl">{selectedPost?.title}</DialogTitle>
             </DialogHeader>
 
             <button
@@ -152,11 +161,9 @@ const StdPagesView = () => {
                   className="w-full object-contain rounded-md border max-h-[70vh]"
                 />
               )}
-
               <p className="text-sm text-gray-700 whitespace-pre-line">
                 {selectedPost?.description}
               </p>
-
               {selectedPost.files?.length > 0 && (
                 <div className="space-y-2">
                   <h4 className="font-semibold text-sm">Attachments:</h4>

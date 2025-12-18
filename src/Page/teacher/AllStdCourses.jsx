@@ -1,22 +1,10 @@
+"use client";
+
 import { useEffect, useState, useMemo } from "react";
 import { axiosInstance } from "@/lib/AxiosInstance";
 import { useNavigate } from "react-router-dom";
-
-const CourseCard = ({ course, onClick }) => (
-  <div
-    onClick={onClick}
-    className="cursor-pointer border rounded-xl shadow-sm p-4 flex flex-col items-center hover:shadow-lg transition-all"
-  >
-    {course.thumbnail?.url && (
-      <img
-        src={course.thumbnail.url}
-        alt={course.courseTitle}
-        className="w-24 h-24 object-cover rounded-md mb-3"
-      />
-    )}
-    <h3 className="font-semibold text-gray-800 text-center">{course.courseTitle}</h3>
-  </div>
-);
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { AspectRatio } from "@/components/ui/aspect-ratio";
 
 const AllStdCourses = () => {
   const [courses, setCourses] = useState([]);
@@ -25,7 +13,6 @@ const AllStdCourses = () => {
   const [selectedCourse, setSelectedCourse] = useState("All");
   const navigate = useNavigate();
 
-  // Fetch all courses from API
   const fetchCourses = async () => {
     try {
       setLoading(true);
@@ -37,7 +24,10 @@ const AllStdCourses = () => {
       students.forEach((student) => {
         (student.courses || []).forEach((course) => {
           if (!uniqueCourses.some((c) => c._id === course._id)) {
-            uniqueCourses.push(course);
+            uniqueCourses.push({
+              ...course,
+              thumbnail: course.thumbnail?.url || "https://via.placeholder.com/300x170",
+            });
           }
         });
       });
@@ -55,20 +45,18 @@ const AllStdCourses = () => {
     fetchCourses();
   }, []);
 
-  // Filter courses based on searchText or dropdown selection
   const filteredCourses = useMemo(() => {
     return courses.filter((course) => {
-      const matchesSearch =
-        course.courseTitle.toLowerCase().includes(searchText.toLowerCase());
-      const matchesDropdown =
-        selectedCourse === "All" || course._id === selectedCourse;
+      const matchesSearch = course.courseTitle
+        .toLowerCase()
+        .includes(searchText.toLowerCase());
+      const matchesDropdown = selectedCourse === "All" || course._id === selectedCourse;
       return matchesSearch && matchesDropdown;
     });
   }, [courses, searchText, selectedCourse]);
 
   if (loading) return <p className="text-center mt-10">Loading courses...</p>;
-  if (courses.length === 0)
-    return <p className="text-center mt-10">No courses found.</p>;
+  if (courses.length === 0) return <p className="text-center mt-10">No courses found.</p>;
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -102,17 +90,54 @@ const AllStdCourses = () => {
       {filteredCourses.length === 0 ? (
         <p className="text-center text-gray-500">No courses match your filters.</p>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {filteredCourses.map((course) => (
-            <CourseCard
-              key={course._id}
-              course={course}
-              onClick={() =>
-                navigate(`/teacher/course/${course._id}`, {
-                  state: { courseTitle: course.courseTitle },
-                })
-              }
-            />
+            <article key={course._id} role="listitem">
+              <div
+                className="cursor-pointer hover:shadow-lg transition-shadow rounded-lg focus:outline-none focus:ring-2 focus:ring-green-600 focus:ring-offset-2"
+                onClick={() =>
+                  navigate(`/teacher/course/${course._id}`, {
+                    state: { courseTitle: course.courseTitle },
+                  })
+                }
+              >
+                <Card className="overflow-hidden w-full pb-4 pt-0">
+                  <AspectRatio ratio={16 / 9}>
+                    <img
+                      src={course.thumbnail}
+                      alt={course.courseTitle}
+                      className="object-cover w-full h-full"
+                    />
+                  </AspectRatio>
+
+                  <CardHeader className="space-y-2 px-4 pt-3">
+                    {course.category?.title && (
+                      <div className="uppercase text-indigo-600 bg-indigo-100 text-xs font-medium w-fit px-2 rounded">
+                        {course.category.title}
+                      </div>
+                    )}
+                    <CardTitle>
+                      <h3 className="text-lg font-semibold text-gray-800">{course.courseTitle}</h3>
+                    </CardTitle>
+                    {course.createdby?.firstName && (
+                      <p className="text-xs text-muted-foreground">
+                        <span className="sr-only">Instructor:</span>
+                        Teacher: {course.createdby.firstName}
+                      </p>
+                    )}
+                  </CardHeader>
+
+                  {course.language && (
+                    <CardContent className="px-4 pt-0">
+                      <p className="text-sm text-muted-foreground">
+                        <span className="sr-only">Course language:</span>
+                        Language: {course.language}
+                      </p>
+                    </CardContent>
+                  )}
+                </Card>
+              </div>
+            </article>
           ))}
         </div>
       )}
