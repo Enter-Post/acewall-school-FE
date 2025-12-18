@@ -24,13 +24,7 @@ export default function InputBar({
 
   const handleFileChange = (e) => {
     const files = e.target.files;
-    const allowedTypes = [
-      "application/pdf",
-      "application/msword", // .doc
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // .docx
-      "application/vnd.ms-excel", // .xls
-      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // .xlsx
-    ];
+    const allowedTypes = ["application/pdf", "text/plain"];
 
     const maxSize = 50 * 1024 * 1024; // 50MB
 
@@ -44,7 +38,7 @@ export default function InputBar({
     // Validate file type
     if (!allowedTypes.includes(selectedFile.type)) {
       toast.error(
-        "Only PDF, Word (.doc/.docx), and Excel (.xls/.xlsx) files are allowed."
+        "Only PDF and text files are allowed."
       );
       e.target.value = "";
       return;

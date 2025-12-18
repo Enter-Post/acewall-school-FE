@@ -1,29 +1,66 @@
+"use client";
+
+import { useState } from "react";
+import { MessageCircleDashed } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+
 import ConversationList from "@/CustomComponent/MessagesCmp.jsx/conversation-list";
 
-const Messages = () => {
-  return (
-    <main className="md:p-6" aria-label="Messages page">
-      <h1
-        className="text-2xl font-bold py-4 px-6 mb-6 bg-acewall-main text-white rounded-xl shadow-md"
-        tabIndex={-1}
-      >
-        Messages
-      </h1>
+const FloatingMessagesDialog = () => {
+  const [open, setOpen] = useState(false);
 
-      <section
-        className="max-w-6xl mx-auto"
-        aria-label="Conversations container"
-      >
-        <div className="bg-white rounded-2xl">
-          <div className="flex h-full w-full">
-            <div className="h-full w-full">
-              <ConversationList />
-            </div>
+  return (
+    <>
+      {/* Floating Button */}
+      <div className="fixed bottom-10 right-10 z-50">
+        <Button
+          onClick={() => setOpen(true)}
+          className="
+            bg-green-600 
+            hover:bg-green-700 
+            focus:outline-none 
+            focus:ring-2 
+            focus:ring-green-500 
+            focus:ring-offset-2
+            rounded-xl
+            h-12
+            shadow-lg
+          "
+        >
+          <MessageCircleDashed className="w-5 h-5 text-white" />
+          <p>Quick Messages</p>
+        </Button>
+      </div>
+
+      {/* Dialog */}
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent
+          className="
+            max-w-6xl
+            w-full
+            h-[90vh]
+            p-0
+            overflow-hidden
+          "
+        >
+          <DialogHeader className="px-6 py-4 h-16 bg-green-600 text-white">
+            <DialogTitle className="text-2xl font-bold">Messages</DialogTitle>
+          </DialogHeader>
+
+          {/* Body */}
+          <div className="flex-1 h-full bg-white overflow-hidden">
+            <ConversationList open={open} setOpen={setOpen} />
           </div>
-        </div>
-      </section>
-    </main>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 
-export default Messages;
+export default FloatingMessagesDialog;

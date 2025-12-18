@@ -10,6 +10,8 @@ import TeacherDropdown from "../Student/createConversationDropdown";
 export default function ConversationList({
   activeConversation,
   setActiveConversation,
+  open,
+  setOpen,
 }) {
   const [conversations, setConversations] = useState([]);
   const { user, currentConversation, setCurrentConversation } =
@@ -53,7 +55,7 @@ export default function ConversationList({
 
   return (
     <div
-      className="flex flex-col h-full hide-scrollbar p-4"
+      className="h-full hide-scrollbar p-4"
       role="region"
       aria-label="Conversations list"
     >
@@ -73,11 +75,14 @@ export default function ConversationList({
         </div>
       )}
       {conversations && conversations.length > 0 ? (
-        <ul className="overflow-y-auto gap-3 flex flex-col mt-4">
+        <ul className="gap-3 flex flex-col mt-4">
           {conversations.map((conversation) => (
             <li key={conversation._id}>
               <Link
-                onClick={() => setCurrentConversation(conversation)}
+                onClick={() => {
+                  setCurrentConversation(conversation);
+                  setOpen(false);
+                }}
                 to={
                   user.role === "student"
                     ? `/student/messages/${conversation.conversationId}`

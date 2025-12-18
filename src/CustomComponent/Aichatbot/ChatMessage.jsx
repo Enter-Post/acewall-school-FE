@@ -42,12 +42,13 @@ export default function ChatMessage({ message, loading }) {
           </p>
 
           {/* Show user's uploaded file */}
-          {isUser && message.file.url !== null && (
+
+          {isUser && message.file && message.file.url !== null && (
             <div className="mt-2 p-2 bg-white/20 rounded-lg flex items-center gap-2">
               <FileIcon size={16} />
               <div className="text-xs">
                 <p className="font-medium">
-                  {message.fileUsed || message.file.name}
+                  {message.file.used || message.file.name}
                 </p>
                 <p className="opacity-75">
                   {formatFileSize(message.file.size)}
@@ -55,6 +56,8 @@ export default function ChatMessage({ message, loading }) {
               </div>
             </div>
           )}
+
+      
 
           {/* Show AI's generated file with download button */}
           {!isUser && message.generatedFile && (
