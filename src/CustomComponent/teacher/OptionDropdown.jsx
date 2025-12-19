@@ -91,7 +91,7 @@ const ChapterOptionDropdown = ({
           {/* Add Discussion */}
           <DropdownMenuItem asChild>
             <Link
-              to={`/teacher/discussions?semester=${semesterId}&quarter=${quarterId}&type=${type}&typeId=${typeId}&course=${courseId}`}
+              to={`/teacher/discussions/course/${courseId}?semester=${semesterId}&quarter=${quarterId}&type=${type}&typeId=${typeId}&course=${courseId}`}
               className="flex items-center gap-2 text-green-600 hover:text-green-700 active:text-green-800 py-2 px-3 rounded cursor-pointer transition-colors duration-150"
               aria-label="Add discussion"
             >

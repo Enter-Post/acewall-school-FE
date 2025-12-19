@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { axiosInstance } from "@/lib/AxiosInstance";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, AlertCircle } from "lucide-react";
 
 export const SelectSemester = ({ register, errors, setSelectedSemester }) => {
   const [semesters, setSemesters] = useState([]);
