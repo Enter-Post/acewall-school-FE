@@ -4,7 +4,6 @@ import Deshboard from "./Page/StudentPortal/Deshboard";
 import Mycourses from "./Page/StudentPortal/Courses/MyCourses";
 import Assignment from "./Page/StudentPortal/Assessment/Assignment";
 import Login from "./Page/Login";
-import Announcement from "./Page/StudentPortal/Announcement";
 import Account from "./Page/StudentPortal/Account";
 import Gradebook from "./Page/StudentPortal/Gradebook";
 import SignupPage from "./Page/signup";
@@ -97,6 +96,9 @@ import AiChatbot from "./Page/StudentPortal/AiChatbot";
 import TeacherCoursesForConversation from "./Page/teacher/Conversation/AllcoursesforConversation";
 import StudentsList from "./Page/teacher/Conversation/StudentList";
 import TeacherCoursesForDiscussion from "./Page/teacher/Discussion/AllcoursesforDiscussion";
+import AllannouncementCourses from "./Page/teacher/AllannouncmentCourses";
+import AllannouncementCoursesStd from "./Page/StudentPortal/AllannouncmentCoursesStd";
+import StudentCourseAnnouncements from "./Page/StudentPortal/StudentCourseAnnouncements";
 
 function App() {
   const {
@@ -258,7 +260,15 @@ function App() {
             </Route>
             <Route path="gradebook" element={<Gradebook />} />
             <Route path="stdPages" element={<StdPagesView />} />
-            <Route path="announcements" element={<Announcement />} />
+            <Route
+              path="AnnouncementsCoursesStd"
+              element={<AllannouncementCoursesStd />}
+            />
+            <Route
+              path="announcements/:courseId"
+              element={<StudentCourseAnnouncements />}
+            />
+
             <Route path="graphs" element={<GradingScales />} />
             <Route path="ai" element={<AiChatbot />} />
 
@@ -323,37 +333,35 @@ function App() {
             />
             <Route path="ContactUs" element={<ContactUs />} />
             <Route path="support" element={<Support />} />
-
-            <Route path="Announcements" element={<TeacherAnnoucement />} />
+            <Route
+              path="announcements/:courseId"
+              element={<TeacherAnnoucement />}
+            />
+            <Route
+              path="AnnouncementsCourses"
+              element={<AllannouncementCourses />}
+            />{" "}
             <Route path="graphs" element={<GradingScales />} />
-
             <Route path="social" element={<SocialMain />} />
             <Route
               path="social/socialprofile/:userId"
               element={<SocialProfilePage />}
             />
-
             <Route path="allStudent" element={<AllStudent />} />
             <Route path="studentProfile/:id" element={<StudentProfile />} />
             <Route path="coursesstd" element={<AllStdCourses />} />
             <Route path="course/:courseId" element={<CourseStudents />} />
-
             <Route
               path="courseGrades/:studentId/:courseId"
               element={<StudentCourseGrades />}
             />
-
             <Route path="conversation">
               <Route
                 path="courses"
                 element={<TeacherCoursesForConversation />}
               />
-              <Route
-                path="students/:courseId"
-                element={<StudentsList />}
-              />
+              <Route path="students/:courseId" element={<StudentsList />} />
             </Route>
-
             <Route path="messages">
               <Route index element={<Messages />} />
               <Route path=":id" element={<ChatWindow />} />
@@ -362,18 +370,18 @@ function App() {
               path="gradebook/:courseId"
               element={<CourseGradebookPage />}
             />
-
             <Route
               path="studentAssisstance/:courseId"
               element={<StudentWhoNeedAssistance />}
             />
-
             <Route path="discussions">
-              <Route path="allCourses" element={<TeacherCoursesForDiscussion />} />
+              <Route
+                path="allCourses"
+                element={<TeacherCoursesForDiscussion />}
+              />
               <Route path="course/:courseId" element={<TeacherDiscussion />} />
               <Route path=":id" element={<TeacherDiscussionChat />} />
             </Route>
-
             <Route path="courses">
               <Route index element={<TeacherCourses />} />
               <Route

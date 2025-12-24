@@ -1,8 +1,27 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { format } from "date-fns";
 import { X } from "lucide-react"; // modern minimal icon
 
 const MotivationToast = ({ pendingCount, nearestDueDate, onClose }) => {
+  // 1. Define quotes tailored specifically for the Assessment page
+  const academicQuotes = [
+    "Assessments are steps toward mastery. Keep climbing!",
+    "Your focus determines your reality. Finish strong!",
+    "Great things never come from comfort zones. Tackle that next task!",
+    "Success is the sum of small assignments repeated day in and day out.",
+    "Every assessment you complete is a piece of your future.",
+    "Don't study to clear a test, study to understand the world.",
+    "The secret to getting ahead is getting started. Which one is next?",
+    "Mistakes in practice assessments are just lessons in disguise.",
+    "Believe in your prep. You are more capable than you think.",
+    "Your future self will thank you for the work you do today."
+  ];
+
+  // 2. Randomly select a quote for this specific toast instance
+  const randomQuote = useMemo(() => {
+    return academicQuotes[Math.floor(Math.random() * academicQuotes.length)];
+  }, []);
+
   return (
     <div
       className="relative w-80 p-4 rounded-xl shadow-lg bg-gradient-to-br from-blue-50 to-green-50 
@@ -18,35 +37,50 @@ const MotivationToast = ({ pendingCount, nearestDueDate, onClose }) => {
       </button>
 
       <div className="flex items-start gap-3">
-        <div className="text-3xl">🌟</div>
+        <div className="text-3xl">{pendingCount === 0 ? "🏆" : "🌟"}</div>
 
         <div className="flex-1">
-          <p className="font-semibold text-gray-900 text-lg">Keep Going!</p>
+          <p className="font-semibold text-gray-900 text-lg">
+            {pendingCount === 0 ? "All Caught Up!" : "Keep Going!"}
+          </p>
 
           <p className="text-sm text-gray-700 mt-1">
-            You have{" "}
-            <span className="font-semibold text-blue-700">
-              {pendingCount} pending assessment
-              {pendingCount !== 1 ? "s" : ""}
-            </span>
-            {nearestDueDate && (
+            {pendingCount > 0 ? (
               <>
-                <br />
-                Next due on{" "}
-                <span className="font-medium text-green-700">
-                  {format(nearestDueDate, "MMM dd, yyyy")}
+                You have{" "}
+                <span className="font-semibold text-blue-700">
+                  {pendingCount} pending assessment
+                  {pendingCount !== 1 ? "s" : ""}
                 </span>
+                {nearestDueDate && (
+                  <>
+                    <br />
+                    Next due on{" "}
+                    <span className="font-medium text-green-700">
+                      {format(nearestDueDate, "MMM dd, yyyy")}
+                    </span>
+                  </>
+                )}
               </>
+            ) : (
+              "You have completed all your tasks for now!"
             )}
           </p>
 
+          {/* Dynamic Motivational Quote */}
           <p className="text-xs text-gray-500 mt-2 italic">
-            You're doing amazing — one step at a time 💪
+            {randomQuote} 💪
           </p>
 
           {/* progress bar */}
           <div className="w-full bg-gray-200 h-1 rounded-full mt-3 overflow-hidden">
-            <div className="h-full bg-gradient-to-r from-green-400 to-blue-500 animate-progressBar"></div>
+            <div 
+              className="h-full bg-gradient-to-r from-green-400 to-blue-500 animate-progressBar"
+              style={{
+                width: '100%',
+                animation: 'progressBar 5s linear forwards'
+              }}
+            ></div>
           </div>
         </div>
       </div>
