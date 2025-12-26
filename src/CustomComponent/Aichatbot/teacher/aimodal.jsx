@@ -3,7 +3,13 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Sparkles, Settings, X, Loader2, Check, RotateCcw } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Sparkles, X, Loader2, Check, RotateCcw } from "lucide-react";
 import { axiosInstance } from "@/lib/AxiosInstance";
 
 export default function AiContentModal({
@@ -16,6 +22,8 @@ export default function AiContentModal({
   removeTeachingPoint,
   appendRequirement,
   removeRequirement,
+  handleEditorChange,
+  questionType,
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [prompt, setPrompt] = useState("");
@@ -23,9 +31,6 @@ export default function AiContentModal({
   const [isGenerating, setIsGenerating] = useState(false);
   const [showResult, setShowResult] = useState(false);
 
-  /* ----------------------------------
-   AI CONTENT RENDERER (KEY PART)
------------------------------------ */
   const renderGeneratedContent = (content) => {
     if (!content) return null;
 
@@ -67,10 +72,15 @@ export default function AiContentModal({
 
     setIsGenerating(true);
 
+    const splitedUsedfor = usedfor.split(".");
+
+    let finalUsedfor =
+      splitedUsedfor[0] === "questions" ? `question-${questionType}` : usedfor;
+
     try {
       const response = await axiosInstance.post(
         "aichat/generateContentForTeacher",
-        { command: prompt, usedfor }
+        { command: prompt, usedfor: finalUsedfor }
       );
 
       setGeneratedContent(response.data.content);
@@ -124,6 +134,8 @@ export default function AiContentModal({
       insertPointsFromAI(generatedContent);
     } else if (usedfor === "requirements") {
       insertPointsFromAI(generatedContent);
+    } else if (usedfor === "lessonDescription") {
+      handleEditorChange(generatedContent);
     } else {
       setValue(usedfor, generatedContent);
     }
@@ -143,13 +155,15 @@ export default function AiContentModal({
     setIsGenerating(false);
   };
 
-  const handleClose = () => {
-    setIsOpen(false);
-    resetState();
+  const handleClose = (open) => {
+    setIsOpen(open);
+    if (!open) {
+      resetState();
+    }
   };
 
   return (
-    <div className="relative">
+    <>
       {/* Trigger Button */}
       <div
         onClick={() => setIsOpen(true)}
@@ -158,31 +172,19 @@ export default function AiContentModal({
         <Sparkles className="w-4 h-4" />
       </div>
 
-      {isOpen && (
-        <div className="absolute left-90 top-full mt-2 -translate-x-1/2 w-full max-w-xl bg-white rounded-xl shadow-2xl border border-gray-200 z-50 animate-in fade-in zoom-in duration-200">
-          {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b border-gray-200">
-            <div className="flex items-center gap-2">
+      <Dialog open={isOpen} onOpenChange={handleClose}>
+        <DialogContent className="sm:max-w-xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
               <div className="w-8 h-8 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-lg flex items-center justify-center">
                 <Sparkles className="w-5 h-5 text-white" />
               </div>
               <span className="font-semibold text-gray-800">AI Assistant</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <button className="p-1.5 hover:bg-gray-100 rounded-md">
-                <Settings className="w-4 h-4 text-gray-600" />
-              </button>
-              <button
-                onClick={handleClose}
-                className="p-1.5 hover:bg-gray-100 rounded-md"
-              >
-                <X className="w-4 h-4 text-gray-600" />
-              </button>
-            </div>
-          </div>
+            </DialogTitle>
+          </DialogHeader>
 
           {/* Body */}
-          <div className="p-6">
+          <div className="py-4">
             {!showResult ? (
               <div className="text-center space-y-6">
                 {!isGenerating && (
@@ -244,8 +246,8 @@ export default function AiContentModal({
               </div>
             )}
           </div>
-        </div>
-      )}
-    </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

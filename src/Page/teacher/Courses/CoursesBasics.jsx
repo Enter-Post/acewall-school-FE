@@ -382,8 +382,16 @@ export default function CoursesBasis() {
 
           {/* Description */}
           <div className="mt-6">
-            <Label htmlFor="courseDescription">Course Description *</Label>
-
+            <div className="flex justify-between items-center mb-3">
+              <Label htmlFor="courseDescription">Course Description *</Label>
+              <AiModal
+                command={watchedDescription}
+                aiResponse={aiResponse}
+                setAiResponse={setAiResponse}
+                usedfor="courseDescription"
+                setValue={setValue}
+              />
+            </div>
             <Textarea
               id="courseDescription"
               aria-required="true"
@@ -393,15 +401,7 @@ export default function CoursesBasis() {
               maxLength={4000}
               {...register("courseDescription")}
             />
-            <div className="m-3">
-              <AiModal
-                command={watchedDescription}
-                aiResponse={aiResponse}
-                setAiResponse={setAiResponse}
-                usedfor="courseDescription"
-                setValue={setValue}
-              />
-            </div>
+            <div className="m-3"></div>
 
             {errors.courseDescription && (
               <p className="text-xs text-red-600" role="alert">
@@ -412,7 +412,7 @@ export default function CoursesBasis() {
 
           {/* Teaching Points */}
           <section className="mt-10">
-            <div>
+            <div className="flex items-center justify-between">
               <h2 className="text-lg font-medium mb-3">
                 What you will teach *
               </h2>
@@ -452,11 +452,11 @@ export default function CoursesBasis() {
 
           {/* Requirements */}
           <section className="mt-10">
-            <div>
+            <div className="flex items-center justify-between">
               <h2 className="text-lg font-medium mb-3">
                 Course Requirements *
               </h2>
-              <div className="m-3">
+              <div className="">
                 <AiModal
                   aiResponse={aiResponse}
                   setAiResponse={setAiResponse}
