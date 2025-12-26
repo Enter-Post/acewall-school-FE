@@ -128,6 +128,8 @@ export default function CoursesBasis() {
 
   const watchedLanguage = watch("language");
   const watchedDescription = watch("courseDescription");
+  const watchRequirement = watch("requirements");
+  const watchteacherpoints = watch("teachingPoints");
 
   // Field Arrays
   const {
@@ -156,8 +158,8 @@ export default function CoursesBasis() {
     if (!file) return;
 
     const allowedTypes = ["image/jpeg", "image/png"];
+    toast.error("Only JPG/PNG images are allowed.");
     if (!allowedTypes.includes(file.type)) {
-      toast.error("Only JPG/PNG images are allowed.");
       return;
     }
 
@@ -423,6 +425,7 @@ export default function CoursesBasis() {
                   usedfor="teachingPoints"
                   appendTeachingPoint={appendTeachingPoint}
                   removeTeachingPoint={removeTeachingPoint}
+                  prevPoints={watchteacherpoints}
                 />
               </div>
             </div>
@@ -463,6 +466,7 @@ export default function CoursesBasis() {
                   usedfor="requirements"
                   appendRequirement={appendRequirement}
                   removeRequirement={removeRequirement}
+                  prevPoints={watchRequirement}
                 />
               </div>
             </div>

@@ -24,6 +24,7 @@ export default function AiContentModal({
   removeRequirement,
   handleEditorChange,
   questionType,
+  prevPoints,
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [prompt, setPrompt] = useState("");
@@ -95,7 +96,7 @@ export default function AiContentModal({
   const parsePointsFromAI = (content) => {
     if (!content) return [];
 
-    return content
+    const newPoints = content
       .split("\n")
       .map((line) => line.trim())
       .filter(
@@ -105,14 +106,32 @@ export default function AiContentModal({
       .map((line) => line.replace(/^[-•*]\s*/, ""))
       .filter(Boolean)
       .slice(0, 8); // optional limit
+
+    const existingPoints = prevPoints.filter((p) => p.value !== "");
+    const updatedexistingPoints = existingPoints.map((p) => p.value);
+
+    return [...updatedexistingPoints, ...newPoints];
+  };
+
+  const parseMCQOptionsFromAI = (content) => {
+    if (!content) return [];
+
+    return content
+      .split("\n")
+      .map((line) => line.trim())
+      .filter(
+        (line) =>
+          line.startsWith("-") || line.startsWith("•") || line.startsWith("*")
+      )
+      .map((line) => line.replace(/^[-•*]\s*/, ""))
+      .filter(Boolean)
+      .slice(0, 4); // optional limit
   };
 
   const insertPointsFromAI = (content) => {
     const points = parsePointsFromAI(content);
 
     if (!points.length) return;
-
-    // Remove existing fields
     if (usedfor === "teachingPoints") {
       removeTeachingPoint();
     } else if (usedfor === "requirements") {
