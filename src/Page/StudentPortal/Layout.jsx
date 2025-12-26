@@ -71,7 +71,7 @@ const sideBarTabs = [
     id: 5,
     name: "Announcements",
     icon: <Megaphone02Icon aria-hidden="true" />,
-    path: "/student/announcements",
+    path: "/student/AnnouncementsCoursesStd",
     allowedAsPreview: true,
   },
   {
