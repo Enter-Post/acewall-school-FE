@@ -41,6 +41,7 @@ import { axiosInstance } from "@/lib/AxiosInstance";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import CategoryDropdown from "@/CustomComponent/Assessment/Assessment-category-dropdown";
 import StrictDatePicker from "@/CustomComponent/Assessment/DueDatePicker";
+import AiContentModal from "@/CustomComponent/Aichatbot/teacher/aimodal";
 
 // Define the form schema with Zod
 const optionSchema = z.string().min(1, { message: "Option cannot be empty" });
@@ -155,11 +156,11 @@ const dueDateSchema = z.object({
 
 // Updated form schema - now only question-based since files are handled as questions
 const formSchema = z.object({
-  title: z
+  assessmentTitle: z
     .string()
     .min(1, { message: "Title must be at least 1 characters" })
     .max(120, { message: "Title cannot exceed 120 characters" }),
-  description: z
+  assessmentDescription: z
     .string()
     .min(1, { message: "Description must be at least 1 characters" })
     .max(1000, { message: "Description cannot exceed 1000 characters" }),
@@ -189,6 +190,7 @@ export default function CreateAssessmentPage() {
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
   const [assessmentType, setAssessmentType] = useState("question");
+  const [aiResponse, setAiResponse] = useState("");
   const { type, courseId, id } = useParams();
   const [searchParams] = useSearchParams();
   const TITLE_LIMIT = 120;
@@ -239,8 +241,8 @@ export default function CreateAssessmentPage() {
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: "",
-      description: "",
+      assessmentTitle: "",
+      assessmentDescription: "",
       category: "",
       assessmentType: "question",
       questions: [],
@@ -399,6 +401,8 @@ export default function CreateAssessmentPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const onSubmit = async (data) => {
+    console.log(data, "submitted data");
+    return;
     if (isSubmitting) return;
 
     setIsSubmitting(true);
@@ -406,8 +410,8 @@ export default function CreateAssessmentPage() {
 
     try {
       const formData = new FormData();
-      formData.append("title", data.title);
-      formData.append("description", data.description);
+      formData.append("title", data.assessmentTitle);
+      formData.append("description", data.assessmentDescription);
       formData.append("category", data.category);
       formData.append("assessmentType", data.assessmentType);
       formData.append(type, id);
@@ -610,10 +614,19 @@ export default function CreateAssessmentPage() {
             {/* Title Field */}
             <FormField
               control={form.control}
-              name="title"
+              name="assessmentTitle"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Assessment Title</FormLabel>
+                  <div className="flex items-center justify-between">
+                    <FormLabel>Assessment Title</FormLabel>
+
+                    <AiContentModal
+                      aiResponse={aiResponse}
+                      setAiResponse={setAiResponse}
+                      usedfor="assessmentTitle"
+                      setValue={form.setValue}
+                    />
+                  </div>
                   <FormControl>
                     <Input
                       {...field}
@@ -637,10 +650,19 @@ export default function CreateAssessmentPage() {
             {/* Description Field */}
             <FormField
               control={form.control}
-              name="description"
+              name="assessmentDescription"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description</FormLabel>
+                  <div className="flex justify-between items-center">
+                    <FormLabel>Description</FormLabel>
+                    <AiContentModal
+                      aiResponse={aiResponse}
+                      setAiResponse={setAiResponse}
+                      usedfor="assessmentDescription"
+                      setValue={form.setValue}
+                    />
+                  </div>
+
                   <FormControl>
                     <Textarea
                       {...field}
@@ -984,7 +1006,18 @@ export default function CreateAssessmentPage() {
                         name={`questions.${questionIndex}.question`}
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Question</FormLabel>
+                            <div className="flex item-center justify-between">
+                              <FormLabel>Question</FormLabel>
+                              <AiContentModal
+                                aiResponse={aiResponse}
+                                setAiResponse={setAiResponse}
+                                usedfor={`questions.${questionIndex}.question`}
+                                questionType={form.watch(
+                                  `questions.${questionIndex}.type`
+                                )}
+                                setValue={form.setValue}
+                              />
+                            </div>
                             <FormControl>
                               <div className="border rounded-md">
                                 <JoditEditor

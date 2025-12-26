@@ -16,14 +16,15 @@ import {
 import { toast } from "sonner";
 import { CourseContext } from "@/Context/CoursesProvider";
 import { axiosInstance } from "@/lib/AxiosInstance";
+import AiContentModal from "../Aichatbot/teacher/aimodal";
 
 // Zod Schema with limits
 const chapterSchema = z.object({
-  title: z
+  chapterTitle: z
     .string()
     .min(5, "Chapter title is required")
     .max(100, "Chapter title cannot exceed 100 characters"),
-  description: z
+  chapterDescription: z
     .string()
     .min(5, "Chapter description is required")
     .max(500, "Chapter description cannot exceed 500 characters"),
@@ -36,6 +37,7 @@ export default function ChapterCreationModal({
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [aiResponse, setAiResponse] = useState("");
 
   const {
     register,
@@ -43,16 +45,17 @@ export default function ChapterCreationModal({
     watch,
     reset,
     formState: { errors },
+    setValue,
   } = useForm({
     resolver: zodResolver(chapterSchema),
     defaultValues: {
-      title: "",
-      description: "",
+      chapterTitle: "",
+      chapterDescription: "",
     },
   });
 
-  const titleValue = watch("title", "");
-  const descriptionValue = watch("description", "");
+  const titleValue = watch("chapterTitle", "");
+  const descriptionValue = watch("chapterDescription", "");
 
   const onSubmit = async (data) => {
     if (isLoading) return;
@@ -60,8 +63,8 @@ export default function ChapterCreationModal({
 
     try {
       const formData = new FormData();
-      formData.append("title", data.title);
-      formData.append("description", data.description);
+      formData.append("title", data.chapterTitle);
+      formData.append("description", data.chapterDescription);
 
       const res = await axiosInstance.post(
         `/chapter/create/${courseId}/${quarterId}`,
@@ -98,17 +101,26 @@ export default function ChapterCreationModal({
           <div>
             <Input
               placeholder="Chapter Title"
-              {...register("title")}
-              aria-invalid={!!errors.title}
+              {...register("chapterTitle")}
+              aria-invalid={!!errors.chapterTitle}
               aria-describedby="title-error"
             />
-            <div className="flex justify-between text-sm mt-1">
-              <p className="text-gray-500">{titleValue.length}/100</p>
-              {errors.title && (
+            <div className="text-sm mt-1">
+              {errors.chapterTitle && (
                 <p id="title-error" className="text-red-500 text-xs">
-                  {errors.title.message}
+                  {errors.chapterTitle.message}
                 </p>
               )}
+              <div className="flex justify-between items-center w-full">
+                <p className="text-gray-500">{titleValue.length}/100</p>
+                <AiContentModal
+                  aiResponse={aiResponse}
+                  setAiResponse={setAiResponse}
+                  usedfor="chapterTitle"
+                  setValue={setValue}
+                />
+              </div>
+              
             </div>
           </div>
 
@@ -116,18 +128,27 @@ export default function ChapterCreationModal({
           <div>
             <Textarea
               placeholder="Chapter Description"
-              {...register("description")}
+              {...register("chapterDescription")}
               className="w-full"
-              aria-invalid={!!errors.description}
+              aria-invalid={!!errors.chapterDescription}
               aria-describedby="description-error"
             />
-            <div className="flex justify-between text-sm mt-1">
-              <p className="text-gray-500">{descriptionValue.length}/500</p>
-              {errors.description && (
+            <div className="text-sm mt-1">
+              {errors.chapterDescription && (
                 <p id="description-error" className="text-red-500 text-xs">
-                  {errors.description.message}
+                  {errors.chapterDescription.message}
                 </p>
               )}
+              <div className="flex justify-between items-center w-full">
+                <p className="text-gray-500">{descriptionValue.length}/500</p>
+
+                <AiContentModal
+                  aiResponse={aiResponse}
+                  setAiResponse={setAiResponse}
+                  usedfor="chapterDescription"
+                  setValue={setValue}
+                />
+              </div>
             </div>
           </div>
 
