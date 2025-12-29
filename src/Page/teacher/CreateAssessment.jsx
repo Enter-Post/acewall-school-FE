@@ -401,8 +401,6 @@ export default function CreateAssessmentPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const onSubmit = async (data) => {
-    console.log(data, "submitted data");
-    return;
     if (isSubmitting) return;
 
     setIsSubmitting(true);

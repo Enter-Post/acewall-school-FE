@@ -158,8 +158,9 @@ export default function CoursesBasis() {
     if (!file) return;
 
     const allowedTypes = ["image/jpeg", "image/png"];
-    toast.error("Only JPG/PNG images are allowed.");
+
     if (!allowedTypes.includes(file.type)) {
+      toast.error("Only JPG/PNG images are allowed.");
       return;
     }
 
