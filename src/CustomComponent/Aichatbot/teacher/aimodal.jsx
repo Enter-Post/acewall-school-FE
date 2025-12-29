@@ -9,7 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Sparkles, X, Loader2, Check, RotateCcw } from "lucide-react";
+import { Sparkles, Loader2, Check, RotateCcw, Pencil } from "lucide-react";
 import { axiosInstance } from "@/lib/AxiosInstance";
 
 export default function AiContentModal({
@@ -31,25 +31,24 @@ export default function AiContentModal({
   const [generatedContent, setGeneratedContent] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [showResult, setShowResult] = useState(false);
+  const [QuestionDifficulty, setQuestionDifficulty] = useState("medium");
 
+  /* ------------------ Render Content ------------------ */
   const renderGeneratedContent = (content) => {
     if (!content) return null;
 
     const lines = content
       .split("\n")
-      .map((line) => line.trim())
+      .map((l) => l.trim())
       .filter(Boolean);
 
-    const isBulletList = lines.every(
-      (line) =>
-        line.startsWith("-") || line.startsWith("•") || line.startsWith("*")
-    );
+    const isBulletList = lines.every((line) => /^[-•*]/.test(line));
 
     if (isBulletList) {
       return (
         <ul className="list-disc list-inside space-y-2 text-sm text-gray-700">
-          {lines.map((line, index) => (
-            <li key={index}>{line.replace(/^[-•*]\s*/, "")}</li>
+          {lines.map((line, i) => (
+            <li key={i}>{line.replace(/^[-•*]\s*/, "")}</li>
           ))}
         </ul>
       );
@@ -57,8 +56,8 @@ export default function AiContentModal({
 
     return (
       <div className="space-y-3">
-        {lines.map((line, index) => (
-          <p key={index} className="text-sm text-gray-700 leading-relaxed">
+        {lines.map((line, i) => (
+          <p key={i} className="text-sm text-gray-700">
             {line}
           </p>
         ))}
@@ -66,98 +65,42 @@ export default function AiContentModal({
     );
   };
 
-  /* ---------------------------------- */
-
+  /* ------------------ Generate ------------------ */
   const handleGenerate = async () => {
     if (!prompt.trim()) return;
 
     setIsGenerating(true);
 
     const splitedUsedfor = usedfor.split(".");
-
-    let finalUsedfor =
+    const finalUsedfor =
       splitedUsedfor[0] === "questions" ? `question-${questionType}` : usedfor;
 
     try {
-      const response = await axiosInstance.post(
-        "aichat/generateContentForTeacher",
-        { command: prompt, usedfor: finalUsedfor }
-      );
+      const res = await axiosInstance.post("aichat/generateContentForTeacher", {
+        command: prompt,
+        usedfor: finalUsedfor,
+        difficulty: QuestionDifficulty,
+      });
 
-      setGeneratedContent(response.data.content);
+      setGeneratedContent(res.data.content);
       setShowResult(true);
-    } catch (error) {
-      console.error("AI generation failed", error);
+    } catch (err) {
+      console.error("AI generation failed", err);
     } finally {
       setIsGenerating(false);
     }
   };
 
-  const parsePointsFromAI = (content) => {
-    if (!content) return [];
-
-    const newPoints = content
-      .split("\n")
-      .map((line) => line.trim())
-      .filter(
-        (line) =>
-          line.startsWith("-") || line.startsWith("•") || line.startsWith("*")
-      )
-      .map((line) => line.replace(/^[-•*]\s*/, ""))
-      .filter(Boolean)
-      .slice(0, 8); // optional limit
-
-    const existingPoints = prevPoints.filter((p) => p.value !== "");
-    const updatedexistingPoints = existingPoints.map((p) => p.value);
-
-    return [...updatedexistingPoints, ...newPoints];
-  };
-
-  const parseMCQOptionsFromAI = (content) => {
-    if (!content) return [];
-
-    return content
-      .split("\n")
-      .map((line) => line.trim())
-      .filter(
-        (line) =>
-          line.startsWith("-") || line.startsWith("•") || line.startsWith("*")
-      )
-      .map((line) => line.replace(/^[-•*]\s*/, ""))
-      .filter(Boolean)
-      .slice(0, 4); // optional limit
-  };
-
-  const insertPointsFromAI = (content) => {
-    const points = parsePointsFromAI(content);
-
-    if (!points.length) return;
-    if (usedfor === "teachingPoints") {
-      removeTeachingPoint();
-    } else if (usedfor === "requirements") {
-      removeRequirement();
-    }
-
-    // Append new ones
-    points.forEach((point) => {
-      if (usedfor === "teachingPoints") {
-        appendTeachingPoint({ value: point });
-      } else if (usedfor === "requirements") {
-        appendRequirement({ value: point });
-      }
-    });
-  };
-
+  /* ------------------ Accept / Reject ------------------ */
   const handleAccept = () => {
-    if (usedfor === "teachingPoints") {
-      insertPointsFromAI(generatedContent);
-    } else if (usedfor === "requirements") {
-      insertPointsFromAI(generatedContent);
-    } else if (usedfor === "lessonDescription") {
+    const split = usedfor.split(".");
+
+    if (usedfor === "lessonDescription") {
       handleEditorChange(generatedContent);
     } else {
       setValue(usedfor, generatedContent);
     }
+
     setIsOpen(false);
     resetState();
   };
@@ -176,46 +119,86 @@ export default function AiContentModal({
 
   const handleClose = (open) => {
     setIsOpen(open);
-    if (!open) {
-      resetState();
-    }
+    if (!open) resetState();
+  };
+
+  const difficultyStyles = {
+    easy: "border-green-400 bg-green-400",
+    medium: "border-orange-400 bg-orange-400",
+    hard: "border-red-400 bg-red-400",
   };
 
   return (
     <>
       {/* Trigger Button */}
-      <div
+      <button
+        type="button"
         onClick={() => setIsOpen(true)}
-        className="text-sm text-emerald-600 hover:text-emerald-800 font-medium flex items-center gap-1 cursor-pointer select-none"
+        aria-label="Open AI content generator"
+        className="text-sm text-emerald-600 hover:text-emerald-800 font-medium flex items-center gap-1"
       >
-        <Sparkles className="w-4 h-4" />
-      </div>
+        <Sparkles className="w-4 h-4" aria-hidden="true" />
+        <span className="sr-only">Open AI assistant</span>
+      </button>
 
+      {/* Dialog */}
       <Dialog open={isOpen} onOpenChange={handleClose}>
-        <DialogContent className="sm:max-w-xl">
+        <DialogContent
+          className="sm:max-w-xl"
+          aria-describedby="ai-generator-description"
+        >
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-lg flex items-center justify-center">
+              <div
+                className="w-8 h-8 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-lg flex items-center justify-center"
+                aria-hidden="true"
+              >
                 <Sparkles className="w-5 h-5 text-white" />
               </div>
-              <span className="font-semibold text-gray-800">AI Assistant</span>
+              <span>AI Assistant</span>
             </DialogTitle>
           </DialogHeader>
 
           {/* Body */}
-          <div className="py-4">
+          <div className="py-4" aria-live="polite">
             {!showResult ? (
               <div className="text-center space-y-6">
-                {!isGenerating && (
+                {!isGenerating ? (
                   <>
                     <h3 className="text-xl font-semibold text-gray-800">
-                      Start writing to make the magic happen.
+                      Start writing to generate content
                     </h3>
-                    <p className="text-sm text-gray-500">
-                      Suggestions will appear here.
-                    </p>
 
+                    {(questionType === "mcq" ||
+                      questionType === "truefalse" ||
+                      questionType === "qa") && (
+                      <fieldset>
+                        <legend className="sr-only">Question difficulty</legend>
+                        <div className="flex justify-center gap-4">
+                          {["easy", "medium", "hard"].map((level) => (
+                            <button
+                              key={level}
+                              type="button"
+                              onClick={() => setQuestionDifficulty(level)}
+                              aria-pressed={QuestionDifficulty === level}
+                              className={`px-3 py-1 rounded-lg border text-sm ${
+                                QuestionDifficulty === level
+                                  ? `${difficultyStyles[level]} text-white`
+                                  : "border-gray-300"
+                              }`}
+                            >
+                              {level}
+                            </button>
+                          ))}
+                        </div>
+                      </fieldset>
+                    )}
+
+                    <label htmlFor="ai-prompt" className="sr-only">
+                      AI prompt
+                    </label>
                     <Input
+                      id="ai-prompt"
                       placeholder="Describe what you want to create..."
                       value={prompt}
                       onChange={(e) => setPrompt(e.target.value)}
@@ -227,39 +210,48 @@ export default function AiContentModal({
                       disabled={!prompt.trim()}
                       className="w-full bg-gradient-to-r from-emerald-500 to-teal-500"
                     >
-                      <Sparkles className="w-4 h-4 mr-2" />
+                      <Sparkles className="w-4 h-4 mr-2" aria-hidden="true" />
                       Generate
                     </Button>
                   </>
-                )}
-
-                {isGenerating && (
-                  <Loader2 className="w-8 h-8 mx-auto animate-spin text-emerald-500" />
+                ) : (
+                  <Loader2
+                    className="w-8 h-8 mx-auto animate-spin text-emerald-500"
+                    aria-label="Generating content"
+                  />
                 )}
               </div>
             ) : (
               <div className="space-y-4">
-                {/* Generated Content */}
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 max-h-[250px] overflow-y-auto">
+                <div className="bg-gray-50 border rounded-lg p-4 max-h-[250px] overflow-y-auto">
                   {renderGeneratedContent(generatedContent)}
                 </div>
 
-                {/* Actions */}
                 <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={handleGenerate}
+                    className="flex-1"
+                  >
+                    <RotateCcw className="w-4 h-4 mr-2" aria-hidden="true" />
+                    Regenerate
+                  </Button>
+
                   <Button
                     variant="outline"
                     onClick={handleReject}
                     className="flex-1"
                   >
-                    <RotateCcw className="w-4 h-4 mr-2" />
-                    Regenerate
+                    <Pencil className="w-4 h-4 mr-2" aria-hidden="true" />
+                    Edit
                   </Button>
+
                   <Button
                     onClick={handleAccept}
                     className="flex-1 bg-gradient-to-r from-emerald-500 to-teal-500"
                   >
-                    <Check className="w-4 h-4 mr-2" />
-                    Insert
+                    <Check className="w-4 h-4 mr-2" aria-hidden="true" />
+                    Go with it
                   </Button>
                 </div>
               </div>
