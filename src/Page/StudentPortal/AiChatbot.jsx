@@ -91,7 +91,11 @@ export default function AiChatbot() {
       if (taggedMessage) formData.append("context", taggedMessage.dbId);
       if (file) formData.append("file", file);
 
-      const res = await axiosInstance.post("/aichat/askupdated", formData);
+      const res = await axiosInstance.post("/aichat/askupdated", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
       console.log(res.data, "response from AI");
 

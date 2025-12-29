@@ -9,7 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Sparkles, Loader2, Check, RotateCcw, Pencil } from "lucide-react";
+import { Sparkles, X, Loader2, Check, RotateCcw, Pencil } from "lucide-react";
 import { axiosInstance } from "@/lib/AxiosInstance";
 
 export default function AiContentModal({
@@ -33,22 +33,24 @@ export default function AiContentModal({
   const [showResult, setShowResult] = useState(false);
   const [QuestionDifficulty, setQuestionDifficulty] = useState("medium");
 
-  /* ------------------ Render Content ------------------ */
   const renderGeneratedContent = (content) => {
     if (!content) return null;
 
     const lines = content
       .split("\n")
-      .map((l) => l.trim())
+      .map((line) => line.trim())
       .filter(Boolean);
 
-    const isBulletList = lines.every((line) => /^[-•*]/.test(line));
+    const isBulletList = lines.every(
+      (line) =>
+        line.startsWith("-") || line.startsWith("•") || line.startsWith("*")
+    );
 
     if (isBulletList) {
       return (
         <ul className="list-disc list-inside space-y-2 text-sm text-gray-700">
-          {lines.map((line, i) => (
-            <li key={i}>{line.replace(/^[-•*]\s*/, "")}</li>
+          {lines.map((line, index) => (
+            <li key={index}>{line.replace(/^[-•*]\s*/, "")}</li>
           ))}
         </ul>
       );
@@ -56,8 +58,8 @@ export default function AiContentModal({
 
     return (
       <div className="space-y-3">
-        {lines.map((line, i) => (
-          <p key={i} className="text-sm text-gray-700">
+        {lines.map((line, index) => (
+          <p key={index} className="text-sm text-gray-700 leading-relaxed">
             {line}
           </p>
         ))}
@@ -65,42 +67,157 @@ export default function AiContentModal({
     );
   };
 
-  /* ------------------ Generate ------------------ */
+  /* ---------------------------------- */
+
   const handleGenerate = async () => {
     if (!prompt.trim()) return;
 
     setIsGenerating(true);
 
     const splitedUsedfor = usedfor.split(".");
-    const finalUsedfor =
+
+    let finalUsedfor =
       splitedUsedfor[0] === "questions" ? `question-${questionType}` : usedfor;
 
     try {
-      const res = await axiosInstance.post("aichat/generateContentForTeacher", {
-        command: prompt,
-        usedfor: finalUsedfor,
-        difficulty: QuestionDifficulty,
-      });
+      const response = await axiosInstance.post(
+        "aichat/generateContentForTeacher",
+        {
+          command: prompt,
+          usedfor: finalUsedfor,
+          difficulty: QuestionDifficulty,
+        }
+      );
 
-      setGeneratedContent(res.data.content);
+      setGeneratedContent(response.data.content);
       setShowResult(true);
-    } catch (err) {
-      console.error("AI generation failed", err);
+    } catch (error) {
+      console.error("AI generation failed", error);
     } finally {
       setIsGenerating(false);
     }
   };
 
-  /* ------------------ Accept / Reject ------------------ */
-  const handleAccept = () => {
-    const split = usedfor.split(".");
+  const parsePointsFromAI = (content) => {
+    if (!content) return [];
 
-    if (usedfor === "lessonDescription") {
+    const newPoints = content
+      .split("\n")
+      .map((line) => line.trim())
+      .filter(
+        (line) =>
+          line.startsWith("-") || line.startsWith("•") || line.startsWith("*")
+      )
+      .map((line) => line.replace(/^[-•*]\s*/, ""))
+      .filter(Boolean)
+      .slice(0, 8); // optional limit
+
+    const existingPoints = prevPoints.filter((p) => p.value !== "");
+    const updatedexistingPoints = existingPoints.map((p) => p.value);
+
+    return [...updatedexistingPoints, ...newPoints];
+  };
+
+  const parseMCQFromAI = (content) => {
+    if (!content) return null;
+
+    const lines = content
+      .split("\n")
+      .map((l) => l.trim())
+      .filter(Boolean);
+
+    const question = lines[0];
+
+    const options = lines
+      .filter((line) => /^[A-D]\./.test(line))
+      .map((line) => line.replace(/^[A-D]\.\s*/, ""));
+
+    const answerLine = lines.find((line) =>
+      line.toLowerCase().startsWith("answer:")
+    );
+
+    const correctAnswer = answerLine
+      ? answerLine.replace(/answer:\s*/i, "").trim()
+      : null;
+
+    return {
+      question,
+      options,
+      correctAnswer,
+    };
+  };
+
+  const parseTrueFalseFromAI = (content) => {
+    if (!content) return null;
+
+    const lines = content
+      .split("\n")
+      .map((l) => l.trim())
+      .filter(Boolean);
+
+    // First line is the question
+    const question = lines[0];
+
+    // Find the correct answer (True or False)
+    const correctAnswer = lines.find((line) => /^true$|^false$/i.test(line));
+
+    return {
+      question,
+      correctAnswer: correctAnswer
+        ? correctAnswer.charAt(0).toUpperCase() +
+          correctAnswer.slice(1).toLowerCase()
+        : null,
+    };
+  };
+
+  const insertPointsFromAI = (content) => {
+    const points = parsePointsFromAI(content);
+
+    if (!points.length) return;
+    if (usedfor === "teachingPoints") {
+      removeTeachingPoint();
+    } else if (usedfor === "requirements") {
+      removeRequirement();
+    }
+
+    // Append new ones
+    points.forEach((point) => {
+      if (usedfor === "teachingPoints") {
+        appendTeachingPoint({ value: point });
+      } else if (usedfor === "requirements") {
+        appendRequirement({ value: point });
+      }
+    });
+  };
+
+  const handleAccept = () => {
+    const splitedUsedfor = usedfor.split(".");
+
+    if (usedfor === "teachingPoints") {
+      insertPointsFromAI(generatedContent);
+    } else if (usedfor === "requirements") {
+      insertPointsFromAI(generatedContent);
+    } else if (usedfor === "lessonDescription") {
       handleEditorChange(generatedContent);
+    } else if (questionType === "mcq") {
+      const parsedMCQ = parseMCQFromAI(generatedContent);
+      console.log(parsedMCQ, "parsedMCQ");
+      setValue(usedfor, parsedMCQ.question);
+      setValue(`questions.${splitedUsedfor[1]}.options`, parsedMCQ.options);
+      setValue(
+        `questions.${splitedUsedfor[1]}.correctAnswer`,
+        parsedMCQ.correctAnswer
+      );
+    } else if (questionType === "truefalse") {
+      const parsedTF = parseTrueFalseFromAI(generatedContent);
+      setValue(usedfor, parsedTF.question);
+      setValue(
+        `questions.${splitedUsedfor[1]}.correctAnswer`,
+        parsedTF.correctAnswer.toLowerCase()
+      );
     } else {
       setValue(usedfor, generatedContent);
     }
-
     setIsOpen(false);
     resetState();
   };
@@ -119,86 +236,86 @@ export default function AiContentModal({
 
   const handleClose = (open) => {
     setIsOpen(open);
-    if (!open) resetState();
+    if (!open) {
+      resetState();
+    }
   };
 
   const difficultyStyles = {
-    easy: "border-green-400 bg-green-400",
-    medium: "border-orange-400 bg-orange-400",
-    hard: "border-red-400 bg-red-400",
+    easy: {
+      border: "border-gray-200",
+      bg: "bg-green-400",
+    },
+    medium: {
+      border: "border-gray-200",
+      bg: "bg-orange-400",
+    },
+    hard: {
+      border: "border-gray-200",
+      bg: "bg-red-400",
+    },
   };
 
   return (
     <>
       {/* Trigger Button */}
-      <button
-        type="button"
+      <div
         onClick={() => setIsOpen(true)}
-        aria-label="Open AI content generator"
-        className="text-sm text-emerald-600 hover:text-emerald-800 font-medium flex items-center gap-1"
+        className="text-sm text-emerald-600 hover:text-emerald-800 font-medium flex items-center gap-1 cursor-pointer select-none"
       >
-        <Sparkles className="w-4 h-4" aria-hidden="true" />
-        <span className="sr-only">Open AI assistant</span>
-      </button>
+        <Sparkles className="w-4 h-4" />
+      </div>
 
-      {/* Dialog */}
       <Dialog open={isOpen} onOpenChange={handleClose}>
-        <DialogContent
-          className="sm:max-w-xl"
-          aria-describedby="ai-generator-description"
-        >
+        <DialogContent className="sm:max-w-xl">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <div
-                className="w-8 h-8 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-lg flex items-center justify-center"
-                aria-hidden="true"
-              >
+              <div className="w-8 h-8 bg-gradient-to-br from-emerald-400 to-teal-500 rounded-lg flex items-center justify-center">
                 <Sparkles className="w-5 h-5 text-white" />
               </div>
-              <span>AI Assistant</span>
+              <span className="font-semibold text-gray-800">AI Assistant</span>
             </DialogTitle>
           </DialogHeader>
 
           {/* Body */}
-          <div className="py-4" aria-live="polite">
+          <div className="py-4">
             {!showResult ? (
               <div className="text-center space-y-6">
-                {!isGenerating ? (
+                {!isGenerating && (
                   <>
                     <h3 className="text-xl font-semibold text-gray-800">
-                      Start writing to generate content
+                      Start writing to make the magic happen.
                     </h3>
-
+                    <p className="text-sm text-gray-500">
+                      Suggestions will appear here.
+                    </p>
                     {(questionType === "mcq" ||
                       questionType === "truefalse" ||
                       questionType === "qa") && (
-                      <fieldset>
-                        <legend className="sr-only">Question difficulty</legend>
-                        <div className="flex justify-center gap-4">
-                          {["easy", "medium", "hard"].map((level) => (
-                            <button
-                              key={level}
-                              type="button"
-                              onClick={() => setQuestionDifficulty(level)}
-                              aria-pressed={QuestionDifficulty === level}
-                              className={`px-3 py-1 rounded-lg border text-sm ${
-                                QuestionDifficulty === level
-                                  ? `${difficultyStyles[level]} text-white`
-                                  : "border-gray-300"
+                      <div className="flex justify-center gap-4 text-sm text-gray-500">
+                        {["easy", "medium", "hard"].map((difficulty, id) => {
+                          const styles = difficultyStyles[difficulty];
+
+                          return (
+                            <div
+                              key={id}
+                              onClick={() => setQuestionDifficulty(difficulty)}
+                              className={`px-2 rounded-lg cursor-pointer border ${
+                                styles.border
+                              } ${
+                                QuestionDifficulty === difficulty
+                                  ? `${styles.bg} text-white font-medium`
+                                  : ""
                               }`}
                             >
-                              {level}
-                            </button>
-                          ))}
-                        </div>
-                      </fieldset>
+                              {difficulty}
+                            </div>
+                          );
+                        })}
+                      </div>
                     )}
 
-                    <label htmlFor="ai-prompt" className="sr-only">
-                      AI prompt
-                    </label>
                     <Input
-                      id="ai-prompt"
                       placeholder="Describe what you want to create..."
                       value={prompt}
                       onChange={(e) => setPrompt(e.target.value)}
@@ -210,30 +327,31 @@ export default function AiContentModal({
                       disabled={!prompt.trim()}
                       className="w-full bg-gradient-to-r from-emerald-500 to-teal-500"
                     >
-                      <Sparkles className="w-4 h-4 mr-2" aria-hidden="true" />
+                      <Sparkles className="w-4 h-4 mr-2" />
                       Generate
                     </Button>
                   </>
-                ) : (
-                  <Loader2
-                    className="w-8 h-8 mx-auto animate-spin text-emerald-500"
-                    aria-label="Generating content"
-                  />
+                )}
+
+                {isGenerating && (
+                  <Loader2 className="w-8 h-8 mx-auto animate-spin text-emerald-500" />
                 )}
               </div>
             ) : (
               <div className="space-y-4">
-                <div className="bg-gray-50 border rounded-lg p-4 max-h-[250px] overflow-y-auto">
+                {/* Generated Content */}
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 max-h-[250px] overflow-y-auto">
                   {renderGeneratedContent(generatedContent)}
                 </div>
 
+                {/* Actions */}
                 <div className="flex gap-2">
                   <Button
                     variant="outline"
                     onClick={handleGenerate}
                     className="flex-1"
                   >
-                    <RotateCcw className="w-4 h-4 mr-2" aria-hidden="true" />
+                    <RotateCcw className="w-4 h-4 mr-2" />
                     Regenerate
                   </Button>
 
@@ -242,15 +360,14 @@ export default function AiContentModal({
                     onClick={handleReject}
                     className="flex-1"
                   >
-                    <Pencil className="w-4 h-4 mr-2" aria-hidden="true" />
+                    <Pencil className="w-4 h-4 mr-2" />
                     Edit
                   </Button>
-
                   <Button
                     onClick={handleAccept}
                     className="flex-1 bg-gradient-to-r from-emerald-500 to-teal-500"
                   >
-                    <Check className="w-4 h-4 mr-2" aria-hidden="true" />
+                    <Check className="w-4 h-4 mr-2" />
                     Go with it
                   </Button>
                 </div>
