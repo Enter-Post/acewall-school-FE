@@ -12,12 +12,13 @@ import {
 } from "@/components/ui/select";
 import avatar from "@/assets/avatar.png";
 import BackButton from "@/CustomComponent/BackButton";
+import SubmissionPieChart from "@/CustomComponent/teacher/Assessment/SubmissionPieChart";
 
 const AllSubmission = () => {
   const [submission, setSubmission] = useState(null);
   const [statusFilter, setStatusFilter] = useState("all");
   const [gradedFilter, setGradedFilter] = useState("all");
-
+  const [stats, setStats] = useState(null); // New state for stats
   const { id } = useParams();
 
   useEffect(() => {
@@ -32,10 +33,20 @@ const AllSubmission = () => {
         setSubmission([]);
       }
     };
+    const fetchStats = async () => {
+      try {
+        const res = await axiosInstance.get(
+          `/assessment/stats/${id}`
+        );
+        setStats(res.data);
+      } catch (error) {
+        console.error("Stats fetch error", error);
+      }
+    };
 
     fetchSubmission();
+    fetchStats();
   }, [id]);
-
   if (!submission) {
     return (
       <div
@@ -68,6 +79,27 @@ const AllSubmission = () => {
         </div>
         <div className="flex flex-col items-center justify-center w-full h-screen space-y-6">
           <div className="flex gap-4">
+            {stats && (
+              <div className="flex flex-col md:flex-row gap-6 items-start">
+                <SubmissionPieChart data={stats} />
+                <div className="grid grid-cols-2 gap-4 w-full md:w-auto mt-4 md:mt-0">
+                  <div className="p-4 border rounded-lg bg-green-50">
+                    <p className="text-xs text-green-600 font-bold uppercase">
+                      Submitted
+                    </p>
+                    <p className="text-2xl font-bold">{stats.submittedCount}</p>
+                  </div>
+                  <div className="p-4 border rounded-lg bg-red-50">
+                    <p className="text-xs text-red-600 font-bold uppercase">
+                      Pending
+                    </p>
+                    <p className="text-2xl font-bold">
+                      {stats.notSubmittedCount}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
             {/* Status Filter */}
             <label className="sr-only" htmlFor="statusFilter">
               Filter by submission status
@@ -126,9 +158,33 @@ const AllSubmission = () => {
       </div>
 
       <div className="p-6 space-y-6">
+         {stats && (
+              <div className="flex flex-col md:flex-row gap-6 items-start">
+                <SubmissionPieChart data={stats} />
+                <div className="grid grid-cols-2 gap-4 w-full md:w-auto mt-4 md:mt-0">
+                  <div className="p-4 border rounded-lg bg-green-50">
+                    <p className="text-xs text-green-600 font-bold uppercase">
+                      Submitted
+                    </p>
+                    <p className="text-2xl font-bold">{stats.submittedCount}</p>
+                  </div>
+                  <div className="p-4 border rounded-lg bg-red-50">
+                    <p className="text-xs text-red-600 font-bold uppercase">
+                      Pending
+                    </p>
+                    <p className="text-2xl font-bold">
+                      {stats.notSubmittedCount}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
         {/* Filters */}
-        <div className="flex flex-col md:flex-row gap-4" role="region" aria-label="Submission filters">
-          
+        <div
+          className="flex flex-col md:flex-row gap-4"
+          role="region"
+          aria-label="Submission filters"
+        >
           {/* Status Filter */}
           <div>
             <label htmlFor="statusFilter" className="sr-only">
@@ -216,7 +272,6 @@ const AllSubmission = () => {
                 </div>
 
                 <CardContent className="space-y-3 px-0">
-
                   {/* Status */}
                   <div>
                     <span className="text-sm font-semibold text-gray-700">
