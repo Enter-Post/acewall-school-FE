@@ -17,12 +17,13 @@ export default function AiChatbot() {
       isLoading: true,
     },
   ]);
+
   const [difficulty, setDifficulty] = useState("medium");
   const [suggestedQuestions, setSuggestedQuestions] = useState([]);
   const [loading, setLoading] = useState(false);
   const { taggedMessage, setTaggedMessage } = useContext(GlobalContext);
   const [input, setInput] = useState("");
-  const [file, setFile] = useState();
+  const [file, setFile] = useState(null);
 
   const chatEndRef = useRef(null);
 
@@ -35,44 +36,30 @@ export default function AiChatbot() {
     "more",
     "more details",
     "explain this",
-    "explain that",
     "i don't understand",
     "elaborate",
     "clarify",
     "explain again",
-    "explain better",
     "what else",
-    "expand this",
-    "can you explain",
-    "explain it",
-    "explain in simple words",
   ];
 
-  // Auto scroll
+  /* Auto scroll for screen readers + users */
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Fetch and normalize chat history from DB
-  const fetchChats = async () => {
-    await axiosInstance
+  /* Fetch chat history */
+  useEffect(() => {
+    axiosInstance
       .get("/aichat/getChatHistory")
       .then((res) => {
-        const normalizedMessages = normalizeMessagesFromDB(
-          res.data.chats || []
-        );
-        setMessages((prev) => [...prev, ...normalizedMessages]);
+        const normalized = normalizeMessagesFromDB(res.data.chats || []);
+        setMessages((prev) => [...prev, ...normalized]);
       })
-      .catch((err) => {
-        console.log(err, "error in fetchChats");
-      });
-  };
-
-  useEffect(() => {
-    fetchChats();
+      .catch(console.error);
   }, []);
 
-  // ------------ MAIN SEND FUNCTION (API INTEGRATION) -------------
+  /* Main send handler */
   const handleSendMessage = async (text) => {
     if (!text.trim()) return;
 
@@ -81,97 +68,89 @@ export default function AiChatbot() {
       text,
       sender: "user",
       timestamp: new Date(),
-      file: file
-        ? {
-            name: file.name,
-            size: file.size,
-            type: file.type,
-          }
-        : null,
+      file: file ? { name: file.name, size: file.size, type: file.type } : null,
     };
 
     setMessages((prev) => [...prev, userMessage]);
-
-    // Show loading state
     setLoading(true);
-    const loadingMessage = {
-      id: Date.now() + 1,
-      text: "🤔...",
-      sender: "ai",
-      isLoading: true,
-    };
-    setMessages((prev) => [...prev, loadingMessage]);
+
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: Date.now() + 1,
+        text: "Thinking…",
+        sender: "ai",
+        isLoading: true,
+      },
+    ]);
 
     try {
       const formData = new FormData();
       formData.append("question", text);
       formData.append("difficulty", difficulty);
-      if (taggedMessage) {
-        formData.append("context", taggedMessage.dbId);
-      }
-      if (file) {
-        formData.append("file", file);
-      }
+      if (taggedMessage) formData.append("context", taggedMessage.dbId);
+      if (file) formData.append("file", file);
 
-      const res = await axiosInstance.post("/aichat/askupdated", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const res = await axiosInstance.post("/aichat/askupdated", formData);
 
-      // Remove loading message
+      console.log(res.data, "response from AI");
+
       setMessages((prev) => prev.filter((m) => !m.isLoading));
 
-      const aiMessage = {
-        id: Date.now() + 2,
-        text: res.data.answer,
-        sender: "ai",
-        timestamp: new Date(),
-        suggestions: res.data.suggestedQuestions,
-        generatedFile: res.data.generatedFile || null,
-        fileUsed: res.data.fileUsed || null,
-      };
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now() + 2,
+          text: res.data.answer,
+          sender: "ai",
+          timestamp: new Date(),
+          suggestions: res.data.suggestedQuestions,
+          generatedFile: res.data.generatedFile || null,
+        },
+      ]);
 
-      setMessages((prev) => [...prev, aiMessage]);
       setSuggestedQuestions(res.data.suggestedQuestions || []);
       setTaggedMessage(null);
       setInput("");
-      setFile(null); // Clear file after sending
-    } catch (error) {
-      console.error("AI API Error:", error);
-
-      // Remove loading message
+      setFile(null);
+    } catch {
       setMessages((prev) => prev.filter((m) => !m.isLoading));
-
-      const errorMessage = {
-        id: Date.now() + 3,
-        text: "Oops! Something went wrong while contacting the AI.",
-        sender: "ai",
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, errorMessage]);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now() + 3,
+          text: "Sorry, something went wrong while contacting the AI.",
+          sender: "ai",
+        },
+      ]);
     } finally {
       setLoading(false);
     }
   };
 
-  // When clicking follow-up question
-  const handleFollowUpQuestion = (question) => {
-    handleSendMessage(question);
-  };
-
   return (
-    <div className="flex flex-col lg:flex-row h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900">
-      <main className="flex-1 flex flex-col min-h-0 order-1 lg:order-none">
+    <div className="flex flex-col lg:flex-row h-screen bg-slate-50 dark:bg-slate-950">
+      {/* MAIN CONTENT */}
+      <main
+        className="flex-1 flex flex-col min-h-0"
+        role="main"
+        aria-label="AI Chatbot"
+      >
         {/* HEADER */}
-        <header className="bg-green-600 dark:bg-slate-950 px-6 py-4 shadow-md sticky top-0 rounded-xl">
-          <h1 className="text-xl sm:text-2xl font-bold text-white">
+        <header className="bg-green-600 px-6 py-4 sticky top-0" role="banner">
+          <h1 className="text-xl font-bold text-white">
             AI Educational Assistant
           </h1>
         </header>
 
-        {/* CHAT WINDOW SECTION */}
-        <section className="flex-1 overflow-y-auto">
+        {/* CHAT LOG */}
+        <section
+          className="flex-1 overflow-y-auto"
+          role="log"
+          aria-live="polite"
+          aria-relevant="additions"
+          aria-label="Chat messages"
+        >
           <ChatWindow
             messages={messages}
             chatEndRef={chatEndRef}
@@ -179,44 +158,47 @@ export default function AiChatbot() {
           />
         </section>
 
-        {/* FOLLOW-UP SUGGESTION SCROLL BAR */}
-        <section>
-          {messages.length !== 0 && (
-            <section className="flex p-2 bg-white dark:bg-slate-800 shadow-lg border-t overflow-x-auto overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-600 scrollbar-track-transparent flex-wrap">
-              {GENERIC_FOLLOWUP_PATTERNS.map((pattern) => (
-                <Badge
-                  key={pattern}
-                  onClick={() => setInput(pattern)}
-                  className="mr-2 mb-2 cursor-pointer whitespace-nowrap"
-                  variant="outline"
-                >
-                  {pattern}
-                </Badge>
-              ))}
-            </section>
-          )}
-        </section>
+        {/* QUICK FOLLOW UPS */}
+        <nav
+          aria-label="Suggested follow-up questions"
+          className="flex p-2 bg-white border-t flex-wrap"
+        >
+          {GENERIC_FOLLOWUP_PATTERNS.map((pattern) => (
+            <button
+              key={pattern}
+              type="button"
+              onClick={() => setInput(pattern)}
+              className="mr-2 mb-2"
+              aria-label={`Use suggestion: ${pattern}`}
+            >
+              <Badge variant="outline">{pattern}</Badge>
+            </button>
+          ))}
+        </nav>
 
-        {/* INPUT + TAGGED MESSAGE BAR */}
-        <div className="bg-white dark:bg-slate-800 shadow-lg border-t">
-          <p className="text-xs mb-2 text-muted-foreground gap-2">
-            {taggedMessage && (
-              <>
-                <div>
-                  <section className="flex justify-between mb-2">
-                    <Forward className="cursor-pointer" />
-                    <X
-                      className="cursor-pointer"
-                      onClick={() => {
-                        setTaggedMessage(null);
-                      }}
-                    />
-                  </section>
-                  <p className="line-clamp-2">{taggedMessage.text}</p>
-                </div>
-              </>
-            )}
-          </p>
+        {/* TAGGED MESSAGE + INPUT */}
+        <section
+          className="bg-white border-t p-2"
+          aria-label="Message input area"
+        >
+          {taggedMessage && (
+            <div className="mb-2">
+              <div className="flex justify-between items-center">
+                <span className="sr-only">Tagged message</span>
+
+                <Forward aria-hidden="true" />
+
+                <button
+                  type="button"
+                  onClick={() => setTaggedMessage(null)}
+                  aria-label="Remove tagged message"
+                >
+                  <X aria-hidden="true" />
+                </button>
+              </div>
+              <p className="text-sm line-clamp-2">{taggedMessage.text}</p>
+            </div>
+          )}
 
           <InputBar
             onSendMessage={handleSendMessage}
@@ -225,16 +207,21 @@ export default function AiChatbot() {
             disabled={loading}
             file={file}
             setFile={setFile}
+            aria-disabled={loading}
           />
-        </div>
+        </section>
       </main>
 
-      {/* RIGHT SIDE PANEL */}
-      <aside className="bg-slate-100 dark:bg-slate-900 shadow-xl border-l p-4">
+      {/* SIDE PANEL */}
+      <aside
+        className="bg-slate-100 dark:bg-slate-900 p-4 border-l"
+        role="complementary"
+        aria-label="Chat settings and suggestions"
+      >
         <RightPanel
           difficulty={difficulty}
           onDifficultyChange={setDifficulty}
-          onFollowUpQuestion={handleFollowUpQuestion}
+          onFollowUpQuestion={handleSendMessage}
           suggestions={suggestedQuestions}
         />
       </aside>

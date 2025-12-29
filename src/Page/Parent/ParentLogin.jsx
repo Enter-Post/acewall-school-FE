@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import acewallshort from "../assets/acewallshort.png";
+import acewallshort from "../../assets/acewallshort.png";
 import Footer from "@/CustomComponent/Footer";
 import { useContext, useState } from "react";
 import { z } from "zod";
@@ -17,7 +17,7 @@ const schema = z.object({
     .min(8, "Password must be at least 8 characters"),
 });
 
-const TeacherLogin = () => {
+const parentLogin = () => {
   const { login, checkAuth } = useContext(GlobalContext);
   const [loginError, setLoginError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -71,15 +71,15 @@ const TeacherLogin = () => {
         <div className="container mx-auto px-4 py-8">
           <h1
             className="text-center text-2xl md:text-3xl text-gray-800 font-normal mb-8"
-            id="teacher-login-heading"
+            id="Parent-login-heading"
           >
-            Teacher Login Page
+            Parent Login Page
           </h1>
 
           <div className="flex flex-col md:flex-row gap-8 max-w-6xl mx-auto">
             {/* Login Form */}
             <div className="w-full md:w-1/2 bg-white p-6 rounded-lg">
-              <form onSubmit={handleSubmit(onSubmit)} noValidate aria-labelledby="teacher-login-heading">
+              <form onSubmit={handleSubmit(onSubmit)} noValidate aria-labelledby="Parent-login-heading">
 
                 {/* Email Field */}
                 <div className="mb-6">
@@ -148,23 +148,23 @@ const TeacherLogin = () => {
                 {/* Buttons and Links */}
                 <div className="space-y-12">
                   <div className="flex justify-between items-center">
-                     <div className="flex flex-col gap-6">
+                    <div className="flex flex-col gap-6">
+                      <div className="flex flex-col gap-3">
+                        <Link
+                          to="/TeacherLogin"
+                          className="text-sm font-semibold text-green-600 hover:underline"
+                          aria-label="Login as a Teacher"
+                        >
+                          Login as a Teacher
+                        </Link>
+                      </div>
                       <div className="flex flex-col gap-3">
                         <Link
                           to="/Login"
                           className="text-sm font-semibold text-green-600 hover:underline"
                           aria-label="Login as a Teacher"
                         >
-                          Login as a Student
-                        </Link>
-                      </div>
-                      <div className="flex flex-col gap-3">
-                        <Link
-                          to="/ParentLogin"
-                          className="text-sm font-semibold text-green-600 hover:underline"
-                          aria-label="Login as a Teacher"
-                        >
-                          Login as a Parent
+                          Login as z Student
                         </Link>
                       </div>
                     </div>
@@ -199,7 +199,7 @@ const TeacherLogin = () => {
               </div>
 
               <h2 className="text-xl text-gray-800 font-medium mb-2 text-center md:text-left">
-                Teachers Love Acewall Scholars
+                Parents Love Acewall Scholars
               </h2>
 
               <blockquote className="text-gray-600 mb-4 text-center md:text-left">
@@ -211,7 +211,7 @@ const TeacherLogin = () => {
 
               <div className="text-center md:text-left">
                 <p className="font-medium text-gray-800">- Regina</p>
-                <p className="text-gray-600 font-medium">Teacher</p>
+                <p className="text-gray-600 font-medium">Parent</p>
               </div>
             </div>
           </div>
@@ -224,4 +224,4 @@ const TeacherLogin = () => {
   );
 };
 
-export default TeacherLogin;
+export default parentLogin;

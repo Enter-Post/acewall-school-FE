@@ -59,7 +59,7 @@
     "react-router-dom": "^7.3.0",
     "react-switch": "^7.1.0",
     "react-toastify": "^11.0.5",
-    "recharts": "^2.15.1",
+    "recharts": "^2.15.4",
     "screenfull": "^6.0.2",
     "socket.io-client": "^4.8.1",
     "sonner": "^2.0.7",

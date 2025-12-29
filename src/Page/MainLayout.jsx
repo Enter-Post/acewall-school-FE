@@ -27,19 +27,21 @@ const MainLayout = () => {
   const location = useLocation();
 
   const handleGoToAccount = () => {
-    if (!user) {
-      return navigate("/login");
-    }
+  if (!user) {
+    return navigate("/login");
+  }
 
-    if (user.role === "student" || user.role === "teacherAsStudent") {
-      navigate("/student/mycourses");
-    } else if (user.role === "teacher") {
-      navigate("/teacher/");
-    } else {
-      navigate("/");
-    }
-  };
-
+  if (user.role === "student" || user.role === "teacherAsStudent") {
+    navigate("/student/mycourses");
+  } else if (user.role === "teacher") {
+    navigate("/teacher");
+  } else if (user.role === "parent") {
+    navigate("/parent");
+  } else {
+    // Fallback for unknown roles or users without a role assigned
+    navigate("/");
+  }
+};
   // Show stripe only on FeaturedPage ("/")
   const showBlueStripe = location.pathname === "/";
 

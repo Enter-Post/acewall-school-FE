@@ -12,13 +12,15 @@ export default function RightPanel({
   onFollowUpQuestion,
   onDownloadPDF,
   onDownloadWord,
-  suggestions = [], // ✅ Accept dynamic suggestions from parent
+  suggestions = [],
 }) {
   const [isExpanded, setIsExpanded] = useState(true);
 
+  /* Collapsed floating button */
   if (!isExpanded) {
     return (
       <button
+        type="button"
         onClick={() => setIsExpanded(true)}
         className="fixed bottom-6 right-6 p-3 bg-blue-500 hover:bg-blue-600 text-white rounded-full shadow-lg transition-colors duration-200 z-50 focus:outline-none focus:ring-2 focus:ring-blue-400"
         aria-label="Expand study tools panel"
@@ -35,11 +37,13 @@ export default function RightPanel({
       aria-label="Study tools panel"
     >
       {/* Header */}
-      <div className="border-b border-slate-200 dark:border-slate-800 px-4 py-4 flex items-center justify-between">
+      <header className="border-b border-slate-200 dark:border-slate-800 px-4 py-4 flex items-center justify-between">
         <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
           Study Tools
         </h2>
+
         <button
+          type="button"
           onClick={() => setIsExpanded(false)}
           className="p-1 hover:bg-slate-100 dark:hover:bg-slate-800 rounded transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400"
           aria-label="Collapse study tools panel"
@@ -50,11 +54,11 @@ export default function RightPanel({
             aria-hidden="true"
           />
         </button>
-      </div>
+      </header>
 
       {/* Content */}
       <div className="flex-1 flex flex-col gap-6 px-4 py-6">
-        {/* Difficulty Badge */}
+        {/* Difficulty Section */}
         <section aria-labelledby="difficulty-heading">
           <h3
             id="difficulty-heading"
@@ -62,36 +66,48 @@ export default function RightPanel({
           >
             Difficulty Level
           </h3>
+
           <DifficultyBadge
             difficulty={difficulty}
             onDifficultyChange={onDifficultyChange}
           />
         </section>
 
-        {/* Follow-up / Suggested Questions */}
+        {/* Follow-up Suggestions */}
         <section
           aria-labelledby="followup-heading"
-          className={`${suggestions.length <= 0 && "pointer-events-none opacity-50"}`}
+          aria-disabled={suggestions.length === 0}
+          className={
+            suggestions.length === 0 ? "opacity-50 pointer-events-none" : ""
+          }
         >
           <h3 id="followup-heading" className="sr-only">
-            Follow-up Questions
+            Suggested follow-up questions
           </h3>
+
           <FollowUpCard
             questions={
               suggestions.length > 0
                 ? suggestions
-                : ["Ask a question to see suggestions!"]
+                : ["Ask a question to see suggestions."]
             }
             onSelectQuestion={onFollowUpQuestion}
           />
         </section>
 
-        {/* Export Buttons */}
+        {/* Export Section */}
         <section aria-labelledby="export-heading">
           <h3 id="export-heading" className="sr-only">
-            Export Options
+            Export options
           </h3>
-          {/* <ExportButtons onDownloadPDF={onDownloadPDF} onDownloadWord={onDownloadWord} /> */}
+
+          {/* Uncomment when enabled */}
+          {/* 
+          <ExportButtons
+            onDownloadPDF={onDownloadPDF}
+            onDownloadWord={onDownloadWord}
+          /> 
+          */}
         </section>
       </div>
     </aside>

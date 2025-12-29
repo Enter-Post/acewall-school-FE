@@ -99,6 +99,10 @@ import TeacherCoursesForDiscussion from "./Page/teacher/Discussion/Allcoursesfor
 import AllannouncementCourses from "./Page/teacher/AllannouncmentCourses";
 import AllannouncementCoursesStd from "./Page/StudentPortal/AllannouncmentCoursesStd";
 import StudentCourseAnnouncements from "./Page/StudentPortal/StudentCourseAnnouncements";
+import ParentLogin from "./Page/Parent/ParentLogin";
+import ParentLayout from "./Page/Parent/ParentLayout";
+import ParentDashboard from "./Page/Parent/ParentDashboard";
+import MyChildren from "./Page/Parent/MyChildren";
 
 function App() {
   const {
@@ -181,13 +185,18 @@ function App() {
             <PublicRoute
               user={user}
               redirectTo={
-                user?.role === "teacher" ? "/teacher" : "/student/mycourses"
+                user?.role === "teacher"
+                  ? "/teacher"
+                  : user?.role === "parent"
+                  ? "/parent"
+                  : "/student/mycourses"
               }
             />
           }
         >
           <Route path="/login" element={<Login />}></Route>
           <Route path="/TeacherLogin" element={<TeacherLogin />}></Route>
+          <Route path="/ParentLogin" element={<ParentLogin />}></Route>
           <Route path="/signup" element={<SignupPage />}></Route>
           <Route path="/verifyOTP/:email" element={<VerifyOTP />} />
           <Route path="/verifyPhoneOTP/:email" element={<VerifyPhoneOTP />} />
@@ -422,6 +431,21 @@ function App() {
                 {/* <Route path="gradebook" element={<TeacherGradebook />} /> */}
               </Route>
             </Route>
+          </Route>
+        </Route>
+
+        <Route
+          element={
+            <PrivateRoute
+              user={user}
+              allowedRole="parent"
+              loading={Authloading}
+            />
+          }
+        >
+          <Route path="/parent" element={<ParentLayout />}>
+            <Route index element={<ParentDashboard />} />
+              <Route path="MyChildren" element={<MyChildren />} />
           </Route>
         </Route>
       </Routes>
