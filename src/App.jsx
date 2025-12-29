@@ -103,6 +103,7 @@ import ParentLogin from "./Page/Parent/ParentLogin";
 import ParentLayout from "./Page/Parent/ParentLayout";
 import ParentDashboard from "./Page/Parent/ParentDashboard";
 import MyChildren from "./Page/Parent/MyChildren";
+import ChildGradebook from "./Page/Parent/ChildGradebook";
 
 function App() {
   const {
@@ -443,10 +444,16 @@ function App() {
             />
           }
         >
-          <Route path="/parent" element={<ParentLayout />}>
-            <Route index element={<ParentDashboard />} />
-              <Route path="MyChildren" element={<MyChildren />} />
-          </Route>
+         <Route path="/parent" element={<ParentLayout />}>
+  {/* The main dashboard/index page */}
+  <Route index element={<ParentDashboard />} />
+  
+  {/* The list of children */}
+  <Route path="MyChildren" element={<MyChildren />} />
+  
+  {/* UPDATED: Added :studentId to make this a dynamic separate page */}
+  <Route path="child-gradebook/:studentId" element={<ChildGradebook />} />
+</Route>
         </Route>
       </Routes>
     </>

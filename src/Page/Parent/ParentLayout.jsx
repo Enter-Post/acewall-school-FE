@@ -51,14 +51,19 @@ const sideBarTabs = [
     id: 2,
     name: "My Courses",
     icon: <Book02Icon aria-hidden="true" />,
-    path: "/teacher/courses",
+    path: "/parent/courses",
+  },{
+    id: 2,
+    name: "Gradebook",
+    icon: <Book02Icon aria-hidden="true" />,
+    path: "/parent/student-detail/:studentId",
   },
   
   {
     id: 3,
     name: "Assessments",
     icon: <AssessmentIcon aria-hidden="true" />,
-    path: "/teacher/assessments",
+    path: "/parent/assessments",
   },
   {
     id: 5,
