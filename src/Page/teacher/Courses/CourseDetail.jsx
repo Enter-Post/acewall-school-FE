@@ -37,6 +37,7 @@ import { CourseContext } from "@/Context/CoursesProvider";
 import { SelectSemAndQuarDialog } from "@/CustomComponent/CreateCourse/SelectSemAndQuarDialog";
 import ArchiveDialog from "@/CustomComponent/teacher/ArchivedModal";
 import { GlobalContext } from "@/Context/GlobalProvider";
+import { BarChart3 } from "lucide-react";
 
 const ReadMore = ({ text = "", maxLength = 500 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -392,8 +393,6 @@ export default function TeacherCourseDetails() {
                 </DropdownMenuLabel>
 
                 <DropdownMenuGroup>
-                
-
                   {/* Student Assistance */}
                   <DropdownMenuItem
                     onClick={() =>
@@ -454,6 +453,23 @@ export default function TeacherCourseDetails() {
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
 
+                <DropdownMenuSeparator />
+
+                <DropdownMenuLabel className="text-xs text-gray-500 dark:text-gray-400 px-3 pt-1 pb-1 tracking-wide">
+                  Course Stats
+                </DropdownMenuLabel>
+                <DropdownMenuGroup>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      console.log("COURSE ID:", id);
+                      navigate(`/teacher/courses/course-stats/${id}`);
+                    }}
+                    className="flex items-center gap-3 py-2.5 cursor-pointer"
+                  >
+                    <BarChart3 size={18} className="text-green-600" />
+                    <span>Course Enrollment Stats</span>
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
                 <DropdownMenuSeparator />
 
                 {/* Toggle Grading */}
