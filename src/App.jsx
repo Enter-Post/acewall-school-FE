@@ -104,6 +104,7 @@ import ParentLayout from "./Page/Parent/ParentLayout";
 import ParentDashboard from "./Page/Parent/ParentDashboard";
 import MyChildren from "./Page/Parent/MyChildren";
 import ChildGradebook from "./Page/Parent/ChildGradebook";
+import EnrollmentStats from "./CustomComponent/teacher/EnrollmentStats";
 
 function App() {
   const {
@@ -399,6 +400,7 @@ function App() {
                 element={<TeacherCourseDetails />}
               />
               <Route path="edit/:courseId" element={<EditCourse />} />
+              <Route path="course-stats/:id" element={<EnrollmentStats />} />
               <Route
                 path=":courseId/semester/:id"
                 element={<SemesterDetail />}
