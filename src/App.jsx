@@ -105,6 +105,7 @@ import ParentDashboard from "./Page/Parent/ParentDashboard";
 import MyChildren from "./Page/Parent/MyChildren";
 import ChildGradebook from "./Page/Parent/ChildGradebook";
 import EnrollmentStats from "./CustomComponent/teacher/EnrollmentStats";
+import AssessmentAnalytics from "./Page/teacher/Assessment/AssessmentAnalytics";
 
 function App() {
   const {
@@ -332,6 +333,7 @@ function App() {
               <Route path="bycourse/:id" element={<CourseAssessmentList />} />
 
               <Route path="allsubmissions/:id" element={<AllSubmission />} />
+              <Route path="analytics/:id" element={<AssessmentAnalytics />} />
               <Route path=":id" element={<AssessmentReview />} />
               <Route
                 path="create/:type/:id/:courseId/:startDate/:endDate"
@@ -446,16 +448,21 @@ function App() {
             />
           }
         >
-         <Route path="/parent" element={<ParentLayout />}>
-  {/* The main dashboard/index page */}
-  <Route index element={<ParentDashboard />} />
-  
-  {/* The list of children */}
-  <Route path="MyChildren" element={<MyChildren />} />
-  
-  {/* UPDATED: Added :studentId to make this a dynamic separate page */}
-  <Route path="child-gradebook/:studentId" element={<ChildGradebook />} />
-</Route>
+          <Route path="/parent">
+            <Route index  element={<MyChildren />} />
+            <Route path="/parent/:studentId" element={<ParentLayout />}>
+              {/* The main dashboard/index page */}
+              <Route index element={<ParentDashboard />} />
+
+              {/* The list of children */}
+
+              {/* UPDATED: Added :studentId to make this a dynamic separate page */}
+              <Route
+                path="child-gradebook/:studentId"
+                element={<ChildGradebook />}
+              />
+            </Route>
+          </Route>
         </Route>
       </Routes>
     </>
