@@ -1,7 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent } from "@/components/ui/card";
 import { axiosInstance } from "@/lib/AxiosInstance";
-import { Loader } from "lucide-react";
+import { BarChart2, Loader } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import {
@@ -13,6 +13,8 @@ import {
 import avatar from "@/assets/avatar.png";
 import BackButton from "@/CustomComponent/BackButton";
 import SubmissionPieChart from "@/CustomComponent/teacher/Assessment/SubmissionPieChart";
+import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 const AllSubmission = () => {
   const [submission, setSubmission] = useState(null);
@@ -20,6 +22,7 @@ const AllSubmission = () => {
   const [gradedFilter, setGradedFilter] = useState("all");
   const [stats, setStats] = useState(null); // New state for stats
   const { id } = useParams();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchSubmission = async () => {
@@ -27,6 +30,8 @@ const AllSubmission = () => {
         const response = await axiosInstance.get(
           `/assessmentSubmission/submission_for_Teacher/${id}`
         );
+        console.log(response, "submision data");
+        
         setSubmission(response.data.submissions);
       } catch (error) {
         console.error("Error fetching submission:", error);
@@ -35,9 +40,7 @@ const AllSubmission = () => {
     };
     const fetchStats = async () => {
       try {
-        const res = await axiosInstance.get(
-          `/assessment/stats/${id}`
-        );
+        const res = await axiosInstance.get(`/assessment/stats/${id}`);
         setStats(res.data);
       } catch (error) {
         console.error("Stats fetch error", error);
@@ -78,69 +81,17 @@ const AllSubmission = () => {
           <BackButton />
         </div>
         <div className="flex flex-col items-center justify-center w-full h-screen space-y-6">
-          <div className="flex gap-4">
-            {stats && (
-              <div className="flex flex-col md:flex-row gap-6 items-start">
-                <SubmissionPieChart data={stats} />
-                <div className="grid grid-cols-2 gap-4 w-full md:w-auto mt-4 md:mt-0">
-                  <div className="p-4 border rounded-lg bg-green-50">
-                    <p className="text-xs text-green-600 font-bold uppercase">
-                      Submitted
-                    </p>
-                    <p className="text-2xl font-bold">{stats.submittedCount}</p>
-                  </div>
-                  <div className="p-4 border rounded-lg bg-red-50">
-                    <p className="text-xs text-red-600 font-bold uppercase">
-                      Pending
-                    </p>
-                    <p className="text-2xl font-bold">
-                      {stats.notSubmittedCount}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
-            {/* Status Filter */}
-            <label className="sr-only" htmlFor="statusFilter">
-              Filter by submission status
-            </label>
-            <Select
-              value={statusFilter}
-              onValueChange={setStatusFilter}
-              aria-label="Filter by submission status"
+          <div className="p-6 flex items-center justify-between border-b">
+            <BackButton />
+            {/* NEW BUTTON TO ANALYTICS */}
+            <Button
+              variant="outline"
+              onClick={() => navigate(`/teacher/assessments/analytics/${id}`)}
+              className="flex gap-2"
             >
-              <SelectTrigger id="statusFilter" className="w-[180px]">
-                {statusFilter === "all" ? "All Statuses" : statusFilter}
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Statuses</SelectItem>
-                <SelectItem value="before due date">Before Due Date</SelectItem>
-                <SelectItem value="after due date">After Due Date</SelectItem>
-              </SelectContent>
-            </Select>
-
-            {/* Graded Filter */}
-            <label className="sr-only" htmlFor="gradedFilter">
-              Filter by grading status
-            </label>
-            <Select
-              value={gradedFilter}
-              onValueChange={setGradedFilter}
-              aria-label="Filter by graded status"
-            >
-              <SelectTrigger id="gradedFilter" className="w-[180px]">
-                {gradedFilter === "all"
-                  ? "All Grading"
-                  : gradedFilter === "graded"
-                  ? "Graded"
-                  : "Not Graded"}
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Grading</SelectItem>
-                <SelectItem value="graded">Graded</SelectItem>
-                <SelectItem value="not_graded">Not Graded</SelectItem>
-              </SelectContent>
-            </Select>
+              <BarChart2 className="w-4 h-4" />
+              View Analytics
+            </Button>
           </div>
 
           <h1 className="text-2xl font-bold text-gray-800">
@@ -158,27 +109,18 @@ const AllSubmission = () => {
       </div>
 
       <div className="p-6 space-y-6">
-         {stats && (
-              <div className="flex flex-col md:flex-row gap-6 items-start">
-                <SubmissionPieChart data={stats} />
-                <div className="grid grid-cols-2 gap-4 w-full md:w-auto mt-4 md:mt-0">
-                  <div className="p-4 border rounded-lg bg-green-50">
-                    <p className="text-xs text-green-600 font-bold uppercase">
-                      Submitted
-                    </p>
-                    <p className="text-2xl font-bold">{stats.submittedCount}</p>
-                  </div>
-                  <div className="p-4 border rounded-lg bg-red-50">
-                    <p className="text-xs text-red-600 font-bold uppercase">
-                      Pending
-                    </p>
-                    <p className="text-2xl font-bold">
-                      {stats.notSubmittedCount}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
+        <div className="p-6 flex items-center justify-between border-b">
+         
+          {/* NEW BUTTON TO ANALYTICS */}
+          <Button
+            variant="outline"
+            onClick={() => navigate(`/teacher/assessments/analytics/${id}`)}
+            className="flex gap-2"
+          >
+            <BarChart2 className="w-4 h-4" />
+            View Analytics
+          </Button>
+        </div>
         {/* Filters */}
         <div
           className="flex flex-col md:flex-row gap-4"
@@ -242,7 +184,7 @@ const AllSubmission = () => {
               key={item._id}
               to={`/teacher/assessments/${item._id}`}
               role="listitem"
-              className="focus:outline focus:outline-2 focus:outline-green-600 rounded-xl"
+              className="focus:outline-2 focus:outline-green-600 rounded-xl"
             >
               <Card
                 className="p-4 space-y-4 hover:shadow-md transition-shadow"

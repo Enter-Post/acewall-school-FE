@@ -47,8 +47,11 @@ const AssessmentReview = () => {
         .get(`/assessmentSubmission/submission/${id}`)
         .then((response) => {
           setSubmission(response.data.submission);
+          console.log(response.data.submission, "submission data");
+
           setFetchingLoading(false);
         })
+
         .catch((error) => {
           console.error("Error fetching submission:", error);
           setFetchingLoading(false);
