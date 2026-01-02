@@ -118,7 +118,6 @@ import ParentCourseByCard from "./Page/Parent/Assessment/ParentCourseByCard";
 import ParentAssessment from "./Page/Parent/Assessment/ParentAssessment";
 import ParentAssessmentResultPage from "./CustomComponent/parent/ParentAssessmentResultPage";
 
-
 function App() {
   const {
     checkAuth,
@@ -469,7 +468,6 @@ function App() {
             />
           }
         >
-
           <Route path="/parent">
             {/* Matches: /parent (The list of all children) */}
             <Route index element={<MyChildren />} />
@@ -518,6 +516,8 @@ function App() {
                 path="/parent/:studentId/assessment-result/:assessmentId"
                 element={<ParentAssessmentResultPage />}
               />
+              <Route path="support" element={<Support />} />
+
               {/* The page above */}
             </Route>
           </Route>

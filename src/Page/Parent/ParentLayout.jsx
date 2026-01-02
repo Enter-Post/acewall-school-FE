@@ -37,8 +37,6 @@ export default function ParentLayout() {
   const { studentId } = useParams(); // Get the ID from /parent/:studentId
   const location = useLocation().pathname;
 
-
-
   // Define sidebar tabs inside the component to use the studentId variable
   const sideBarTabs = [
     {
@@ -65,25 +63,26 @@ export default function ParentLayout() {
       icon: <AssessmentIcon aria-hidden="true" />,
       path: `/parent/${studentId}/assessments`,
     },
-   {
-  id: 5,
-  name: "Announcements",
-  icon: <Megaphone02Icon aria-hidden="true" />,
-  path: "announcements", 
-},
     {
-      id: 8,
+      id: 5,
+      name: "Announcements",
+      icon: <Megaphone02Icon aria-hidden="true" />,
+      path: "announcements",
+    },
+    {
+      id: 6,
       name: "Support",
       icon: <FaHandFist aria-hidden="true" />,
-      path: "/parent/support",
+      path: `/parent/${studentId}/support`,
     },
   ];
 
-
-
   return (
     <div className="flex flex-col min-h-screen">
-      <a href="#maincontent" className="sr-only focus:not-sr-only inline-block px-4 py-2">
+      <a
+        href="#maincontent"
+        className="sr-only focus:not-sr-only inline-block px-4 py-2"
+      >
         Skip to content
       </a>
 
@@ -91,7 +90,10 @@ export default function ParentLayout() {
         <div className="h-8 bg-green-600 flex justify-end items-center px-5 cursor-pointer">
           <ParentTopNavbarDropDown />
         </div>
-        <div className="flex h-16 items-center justify-between px-4 border" role="banner">
+        <div
+          className="flex h-16 items-center justify-between px-4 border"
+          role="banner"
+        >
           <Button
             variant="ghost"
             size="icon"
@@ -102,10 +104,12 @@ export default function ParentLayout() {
           </Button>
 
           <Link to={`/parent/${studentId}`} className="flex items-center">
-            <img src={acewallscholarslogo} alt="Logo" className="w-32 md:w-40 h-auto" />
+            <img
+              src={acewallscholarslogo}
+              alt="Logo"
+              className="w-32 md:w-40 h-auto"
+            />
           </Link>
-
-        
         </div>
       </header>
 
@@ -118,10 +122,16 @@ export default function ParentLayout() {
           <div className="p-4 h-full flex flex-col">
             <div className="flex items-center space-x-3 pb-6 border-b mb-6">
               <div className="w-10 h-10 rounded-full overflow-hidden bg-gray-200">
-                <img src={UpdatedUser?.profileImg?.url || avatar} alt="Profile" className="w-full h-full object-cover" />
+                <img
+                  src={UpdatedUser?.profileImg?.url || avatar}
+                  alt="Profile"
+                  className="w-full h-full object-cover"
+                />
               </div>
               <div className="overflow-hidden">
-                <p className="font-medium truncate">{UpdatedUser?.firstName || "Parent"}</p>
+                <p className="font-medium truncate">
+                  {UpdatedUser?.firstName || "Parent"}
+                </p>
                 <p className="text-xs text-gray-500 truncate">Parent Account</p>
               </div>
             </div>
@@ -135,10 +145,16 @@ export default function ParentLayout() {
                     to={tab.path}
                     onClick={() => setIsSidebarOpen(false)}
                     className={`flex items-center space-x-3 rounded-lg px-3 py-2.5 transition-all ${
-                      isActive ? "bg-green-600 text-white shadow-md" : "text-gray-700 hover:bg-green-50 hover:text-green-700"
+                      isActive
+                        ? "bg-green-600 text-white shadow-md"
+                        : "text-gray-700 hover:bg-green-50 hover:text-green-700"
                     }`}
                   >
-                    <span className={isActive ? "text-white" : "text-green-600"}>{tab.icon}</span>
+                    <span
+                      className={isActive ? "text-white" : "text-green-600"}
+                    >
+                      {tab.icon}
+                    </span>
                     <span className="font-medium text-sm">{tab.name}</span>
                   </Link>
                 );
@@ -146,8 +162,15 @@ export default function ParentLayout() {
             </nav>
 
             <div className="mt-auto pt-6 border-t flex flex-col items-center">
-              <img src={acewallshort} alt="Logo" className="w-12 opacity-50 mb-2" />
-              <Link to="https://www.acewallscholars.org/contact-Us" className="text-xs text-green-600 font-semibold hover:underline text-center">
+              <img
+                src={acewallshort}
+                alt="Logo"
+                className="w-12 opacity-50 mb-2"
+              />
+              <Link
+                to="https://www.acewallscholars.org/contact-Us"
+                className="text-xs text-green-600 font-semibold hover:underline text-center"
+              >
                 Need Tutoring? <br /> Contact us
               </Link>
             </div>
@@ -155,7 +178,10 @@ export default function ParentLayout() {
         </aside>
 
         {isSidebarOpen && (
-          <div className="fixed inset-0 bg-black/20 z-30 md:hidden" onClick={() => setIsSidebarOpen(false)} />
+          <div
+            className="fixed inset-0 bg-black/20 z-30 md:hidden"
+            onClick={() => setIsSidebarOpen(false)}
+          />
         )}
 
         <main id="maincontent" className="flex-1 overflow-y-auto bg-gray-50/50">
@@ -164,7 +190,7 @@ export default function ParentLayout() {
           </div>
         </main>
       </div>
-      
+
       <Footer />
     </div>
   );
