@@ -106,6 +106,15 @@ import MyChildren from "./Page/Parent/MyChildren";
 import ChildGradebook from "./Page/Parent/ChildGradebook";
 import EnrollmentStats from "./CustomComponent/teacher/EnrollmentStats";
 import AssessmentAnalytics from "./Page/teacher/Assessment/AssessmentAnalytics";
+import ChildCourseCards from "./Page/Parent/ChildCourseCards";
+import ParentCourseOverview from "./Page/Parent/ParentCourseOverview";
+import AllannouncementCoursesPerent from "./Page/Parent/AllannouncementCoursesPerent";
+import AllAnnouncementCoursesParent from "./Page/Parent/AllannouncementCoursesPerent";
+import CourseAnnouncementsListParent from "./Page/Parent/ParentCourseAnnouncements";
+import ParentCourseAnnouncements from "./Page/Parent/ParentCourseAnnouncements";
+import ParentCourseByCard from "./Page/Parent/Assessment/ParentCourseByCard";
+import ParentAssessment from "./Page/Parent/Assessment/ParentAssessment";
+import ParentAssessmentResultPage from "./CustomComponent/parent/ParentAssessmentResultPage";
 
 function App() {
   const {
@@ -449,18 +458,54 @@ function App() {
           }
         >
           <Route path="/parent">
-            <Route index  element={<MyChildren />} />
-            <Route path="/parent/:studentId" element={<ParentLayout />}>
-              {/* The main dashboard/index page */}
+            {/* Matches: /parent (The list of all children) */}
+            <Route index element={<MyChildren />} />
+
+            {/* Matches: /parent/:studentId (The wrapper for a specific child) */}
+            <Route path=":studentId" element={<ParentLayout />}>
+              {/* Matches: /parent/:studentId (The dashboard) */}
               <Route index element={<ParentDashboard />} />
-
-              {/* The list of children */}
-
-              {/* UPDATED: Added :studentId to make this a dynamic separate page */}
+              {/* Matches: /parent/:studentId/child-gradebook */}
+              {/* Note: Removed :studentId from the end because it's already in the parent path */}
+              <Route path="child-gradebook" element={<ChildGradebook />} />
+              <Route path="courses" element={<ChildCourseCards />} />
               <Route
-                path="child-gradebook/:studentId"
-                element={<ChildGradebook />}
+                path="/parent/:studentId/course-detail/:enrollmentId"
+                element={<ParentCourseOverview />}
               />
+              {/* Assuming these are inside <Route path="/parent/:studentId" element={<ParentLayout />}> */}
+
+              <Route path="announcements">
+                {/* Matches: /parent/:studentId/announcements */}
+                {/* Shows the grid of courses that have announcements */}
+                <Route index element={<AllannouncementCoursesPerent />} />
+
+                {/* Matches: /parent/:studentId/announcements/:courseId */}
+                {/* Shows the actual list of announcements for that specific course */}
+                <Route
+                  path="/parent/:studentId/announcements/:courseId"
+                  element={<ParentCourseAnnouncements />}
+                />
+              </Route>
+
+              {/* List of courses with assessments */}
+              <Route
+                path="/parent/:studentId/assessments"
+                element={<ParentCourseByCard />}
+              />
+
+              {/* Table of assessments for a specific course */}
+              <Route
+                path="/parent/:studentId/assessments/:id"
+                element={<ParentAssessment />}
+              />
+
+              {/* The specific submission result/feedback page */}
+              <Route
+                path="/parent/:studentId/assessment-result/:assessmentId"
+                element={<ParentAssessmentResultPage />}
+              />
+              {/* The page above */}
             </Route>
           </Route>
         </Route>
