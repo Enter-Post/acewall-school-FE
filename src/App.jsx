@@ -12,7 +12,7 @@ import AllCoursesDetail from "./Page/allCourseDetail";
 import MainLayout from "./Page/MainLayout";
 import Support from "./Page/Support";
 import LandingPage from "./Page/LandingPage";
-import Messages from "./Page/StudentPortal/Messages";
+import Messages from "./Page/Messages";
 
 import GeneralCourses from "./Page/GeneralCourses";
 import GeneralSupport from "./Page/GeneralSupport";
@@ -105,6 +105,8 @@ import ParentDashboard from "./Page/Parent/ParentDashboard";
 import MyChildren from "./Page/Parent/MyChildren";
 import ChildGradebook from "./Page/Parent/ChildGradebook";
 import EnrollmentStats from "./CustomComponent/teacher/EnrollmentStats";
+import MessagesForStudents from "./Page/StudentPortal/Messages";
+import AllCoursesFilterPage from "./Page/allCoursesPage";
 
 function App() {
   const {
@@ -299,11 +301,20 @@ function App() {
             <Route path="courses/:subcategoryId" element={<AllCourses />} />
             <Route path="course/detail/:id" element={<AllCoursesDetail />} />
             <Route path="messages">
-              <Route index element={<Messages />} />
+              <Route index element={<MessagesForStudents />} />
               <Route path=":id" element={<ChatWindow />} />
             </Route>
             <Route path="discussions">
-              <Route index element={<StudentDiscussion />} />
+              <Route
+                path="allCourses"
+                element={
+                  <AllCoursesFilterPage
+                    pagefor="Discussions"
+                    link="/student/discussions/course/"
+                  />
+                }
+              />
+              <Route path="course/:courseId" element={<StudentDiscussion />} />
               <Route path=":id" element={<StudentDiscussionChat />} />
             </Route>
           </Route>
@@ -446,16 +457,19 @@ function App() {
             />
           }
         >
-         <Route path="/parent" element={<ParentLayout />}>
-  {/* The main dashboard/index page */}
-  <Route index element={<ParentDashboard />} />
-  
-  {/* The list of children */}
-  <Route path="MyChildren" element={<MyChildren />} />
-  
-  {/* UPDATED: Added :studentId to make this a dynamic separate page */}
-  <Route path="child-gradebook/:studentId" element={<ChildGradebook />} />
-</Route>
+          <Route path="/parent" element={<ParentLayout />}>
+            {/* The main dashboard/index page */}
+            <Route index element={<ParentDashboard />} />
+
+            {/* The list of children */}
+            <Route path="MyChildren" element={<MyChildren />} />
+
+            {/* UPDATED: Added :studentId to make this a dynamic separate page */}
+            <Route
+              path="child-gradebook/:studentId"
+              element={<ChildGradebook />}
+            />
+          </Route>
         </Route>
       </Routes>
     </>

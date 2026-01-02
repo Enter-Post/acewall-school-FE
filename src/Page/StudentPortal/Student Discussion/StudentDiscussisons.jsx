@@ -1,18 +1,21 @@
 import DiscussionTabContent from "@/CustomComponent/Student/DiscussionTabContent";
 import { axiosInstance } from "@/lib/AxiosInstance";
 import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 
 const StudentDiscussion = () => {
   const [loading, setLoading] = useState(true);
   const [refresh, setRefresh] = useState(false);
   const [discussions, setDiscussions] = useState([]);
 
+  const { courseId } = useParams();
+
   useEffect(() => {
     const fetchDiscussions = async () => {
       setLoading(true);
       try {
-        const res = await axiosInstance.get("/discussion/studentDiscussion");
-        setDiscussions(res.data.discussions || []);
+        const res = await axiosInstance.get(`/discussion/course/${courseId}`);
+        setDiscussions(res.data.discussion || []);
       } catch {
         setDiscussions([]);
       } finally {

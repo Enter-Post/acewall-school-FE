@@ -38,7 +38,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { axiosInstance } from "@/lib/AxiosInstance";
 import { FaHandFist } from "react-icons/fa6";
-import FloatingMessagesDialog from "../StudentPortal/Messages";
+import FloatingMessagesDialog from "../Messages";
 
 const sideBarTabs = [
   {
