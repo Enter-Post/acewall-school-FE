@@ -11,9 +11,82 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { Calendar, ChevronDown, ChevronUp,UserCircle } from "lucide-react";
 import { useState } from "react";
 import avatar from "../assets/avatar.png";
+
+
+
+const ParentCoursesCard = ({ course: enrollment }) => {
+  // Extracting data
+  const courseData = enrollment?.course;
+  const courseTitle = courseData?.courseTitle || "Untitled course";
+  const courseCategory = courseData?.category?.title || "Uncategorized";
+  const imageUrl = courseData?.thumbnail?.url || "/placeholder.svg";
+  
+  // Status
+  const isCompleted = enrollment?.completed;
+  
+  // Instructor Details
+  const instructor = courseData?.createdby;
+  const instructorName = instructor 
+    ? `${instructor.firstName} ${instructor.lastName}` 
+    : "Unknown Instructor";
+
+  // Formatting Date
+  const enrolledDate = enrollment?.enrolledAt 
+    ? new Date(enrollment.enrolledAt).toLocaleDateString() 
+    : "N/A";
+
+  return (
+    <article
+      className="group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 rounded-xl transition-all duration-300"
+    >
+      <Card className="w-full overflow-hidden border-none shadow-sm hover:shadow-md bg-white">
+        {/* Course Thumbnail */}
+        <AspectRatio ratio={16 / 9} className="overflow-hidden">
+          <img
+            src={imageUrl}
+            alt={courseTitle}
+            className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
+          />
+         
+        </AspectRatio>
+
+        <CardHeader className="p-4 pb-2">
+          {/* Category */}
+          <div className="text-[10px] font-bold uppercase tracking-widest text-green-600 bg-green-50 w-fit px-2 py-0.5 rounded mb-2">
+            {courseCategory}
+          </div>
+
+          <CardTitle className="text-lg font-bold text-gray-800 line-clamp-1">
+            {courseTitle}
+          </CardTitle>
+          
+          {/* Instructor Info */}
+          <div className="flex items-center gap-2 mt-1 text-gray-500">
+            <UserCircle size={14} />
+            <span className="text-xs truncate">Instructor: {instructorName}</span>
+          </div>
+        </CardHeader>
+
+        <CardContent className="p-4 pt-2">
+          {/* Footer Details (Enrollment date & Language) */}
+          <div className="flex items-center justify-between pt-4 border-t border-gray-50">
+            <div className="flex items-center gap-1.5 text-gray-400">
+              <Calendar size={12} />
+              <span className="text-[10px]">Enrolled: {enrolledDate}</span>
+            </div>
+            <div className="text-[10px] font-semibold text-gray-400 uppercase">
+              {courseData?.language || "English"}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </article>
+  );
+};
+
 
 function DeshboardAnnouncementCard({ mainHeading, data, link, height }) {
   return (
@@ -281,15 +354,6 @@ function AnnouncementCard({ data }) {
     </Card>
   );
 }
-
-
-
-
-
-
-
-
-
 const CourseCard = ({ course, selected, onClick }) => (
   <div
     onClick={onClick}
@@ -309,9 +373,6 @@ const CourseCard = ({ course, selected, onClick }) => (
     </h3>
   </div>
 );
-
-
-
 const TransactionCard = ({ title, data }) => (
   <Card className="h-fit p-0 gap-3 rounded mt-5">
     <CardContent className="px-3 py-0">
@@ -632,6 +693,8 @@ const DiscussionCard = ({ discussion, link }) => {
   );
 };
 
+
+
 export default Card;
 
 export {
@@ -647,4 +710,5 @@ export {
   StudentProfileStatCard,
   MyCoursesCard,
   DiscussionCard,
+  ParentCoursesCard,
 };
