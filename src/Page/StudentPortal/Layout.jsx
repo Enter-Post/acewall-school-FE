@@ -77,7 +77,7 @@ const sideBarTabs = [
   {
     name: "Discussion Rooms",
     icon: <MessagesSquareIcon aria-hidden="true" />,
-    path: "/student/discussions",
+    path: "/student/discussions/allCourses",
     allowedAsPreview: true,
   },
   {
@@ -95,7 +95,7 @@ const sideBarTabs = [
   },
   {
     id: 8,
-    name: "Grading Graphs",
+    name: "Grading Scales",
     icon: <GitGraph aria-hidden="true" />,
     path: "/Student/graphs",
   },

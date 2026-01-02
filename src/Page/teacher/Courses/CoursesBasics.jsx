@@ -235,10 +235,12 @@ export default function CoursesBasis() {
           aria-label="Create new course form"
         >
           {/* Thumbnail */}
-          <section className="space-y-6">
-            <Label htmlFor="thumbnail" className="font-medium">
-              Thumbnail *
-            </Label>
+          <section className="space-y-6 border-b pb-6">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="thumbnail" className="font-medium">
+                Thumbnail *
+              </Label>
+            </div>
 
             <div className="border-2 border-dashed border-gray-300 rounded-md p-2 max-w-md">
               {thumbnailPreview ? (
@@ -284,6 +286,14 @@ export default function CoursesBasis() {
                     <Upload aria-hidden="true" />
                     Upload Thumbnail
                   </label>
+                  <div className="ml-4 border-l pl-4">
+                    <AiModal
+                      aiResponse={aiResponse}
+                      setAiResponse={setAiResponse}
+                      usedfor="thumbnail"
+                      setValue={setValue}
+                    />
+                  </div>
                 </div>
               )}
             </div>
