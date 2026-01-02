@@ -33,6 +33,8 @@ export default function AiContentModal({
   const [showResult, setShowResult] = useState(false);
   const [QuestionDifficulty, setQuestionDifficulty] = useState("medium");
 
+  console.log(usedfor, "usedfor in AIModal");
+
   const renderGeneratedContent = (content) => {
     if (!content) return null;
 
@@ -80,17 +82,25 @@ export default function AiContentModal({
       splitedUsedfor[0] === "questions" ? `question-${questionType}` : usedfor;
 
     try {
-      const response = await axiosInstance.post(
-        "aichat/generateContentForTeacher",
-        {
-          command: prompt,
-          usedfor: finalUsedfor,
-          difficulty: QuestionDifficulty,
-        }
-      );
+      if (usedfor === "thumbnail") {
+        const response = await axiosInstance.post("aichat/generateImage", {
+          prompt,
+        });
 
-      setGeneratedContent(response.data.content);
-      setShowResult(true);
+        console.log(response, "response for image");
+      } else {
+        const response = await axiosInstance.post(
+          "aichat/generateContentForTeacher",
+          {
+            command: prompt,
+            usedfor: finalUsedfor,
+            difficulty: QuestionDifficulty,
+          }
+        );
+
+        setGeneratedContent(response.data.content);
+        setShowResult(true);
+      }
     } catch (error) {
       console.error("AI generation failed", error);
     } finally {
