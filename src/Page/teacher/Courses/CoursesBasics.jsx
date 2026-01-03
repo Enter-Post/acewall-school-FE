@@ -154,6 +154,7 @@ export default function CoursesBasis() {
    * Handle Thumbnail
    */
   const handleThumbnailChange = (e) => {
+    console.log(e, "e");
     const file = e.target.files[0];
     if (!file) return;
 
@@ -291,7 +292,7 @@ export default function CoursesBasis() {
                       aiResponse={aiResponse}
                       setAiResponse={setAiResponse}
                       usedfor="thumbnail"
-                      setValue={setValue}
+                      handleThumbnailChange={handleThumbnailChange}
                     />
                   </div>
                 </div>
