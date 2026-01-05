@@ -1,16 +1,9 @@
 import * as React from "react";
-import { Link, Outlet, useLocation, useParams } from "react-router-dom"; // Added useParams
+import { Link, Outlet, useLocation, useParams } from "react-router-dom";
 import acewallscholarslogo from "../../assets/acewallscholarslogo.webp";
 import acewallshort from "../../assets/acewallshort.png";
-import {
-  Menu,
-  Search,
-  GraduationCap,
-  MessagesSquareIcon,
-  GitGraph,
-} from "lucide-react";
+import { Menu } from "lucide-react";
 import { Button } from "../../components/ui/button";
-import { Input } from "../../components/ui/input";
 import { DashboardCircleAddIcon } from "@/assets/Icons/deshboard";
 import { Book02Icon } from "@/assets/Icons/mycoursesIcon";
 import { AssessmentIcon } from "@/assets/Icons/AssignmentIcon";
@@ -19,14 +12,6 @@ import Footer from "@/CustomComponent/Footer";
 import { useContext, useState } from "react";
 import { GlobalContext } from "@/Context/GlobalProvider";
 import avatar from "../../assets/avatar.png";
-
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
-import { axiosInstance } from "@/lib/AxiosInstance";
 import { FaHandFist } from "react-icons/fa6";
 import { ParentTopNavbarDropDown } from "@/CustomComponent/ParentTopNavDropDown";
 import { Target02Icon } from "@/assets/Icons/grades";
@@ -72,7 +57,7 @@ export default function ParentLayout() {
     {
       id: 6,
       name: "Support",
-      icon: <FaHandFist aria-hidden="true" />,
+      icon: <FaHandFist color="black" aria-hidden="true" />,
       path: `/parent/${studentId}/support`,
     },
   ];

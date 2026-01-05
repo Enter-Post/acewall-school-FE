@@ -7,20 +7,19 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { GlobalContext } from "@/Context/GlobalProvider";
 import { Eye, EyeClosed } from "lucide-react";
+import { axiosInstance } from "@/lib/AxiosInstance";
+import { toast } from "sonner";
 
 // Validation Schema using Zod
 const schema = z.object({
   email: z.string().min(1, "Email is required").email("Invalid email format"),
-  password: z
-    .string()
-    .min(1, "Password is required")
-    .min(8, "Password must be at least 8 characters"),
 });
 
 const parentLogin = () => {
   const { login, checkAuth } = useContext(GlobalContext);
   const [loginError, setLoginError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   // React Hook Form with Zod Resolver
   const {
@@ -32,13 +31,27 @@ const parentLogin = () => {
     resolver: zodResolver(schema),
   });
 
-  const watchedPassword = watch("password");
-
   const onSubmit = async (formData) => {
     try {
-      await login(formData);
+      setLoading(true);
+      await axiosInstance
+        .post("auth/loginGuardianAcc", {
+          guardianEmail: formData.email,
+        })
+        .then((res) => {
+          console.log(res);
+          setLoading(false);
+          toast.success(res.data.message);
+        })
+        .catch((err) => {
+          console.log(err);
+          setLoading(false);
+          toast.error(
+            err?.response?.data?.message || "Login failed. Please try again."
+          );
+        });
+
       setLoginError("");
-      checkAuth();
     } catch (error) {
       const errorMessage =
         error?.response?.data?.message || "Login failed. Please try again.";
@@ -52,7 +65,11 @@ const parentLogin = () => {
       {/* Header */}
       <header className="bg-green-600 text-white py-6 px-4">
         <div className="container mx-auto flex justify-between items-center">
-          <Link to="/" aria-label="Return to homepage" className="text-sm md:text-base">
+          <Link
+            to="/"
+            aria-label="Return to homepage"
+            className="text-sm md:text-base"
+          >
             Return to Home
           </Link>
 
@@ -79,8 +96,11 @@ const parentLogin = () => {
           <div className="flex flex-col md:flex-row gap-8 max-w-6xl mx-auto">
             {/* Login Form */}
             <div className="w-full md:w-1/2 bg-white p-6 rounded-lg">
-              <form onSubmit={handleSubmit(onSubmit)} noValidate aria-labelledby="Parent-login-heading">
-
+              <form
+                onSubmit={handleSubmit(onSubmit)}
+                noValidate
+                aria-labelledby="Parent-login-heading"
+              >
                 {/* Email Field */}
                 <div className="mb-6">
                   <label htmlFor="email" className="block text-gray-600 mb-2">
@@ -97,48 +117,15 @@ const parentLogin = () => {
                   />
 
                   {errors.email && (
-                    <p id="email-error" className="text-xs text-red-600 inline-block">
+                    <p
+                      id="email-error"
+                      className="text-xs text-red-600 inline-block"
+                    >
                       {errors.email.message}
                     </p>
                   )}
                 </div>
 
-                {/* Password Field */}
-                <div className="mb-8">
-                  <label htmlFor="password" className="block text-gray-600 mb-2">
-                    Password *
-                  </label>
-
-                  <div className="relative">
-                    <input
-                      type={showPassword ? "text" : "password"}
-                      id="password"
-                      className="w-full p-2 border border-gray-300 rounded pr-10"
-                      aria-invalid={!!errors.password}
-                      aria-describedby={errors.password ? "password-error" : undefined}
-                      {...register("password")}
-                    />
-
-                    {watchedPassword && (
-                      <button
-                        type="button"
-                        className="absolute inset-y-0 right-2 flex items-center"
-                        onClick={() => setShowPassword((prev) => !prev)}
-                        aria-label={showPassword ? "Hide password" : "Show password"}
-                      >
-                        {showPassword ? <Eye size={20} /> : <EyeClosed size={20} />}
-                      </button>
-                    )}
-                  </div>
-
-                  {errors.password && (
-                    <p id="password-error" className="text-xs text-red-600 inline-block">
-                      {errors.password.message}
-                    </p>
-                  )}
-                </div>
-
-                {/* Login Error */}
                 {loginError && (
                   <p className="text-sm text-red-500 mb-4" role="alert">
                     {loginError}
@@ -164,7 +151,7 @@ const parentLogin = () => {
                           className="text-sm font-semibold text-green-600 hover:underline"
                           aria-label="Login as a Teacher"
                         >
-                          Login as z Student
+                          Login as a Student
                         </Link>
                       </div>
                     </div>
@@ -175,16 +162,6 @@ const parentLogin = () => {
                     >
                       Login
                     </button>
-                  </div>
-
-                  <div className="text-right">
-                    <Link
-                      to="/forgetPassword"
-                      className="text-xs font-semibold text-green-600 hover:underline"
-                      aria-label="Forgot your password? Reset it"
-                    >
-                      Forgot Password?
-                    </Link>
                   </div>
                 </div>
               </form>
@@ -203,10 +180,10 @@ const parentLogin = () => {
               </h2>
 
               <blockquote className="text-gray-600 mb-4 text-center md:text-left">
-                "This is one of the best Learning Management Platforms. Their support team is
-                top-notch. The platform also supports various integrations as resources for
-                classroom setup. I really enjoy making residual income from the classes I
-                create."
+                "This is one of the best Learning Management Platforms. Their
+                support team is top-notch. The platform also supports various
+                integrations as resources for classroom setup. I really enjoy
+                making residual income from the classes I create."
               </blockquote>
 
               <div className="text-center md:text-left">

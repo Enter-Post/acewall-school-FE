@@ -12,6 +12,7 @@ import {
 import { Sparkles, X, Loader2, Check, RotateCcw, Pencil } from "lucide-react";
 import { axiosInstance } from "@/lib/AxiosInstance";
 import { base64ToFile } from "@/utils/base64toFile";
+import { toast } from "sonner";
 
 export default function AiContentModal({
   command,
@@ -43,9 +44,10 @@ export default function AiContentModal({
 
     // 1. Handle Thumbnail Image 🖼️
     if (usedfor === "thumbnail") {
-      // If it's a File object (from AI), create a local URL. 
+      // If it's a File object (from AI), create a local URL.
       // If it's already a string (preview), use it.
-      const imageUrl = content instanceof File ? URL.createObjectURL(content) : content;
+      const imageUrl =
+        content instanceof File ? URL.createObjectURL(content) : content;
 
       return (
         <div className="flex justify-center p-2">
@@ -63,14 +65,19 @@ export default function AiContentModal({
     }
 
     // 2. Handle Text Content 📝
-    const lines = typeof content === "string" 
-      ? content.split("\n").map((line) => line.trim()).filter(Boolean)
-      : [];
+    const lines =
+      typeof content === "string"
+        ? content
+            .split("\n")
+            .map((line) => line.trim())
+            .filter(Boolean)
+        : [];
 
     if (lines.length === 0) return null;
 
     const isBulletList = lines.every(
-      (line) => line.startsWith("-") || line.startsWith("•") || line.startsWith("*")
+      (line) =>
+        line.startsWith("-") || line.startsWith("•") || line.startsWith("*")
     );
 
     if (isBulletList) {
@@ -94,8 +101,6 @@ export default function AiContentModal({
     );
   };
 
-  /* ---------------------------------- */
-
   const handleGenerate = async () => {
     if (!prompt.trim()) return;
 
@@ -110,6 +115,7 @@ export default function AiContentModal({
       if (usedfor === "thumbnail") {
         const response = await axiosInstance.post("aichat/generateImage", {
           prompt,
+          aspectRatio: "3:2",
         });
 
         const file = base64ToFile(
@@ -135,6 +141,9 @@ export default function AiContentModal({
       }
     } catch (error) {
       console.error("AI generation failed", error);
+      toast.error(
+        error?.response?.data?.message || "Generation failed. Please try again."
+      );
     } finally {
       setIsGenerating(false);
     }
@@ -232,7 +241,7 @@ export default function AiContentModal({
     });
   };
 
-const handleAccept = () => {
+  const handleAccept = () => {
     const splitedUsedfor = usedfor.split(".");
 
     if (usedfor === "teachingPoints" || usedfor === "requirements") {
@@ -240,22 +249,27 @@ const handleAccept = () => {
     } else if (usedfor === "lessonDescription") {
       handleEditorChange(generatedContent);
     } else if (usedfor === "thumbnail") {
-      // Mock the event structure your handleThumbnailChange expects
       const mockEvent = {
         target: {
-          files: [generatedImage]
-        }
+          files: [generatedImage],
+        },
       };
       handleThumbnailChange(mockEvent);
     } else if (questionType === "mcq") {
       const parsedMCQ = parseMCQFromAI(generatedContent);
       setValue(usedfor, parsedMCQ.question);
       setValue(`questions.${splitedUsedfor[1]}.options`, parsedMCQ.options);
-      setValue(`questions.${splitedUsedfor[1]}.correctAnswer`, parsedMCQ.correctAnswer);
+      setValue(
+        `questions.${splitedUsedfor[1]}.correctAnswer`,
+        parsedMCQ.correctAnswer
+      );
     } else if (questionType === "truefalse") {
       const parsedTF = parseTrueFalseFromAI(generatedContent);
       setValue(usedfor, parsedTF.question);
-      setValue(`questions.${splitedUsedfor[1]}.correctAnswer`, parsedTF.correctAnswer.toLowerCase());
+      setValue(
+        `questions.${splitedUsedfor[1]}.correctAnswer`,
+        parsedTF.correctAnswer.toLowerCase()
+      );
     } else {
       setValue(usedfor, generatedContent);
     }
