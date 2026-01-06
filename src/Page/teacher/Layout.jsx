@@ -15,6 +15,8 @@ import {
   MessagesSquareIcon,
   Coffee,
   GitGraph,
+  ChevronDown,
+  BookOpen,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import { Button } from "../../components/ui/button";
@@ -40,6 +42,7 @@ import { axiosInstance } from "@/lib/AxiosInstance";
 import { FaHandFist } from "react-icons/fa6";
 import FloatingMessagesDialog from "../Messages";
 
+// Sidebar tabs configuration
 const sideBarTabs = [
   {
     id: 1,
@@ -48,39 +51,53 @@ const sideBarTabs = [
     path: "/teacher",
   },
   {
-    id: 2,
-    name: "My Courses",
-    icon: <Book02Icon aria-hidden="true" />,
-    path: "/teacher/courses",
-  },
-  {
-    id: 6,
-    name: "Create Course",
-    icon: <BadgePlus aria-hidden="true" />,
-    path: "/teacher/courses/createCourses",
-  },
-  {
-    id: 3,
-    name: "Assessments",
-    icon: <AssessmentIcon aria-hidden="true" />,
-    path: "/teacher/assessments",
-  },
-  {
-    id: 5,
-    name: "Announcements",
-    icon: <Megaphone02Icon aria-hidden="true" />,
-    path: "/teacher/AnnouncementsCourses",
+    id: "courses-dropdown",
+    name: "Courses",
+    icon: <BookOpen className="w-5 h-5" aria-hidden="true" />,
+    isDropdown: true,
+    subItems: [
+      {
+        id: 2,
+        name: "My Courses",
+        icon: <Book02Icon aria-hidden="true" />,
+        path: "/teacher/courses",
+      },
+      {
+        id: 6,
+        name: "Create Course",
+        icon: <BadgePlus aria-hidden="true" />,
+        path: "/teacher/courses/createCourses",
+      },
+      {
+        id: 3,
+        name: "Assessments",
+        icon: <AssessmentIcon aria-hidden="true" />,
+        path: "/teacher/assessments",
+      },
+      {
+        id: 5,
+        name: "Announcements",
+        icon: <Megaphone02Icon aria-hidden="true" />,
+        path: "/teacher/AnnouncementsCourses",
+      },
+      {
+        name: "Discussion Rooms",
+        icon: <MessagesSquareIcon aria-hidden="true" />,
+        path: "/teacher/discussions/allCourses",
+      },
+      {
+        id: 17,
+        name: "Attendance",
+        icon: <FaHandFist aria-hidden="true" />,
+        path: "/teacher/attendance/AStdCAtt",
+      },
+    ],
   },
   {
     id: 12,
     name: "Messages",
     icon: <MessageCircleDashed aria-hidden="true" />,
     path: "/teacher/conversation/courses",
-  },
-  {
-    name: "Discussion Rooms",
-    icon: <MessagesSquareIcon aria-hidden="true" />,
-    path: "/teacher/discussions/allCourses",
   },
   {
     id: 13,
@@ -110,6 +127,7 @@ const sideBarTabs = [
 
 export default function TeacherLayout() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isCoursesOpen, setIsCoursesOpen] = useState(false); // State for the Courses dropdown
   const { checkAuth, user, Authloading, setAuthLoading, UpdatedUser } =
     useContext(GlobalContext);
   const location = useLocation().pathname;
@@ -166,7 +184,6 @@ export default function TeacherLayout() {
 
   return (
     <div className="flex flex-col">
-      {/* Skip link for keyboard users */}
       <a
         href="#maincontent"
         className="sr-only focus:not-sr-only focus:skip-link inline-block px-4 py-2"
@@ -183,7 +200,6 @@ export default function TeacherLayout() {
           className="flex h-16 items-center justify-between px-4 border"
           role="banner"
         >
-          {/* Sidebar toggle (mobile) */}
           <Button
             variant="ghost"
             size="icon"
@@ -197,7 +213,6 @@ export default function TeacherLayout() {
             <span className="sr-only">Toggle Sidebar</span>
           </Button>
 
-          {/* Mobile logo */}
           <Link
             to="/teacher"
             className="block md:hidden"
@@ -210,7 +225,6 @@ export default function TeacherLayout() {
             />
           </Link>
 
-          {/* Desktop logo */}
           <Link
             to="/teacher"
             className="hidden md:block"
@@ -223,11 +237,7 @@ export default function TeacherLayout() {
             />
           </Link>
 
-          {/* Search */}
-          <div
-            className="relative w-64 hidden md:flex flex-col"
-            aria-hidden={false}
-          >
+          <div className="relative w-64 hidden md:flex flex-col">
             <DropdownMenu
               open={openDropdown}
               onOpenChange={setOpenDropdown}
@@ -239,7 +249,6 @@ export default function TeacherLayout() {
                     type="text"
                     id="teacher-search"
                     aria-label="Search courses and lessons"
-                    aria-describedby="search-help"
                     value={searchQuery}
                     onChange={(e) => {
                       setSearchQuery(e.target.value);
@@ -249,16 +258,14 @@ export default function TeacherLayout() {
                       }
                     }}
                     onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        handleSearch();
-                      }
+                      if (e.key === "Enter") handleSearch();
                     }}
                     placeholder="Search courses and lessons"
-                    className="w-full border border-gray-300 focus:ring-2 focus:ring-green-400 focus:border-transparent rounded-md transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
+                    className="w-full border border-gray-300 focus:ring-2 focus:ring-green-400 rounded-md transition-all"
                   />
                   <button
                     onClick={handleSearch}
-                    className="bg-green-500 hover:bg-green-600 text-white rounded-full p-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
+                    className="bg-green-500 hover:bg-green-600 text-white rounded-full p-2 transition-colors"
                     aria-label="Search"
                     type="button"
                   >
@@ -267,28 +274,18 @@ export default function TeacherLayout() {
                 </div>
               </DropdownMenuTrigger>
 
-              <DropdownMenuContent
-                className="bg-white border border-gray-200 shadow-md rounded-md mt-2 max-h-60 overflow-y-auto z-50 w-64"
-                role="listbox"
-                aria-label="Search results"
-                id="search-results"
-              >
+              <DropdownMenuContent className="bg-white border border-gray-200 shadow-md rounded-md mt-2 max-h-60 overflow-y-auto z-50 w-64">
                 {loading ? (
-                  <DropdownMenuItem disabled role="option" aria-disabled="true">
+                  <DropdownMenuItem disabled>
                     <span className="text-sm text-gray-700">Searching...</span>
                   </DropdownMenuItem>
                 ) : dropdownCourses.length > 0 ? (
                   dropdownCourses.map((course) => (
-                    <DropdownMenuItem
-                      asChild
-                      key={course._id}
-                      role="option"
-                      aria-selected="false"
-                    >
+                    <DropdownMenuItem asChild key={course._id}>
                       <Link
                         to={`/teacher/courses/courseDetail/${course._id}`}
                         onClick={() => setOpenDropdown(false)}
-                        className="w-full block text-sm text-gray-800 hover:bg-gray-100 px-2 py-1 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
+                        className="w-full block text-sm text-gray-800 hover:bg-gray-100 px-2 py-1 rounded"
                       >
                         {highlightMatch(
                           course.courseTitle || "Untitled Course",
@@ -298,7 +295,7 @@ export default function TeacherLayout() {
                     </DropdownMenuItem>
                   ))
                 ) : (
-                  <DropdownMenuItem disabled role="option" aria-disabled="true">
+                  <DropdownMenuItem disabled>
                     <span className="text-sm text-gray-500">
                       No results found
                     </span>
@@ -306,10 +303,6 @@ export default function TeacherLayout() {
                 )}
               </DropdownMenuContent>
             </DropdownMenu>
-
-            <p id="search-help" className="sr-only">
-              Type a course title and press Enter or click the search button.
-            </p>
           </div>
         </div>
       </header>
@@ -332,11 +325,7 @@ export default function TeacherLayout() {
                 <div className="w-10 h-10 rounded-full overflow-hidden">
                   <img
                     src={UpdatedUser?.profileImg?.url || avatar}
-                    alt={
-                      UpdatedUser?.firstName
-                        ? `${UpdatedUser.firstName} avatar`
-                        : "User Avatar"
-                    }
+                    alt={UpdatedUser?.firstName || "User Avatar"}
                     className="w-full h-full object-cover rounded-full"
                   />
                 </div>
@@ -354,19 +343,64 @@ export default function TeacherLayout() {
               </div>
             </div>
 
-            {/* Navigation list */}
             <nav className="space-y-2" aria-label="Main teacher navigation">
               <ul className="space-y-2">
                 {sideBarTabs.map((tab) => {
+                  if (tab.isDropdown) {
+                    return (
+                      <li key={tab.id}>
+                        <button
+                          onClick={() => setIsCoursesOpen(!isCoursesOpen)}
+                          className={`flex items-center justify-between w-full rounded-lg px-3 py-2 transition-colors text-black hover:bg-gray-50`}
+                        >
+                          <div className="flex items-center space-x-3">
+                            <span aria-hidden="true">{tab.icon}</span>
+                            <span className="text-green-600">{tab.name}</span>
+                          </div>
+                          <ChevronDown
+                            className={`w-4 h-4 transition-transform ${
+                              isCoursesOpen ? "rotate-180" : ""
+                            }`}
+                          />
+                        </button>
+                        {isCoursesOpen && (
+                          <ul className="mt-1 ml-6 space-y-1 border-l-2 border-gray-100">
+                            {tab.subItems.map((subItem) => {
+                              const isSubActive = location === subItem.path;
+                              return (
+                                <li key={subItem.name || subItem.id}>
+                                  <Link
+                                    to={subItem.path}
+                                    onClick={() => setIsSidebarOpen(false)}
+                                    className={`flex items-center space-x-3 rounded-lg px-3 py-2 transition-colors ${
+                                      isSubActive
+                                        ? "bg-green-500 text-white"
+                                        : "text-black hover:bg-gray-50"
+                                    }`}
+                                  >
+                                    <span aria-hidden="true" className="scale-75">
+                                      {subItem.icon}
+                                    </span>
+                                    <span className="text-sm">
+                                      {subItem.name}
+                                    </span>
+                                  </Link>
+                                </li>
+                              );
+                            })}
+                          </ul>
+                        )}
+                      </li>
+                    );
+                  }
+
                   const isActive = location === tab.path;
                   return (
                     <li key={tab.name}>
                       <Link
                         to={tab.path}
-                        onClick={() => {
-                          setIsSidebarOpen(false);
-                        }}
-                        className={`flex items-center space-x-3 rounded-lg px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 transition-colors ${
+                        onClick={() => setIsSidebarOpen(false)}
+                        className={`flex items-center space-x-3 rounded-lg px-3 py-2 transition-colors ${
                           isActive
                             ? "bg-green-500 text-white"
                             : "text-black hover:bg-gray-50"
@@ -396,8 +430,7 @@ export default function TeacherLayout() {
               />
               <Link
                 to="https://www.acewallscholars.org/contact-Us"
-                className="text-center font-semibold text-sm mt-4 text-acewall-main focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500"
-                aria-label="Contact us for tutoring"
+                className="text-center font-semibold text-sm mt-4 text-acewall-main"
               >
                 Need Tutoring? Contact us
               </Link>

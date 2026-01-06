@@ -4,181 +4,104 @@ import gsap from "gsap";
 import { axiosInstance } from "@/lib/AxiosInstance";
 import { GlobalContext } from "@/Context/GlobalProvider";
 
-const PostReactions = ({ post, setPosts, onToggleComments }) => {
-  const likeRef = useRef(null);
-  const burstRef = useRef(null);
-  const [isLiking, setIsLiking] = useState(false);
-  const { user } = useContext(GlobalContext);
-  const liveRef = useRef(null);
+const REACTION_TYPES = [
+  { label: "Like", value: "like", emoji: "👍", color: "text-blue-500" },
+  { label: "Love", value: "love", emoji: "❤️", color: "text-red-500" },
+  { label: "Haha", value: "haha", emoji: "😂", color: "text-yellow-500" },
+  { label: "Wow", value: "wow", emoji: "😮", color: "text-yellow-500" },
+  { label: "Sad", value: "sad", emoji: "😢", color: "text-blue-400" },
+];
 
-  // Fetch like status & total like count
+const PostReactions = ({ post, setPosts, onToggleComments }) => {
+  const [isLiking, setIsLiking] = useState(false);
+  const [showEmojiBar, setShowEmojiBar] = useState(false);
+  const { user } = useContext(GlobalContext);
+  const likeRef = useRef(null);
+  const timerRef = useRef(null); // Ref to handle the closing delay
+
   useEffect(() => {
-    const fetchLikeStatus = async () => {
+    const fetchStatus = async () => {
       if (!user?._id) return;
       try {
-        const res = await axiosInstance.get(
-          `/postlike/isPostLiked/${post._id}`
-        );
-        const { isLiked, totalLikes } = res.data;
-        setPosts((prev) =>
-          prev.map((p) =>
-            p._id === post._id ? { ...p, liked: isLiked, likes: totalLikes } : p
-          )
-        );
-      } catch (error) {
-        console.error("Error fetching like status:", error);
-      }
+        const res = await axiosInstance.get(`/postlike/isPostLiked/${post._id}`);
+        updateState(res.data.userReaction, res.data.totalLikes);
+      } catch (error) { console.error(error); }
     };
-
-    fetchLikeStatus();
+    fetchStatus();
   }, [post._id, user?._id]);
 
-  const getRandomColor = () => {
-    const colors = ["#3b82f6", "#60a5fa", "#2563eb", "#93c5fd", "#1e40af"];
-    return colors[Math.floor(Math.random() * colors.length)];
+  const updateState = (reaction, count) => {
+    setPosts((prev) => prev.map((p) => 
+      p._id === post._id ? { ...p, userReaction: reaction, likes: count } : p
+    ));
   };
 
-  const handleLike = async () => {
+  // --- Hover Handlers with Delay ---
+  const handleMouseEnter = () => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+    setShowEmojiBar(true);
+  };
+
+  const handleMouseLeave = () => {
+    // 200ms delay gives the user time to move the mouse across gaps
+    timerRef.current = setTimeout(() => {
+      setShowEmojiBar(false);
+    }, 200);
+  };
+
+  const handleReaction = async (type) => {
     if (isLiking || !user?._id) return;
     setIsLiking(true);
+    setShowEmojiBar(false);
 
-    // Optimistic update
-    setPosts((prev) =>
-      prev.map((p) =>
-        p._id === post._id
-          ? {
-              ...p,
-              liked: !p.liked,
-              likes: p.liked ? p.likes - 1 : p.likes + 1,
-            }
-          : p
-      )
-    );
+    gsap.fromTo(likeRef.current, { scale: 0.8 }, { scale: 1.2, duration: 0.2, yoyo: true, repeat: 1 });
 
-    // Update live region for screen readers
-    if (liveRef.current) {
-      liveRef.current.textContent = `Post now has ${
-        post.liked ? post.likes - 1 : post.likes + 1
-      } likes`;
-    }
-
-    // Animate button
-    if (likeRef.current) {
-      gsap.fromTo(
-        likeRef.current,
-        { scale: 0.8, rotation: 0 },
-        {
-          scale: 1.3,
-          rotation: 10,
-          duration: 0.25,
-          ease: "back.out(2)",
-          onComplete: () => {
-            gsap.to(likeRef.current, { scale: 1, rotation: 0, duration: 0.2 });
-          },
-        }
-      );
-    }
-
-    // Confetti burst
-    if (burstRef.current && !post.liked) {
-      const numParticles = 10;
-      for (let i = 0; i < numParticles; i++) {
-        const particle = document.createElement("span");
-        particle.className = "absolute w-1.5 h-1.5 rounded-full";
-        particle.style.backgroundColor = getRandomColor();
-        particle.style.left = "50%";
-        particle.style.top = "50%";
-        particle.style.transform = "translate(-50%, -50%)";
-        burstRef.current.appendChild(particle);
-
-        const angle = (Math.PI * 2 * i) / numParticles;
-        const radius = 20 + Math.random() * 10;
-
-        gsap.to(particle, {
-          x: Math.cos(angle) * radius,
-          y: Math.sin(angle) * radius,
-          opacity: 0,
-          scale: 0.5 + Math.random(),
-          duration: 0.6 + Math.random() * 0.4,
-          ease: "power1.out",
-          onComplete: () => particle.remove(),
-        });
-      }
-    }
-
-    // Sync with backend
     try {
-      await axiosInstance.post(`/postlike/like/${post._id}`);
-      setTimeout(async () => {
-        const res = await axiosInstance.get(
-          `/postlike/isPostLiked/${post._id}`
-        );
-        const { isLiked, totalLikes } = res.data;
-        setPosts((prev) =>
-          prev.map((p) =>
-            p._id === post._id ? { ...p, liked: isLiked, likes: totalLikes } : p
-          )
-        );
-      }, 250);
-    } catch (error) {
-      console.error("Error liking post:", error);
-    } finally {
-      setIsLiking(false);
-    }
+      const res = await axiosInstance.post(`/postlike/like/${post._id}`, { type });
+      updateState(res.data.userReaction, res.data.totalLikes);
+    } catch (error) { console.error(error); } 
+    finally { setIsLiking(false); }
   };
 
+  const current = REACTION_TYPES.find(r => r.value === post.userReaction);
+
   return (
-    <div className="flex items-center justify-between mt-3 text-gray-600 border-t pt-2">
-      {/* Live region for screen readers */}
-      <div className="sr-only" aria-live="polite" ref={liveRef} />
-
-      {/* Like button */}
-      <button
-        onClick={handleLike}
-        disabled={isLiking}
-        aria-label={`Like post. ${post.likes} ${
-          post.likes === 1 ? "like" : "likes"
-        }`}
-        aria-pressed={post.liked}
-        className={`relative flex items-center gap-1.5 transition text-sm ${
-          post.liked ? "text-blue-600" : "hover:text-blue-600"
-        }`}
+    <div className="flex items-center justify-between mt-3 text-gray-600 border-t pt-2 relative">
+      <div 
+        className="relative" 
+        onMouseEnter={handleMouseEnter} 
+        onMouseLeave={handleMouseLeave}
       >
-        <span className="relative">
-          <ThumbsUp
-            ref={likeRef}
-            className={`w-4 h-4 ${
-              post.liked ? "text-blue-600" : "text-gray-600"
-            }`}
-          />
-          <span
-            className="absolute inset-0 pointer-events-none"
-            ref={burstRef}
-          />
-        </span>
-        <span>{post.likes > 0 ? `Like · ${post.likes}` : "Like"}</span>
-      </button>
+        {/* Emoji Bar */}
+        {showEmojiBar && (
+          <div className="absolute bottom-full left-0 mb-2 flex bg-white shadow-xl border rounded-full p-2 gap-2 animate-in zoom-in slide-in-from-bottom-2 duration-150 z-50">
+            {REACTION_TYPES.map((r) => (
+              <button 
+                key={r.value} 
+                onClick={() => handleReaction(r.value)} 
+                className="text-2xl hover:scale-150 transition-transform duration-200"
+              >
+                {r.emoji}
+              </button>
+            ))}
+            {/* Transparent Bridge to prevent mouse leave between bar and button */}
+            <div className="absolute -bottom-2 left-0 w-full h-4 bg-transparent" />
+          </div>
+        )}
 
-      {/* Comment button */}
-      <div
-        role="button"
-        onClick={onToggleComments}
-        tabIndex={0}
-        onKeyPress={(e) =>
-          (e.key === "Enter" || e.key === " ") && onToggleComments()
-        }
-        className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-green-600 transition cursor-pointer"
-        aria-label={`Toggle comments. ${post.commentCount || 0} comments`}
-      >
-        <MessageSquare className="w-4 h-4" />
-        <span>
-          {post.commentCount > 0
-            ? `${post.commentCount} ${
-                post.commentCount === 1 ? "Comment" : "Comments"
-              }`
-            : "Comment"}
-        </span>
+        <button 
+          onClick={() => handleReaction("like")} 
+          className={`flex items-center gap-2 font-medium p-1 transition-colors rounded-md hover:bg-gray-50 ${current ? current.color : ""}`}
+        >
+          <span ref={likeRef}>{current ? current.emoji : <ThumbsUp className="w-4 h-4" />}</span>
+          <span>{current ? current.label : "Like"} {post.likes > 0 && `(${post.likes})`}</span>
+        </button>
       </div>
+
+      <button onClick={onToggleComments} className="flex items-center gap-2 hover:bg-gray-50 p-1 rounded-md transition-colors">
+        <MessageSquare className="w-4 h-4" />
+        <span>{post.commentCount || 0} Comments</span>
+      </button>
     </div>
   );
 };

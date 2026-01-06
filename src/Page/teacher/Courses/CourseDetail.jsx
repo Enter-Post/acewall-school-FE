@@ -111,6 +111,7 @@ export default function TeacherCourseDetails() {
       .then((res) => {
         setCourse(res.data.course);
         setQuarters(res.data.course.quarter);
+        console.log(res);
       })
       .catch((err) => {
         console.log(err);
@@ -509,6 +510,12 @@ export default function TeacherCourseDetails() {
               icon={<LibraryBig className="h-5 w-5 text-orange-500" />}
               value={course.enrollments?.length}
               label="Students Enrolled"
+              bgColor="bg-slate-100 hover:bg-slate-200"
+            />
+            <StatCard
+              icon={<LibraryBig className="h-5 w-5 text-orange-500" />}
+              value={course.courseCode}
+              label="Course Code"
               bgColor="bg-slate-100 hover:bg-slate-200"
             />
           </div>

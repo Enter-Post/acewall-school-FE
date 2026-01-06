@@ -192,7 +192,7 @@ export default function CourseOverview() {
             <ReadMore text={course?.courseDescription} />
           </p>
 
-          <div className="flex items-center gap-10 mt-4">
+          <div className="flex items-center gap-8 mt-4">
             {course.category && (
               <div className="flex items-center gap-2">
                 <h3 className="text-gray-900 text-sm font-semibold mb-1">
@@ -211,6 +211,15 @@ export default function CourseOverview() {
                 </h3>
                 <Badge className="bg-green-100 text-green-800 text-sm border-none">
                   {course?.subcategory?.title}
+                </Badge>
+              </div>
+            )} {course?.courseCode && (
+              <div className="flex items-center gap-2">
+                <h3 className="text-gray-900 text-sm font-semibold mb-1">
+                  Course Code
+                </h3>
+                <Badge className="bg-green-100 text-green-800 text-sm border-none">
+                  {course?.courseCode}
                 </Badge>
               </div>
             )}

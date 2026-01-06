@@ -117,6 +117,10 @@ import ParentCourseAnnouncements from "./Page/Parent/ParentCourseAnnouncements";
 import ParentCourseByCard from "./Page/Parent/Assessment/ParentCourseByCard";
 import ParentAssessment from "./Page/Parent/Assessment/ParentAssessment";
 import ParentAssessmentResultPage from "./CustomComponent/parent/ParentAssessmentResultPage";
+import AStdCAtt from "./Page/teacher/Attendance/AStdCAtt";
+import CstdAttendance from "./Page/teacher/Attendance/CstdAttendance";
+import StudentAttendanceView from "./Page/StudentPortal/Attendance/StudentAttendanceView";
+import StudentMonthlyAttendance from "./Page/StudentPortal/Attendance/StudentMonthlyAttendance";
 
 function App() {
   const {
@@ -291,7 +295,12 @@ function App() {
               path="announcements/:courseId"
               element={<StudentCourseAnnouncements />}
             />
-
+            {/* Student Protected Routes */}
+            <Route path="attendance">
+              <Route path="att" element={<StudentAttendanceView />} />
+              {/* You can also have a course-specific attendance view if needed */}
+              <Route path="monthly/:courseId" element={<StudentMonthlyAttendance />} />
+            </Route>
             <Route path="graphs" element={<GradingScales />} />
             <Route path="ai" element={<AiChatbot />} />
 
@@ -388,6 +397,10 @@ function App() {
               path="courseGrades/:studentId/:courseId"
               element={<StudentCourseGrades />}
             />
+            <Route path="attendance">
+              <Route path="AStdCAtt" element={<AStdCAtt />} />
+              <Route path="course/:courseId" element={<CstdAttendance />} />
+            </Route>
             <Route path="conversation">
               <Route
                 path="courses"
