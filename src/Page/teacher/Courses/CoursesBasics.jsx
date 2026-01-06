@@ -154,6 +154,7 @@ export default function CoursesBasis() {
    * Handle Thumbnail
    */
   const handleThumbnailChange = (e) => {
+    console.log(e, "e");
     const file = e.target.files[0];
     if (!file) return;
 
@@ -281,18 +282,19 @@ export default function CoursesBasis() {
                     role="button"
                     tabIndex={0}
                     aria-label="Upload course thumbnail"
-                    className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="flex items-center gap-2 px-4 py-1 text-xs text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-100 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
-                    <Upload aria-hidden="true" />
+                    <Upload size={"18"} className="text-xs text-gray-600" aria-hidden="true" />
                     Upload Thumbnail
                   </label>
-                  <div className="ml-4 border-l pl-4">
+                  <div className="ml-4 border-l pl-4 text-xs text-gray-500 flex items-center gap-2">
                     <AiModal
                       aiResponse={aiResponse}
                       setAiResponse={setAiResponse}
                       usedfor="thumbnail"
-                      setValue={setValue}
+                      handleThumbnailChange={handleThumbnailChange}
                     />
+                    generate with AI
                   </div>
                 </div>
               )}

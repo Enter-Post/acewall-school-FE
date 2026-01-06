@@ -185,10 +185,6 @@ export default function ParentCourseOverview() {
                     <span className="text-sm text-slate-400 font-medium">Chapters</span>
                     <span className="text-xl font-bold text-green-400">{course.totalChapters || 0}</span>
                   </div>
-                  <div className="flex justify-between items-center bg-white/5 p-3 rounded-lg border border-white/10">
-                    <span className="text-sm text-slate-400 font-medium">Final Exams</span>
-                    <span className="text-xl font-bold text-blue-400">{course.finalAssessments?.length || 0}</span>
-                  </div>
                 </div>
               </Card>
 
@@ -205,12 +201,12 @@ export default function ParentCourseOverview() {
                     <p className="font-bold text-gray-900 text-lg leading-tight">
                       {course.createdby?.firstName} {course.createdby?.lastName}
                     </p>
-                    <p className="text-xs text-green-600 font-bold uppercase mt-1">Certified Educator</p>
+                    {/* <p className="text-xs text-green-600 font-bold uppercase mt-1">Certified Educator</p> */}
                   </div>
                 </div>
-                <Button className="w-full mt-6 bg-slate-100 text-slate-700 hover:bg-green-600 hover:text-white transition-all shadow-none border-none rounded-xl" onClick={() => navigate("/parent/messages")}>
+                {/* <Button className="w-full mt-6 bg-slate-100 text-slate-700 hover:bg-green-600 hover:text-white transition-all shadow-none border-none rounded-xl" onClick={() => navigate("/parent/messages")}>
                   <MessageSquare size={16} className="mr-2" /> Message Instructor
-                </Button>
+                </Button> */}
               </Card>
             </div>
           </div>
@@ -245,9 +241,6 @@ export default function ParentCourseOverview() {
                         </div>
                       </div>
                     </div>
-                    <Badge className="mt-4 md:mt-0 w-fit bg-gray-100 text-gray-500 font-bold px-4 py-1.5 rounded-xl border-none">
-                      MODULE {idx + 1}
-                    </Badge>
                   </div>
 
                   {/* Nested Lessons List */}

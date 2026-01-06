@@ -81,8 +81,8 @@ const MyChildren = () => {
                     <h3 className="text-xl font-bold text-gray-800 group-hover:text-green-600 transition-colors">
                       {child.firstName} {child.lastName}
                     </h3>
-                    <p className="text-sm text-gray-500 mt-1 uppercase tracking-wider font-semibold">
-                      Student ID: {child._id.slice(-6).toUpperCase()}
+                    <p className="text-xs text-gray-500 mt-1 tracking-wider">
+                      {child.email}
                     </p>
                   </div>
 

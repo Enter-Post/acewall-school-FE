@@ -151,6 +151,22 @@ const LandingPage = () => {
             </Link>
           </div>
 
+          <div className="w-full lg:w-[200px]">
+            <Link
+              to="/ParentLogin"
+              className="inline-block w-full focus:ring-2 focus:ring-green-700 focus:outline-none rounded-lg"
+              aria-label="Login as Parent"
+            >
+              <button
+                type="button"
+                className="text-white bg-green-500 hover:bg-green-600 focus:ring-2 focus:ring-green-700 focus:outline-none font-medium rounded-lg text-sm px-4 py-2 w-full transition-colors"
+                aria-label="Login as Parent to access your Student's progress"
+              >
+                Login as Parent
+              </button>
+            </Link>
+          </div>
+
           {/* Getting Started Button */}
           <div className="w-full lg:w-[200px]">
             <Link

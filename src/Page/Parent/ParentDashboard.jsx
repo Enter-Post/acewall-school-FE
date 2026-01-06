@@ -22,12 +22,10 @@ export default function ParentDashboard() {
       if (!studentId) return;
       try {
         setLoading(true);
-        // UPDATED: Using the new parent-specific endpoint you created
         const res = await axiosInstance.get(`parent/child-courses/${studentId}`);
         console.log(res);
         
         if (mounted && res.data.success) {
-          // The new API returns { enrolledCourses: [...], studentName: "..." }
           setEnrollments(res.data.enrolledCourses || []);
           setStudentName(res.data.studentName || "Student");
         }
@@ -59,10 +57,8 @@ export default function ParentDashboard() {
         </p>
       </div>
 
-      {/* Metric Cards */}
       <section className="mb-10">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Total Enrolled Courses Card */}
           <Card className="border-none shadow-sm bg-white">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-semibold text-gray-500 uppercase tracking-wider">
@@ -73,7 +69,6 @@ export default function ParentDashboard() {
               </div>
             </CardHeader>
             <CardContent>
-              {/* This now accurately shows the count from the new API */}
               <div className="text-3xl font-bold text-gray-800">
                 {enrollments.length}
               </div>
@@ -81,7 +76,6 @@ export default function ParentDashboard() {
             </CardContent>
           </Card>
 
-          {/* Gradebook Link Card */}
           <Link 
             to={`/parent/${studentId}/child-gradebook`} 
             className="group block"

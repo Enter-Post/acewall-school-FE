@@ -11,6 +11,8 @@ import {
 } from "@/components/ui/dialog";
 import { Sparkles, X, Loader2, Check, RotateCcw, Pencil } from "lucide-react";
 import { axiosInstance } from "@/lib/AxiosInstance";
+import { base64ToFile } from "@/utils/base64toFile";
+import { toast } from "sonner";
 
 export default function AiContentModal({
   command,
@@ -25,6 +27,7 @@ export default function AiContentModal({
   handleEditorChange,
   questionType,
   prevPoints,
+  handleThumbnailChange,
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [prompt, setPrompt] = useState("");
@@ -32,16 +35,45 @@ export default function AiContentModal({
   const [isGenerating, setIsGenerating] = useState(false);
   const [showResult, setShowResult] = useState(false);
   const [QuestionDifficulty, setQuestionDifficulty] = useState("medium");
+  const [generatedImage, setGeneratedImage] = useState(null);
 
-  console.log(usedfor, "usedfor in AIModal");
+  console.log(generatedImage, "generatedImage");
 
   const renderGeneratedContent = (content) => {
     if (!content) return null;
 
-    const lines = content
-      .split("\n")
-      .map((line) => line.trim())
-      .filter(Boolean);
+    // 1. Handle Thumbnail Image 🖼️
+    if (usedfor === "thumbnail") {
+      // If it's a File object (from AI), create a local URL.
+      // If it's already a string (preview), use it.
+      const imageUrl =
+        content instanceof File ? URL.createObjectURL(content) : content;
+
+      return (
+        <div className="flex justify-center p-2">
+          <img
+            src={imageUrl}
+            alt="AI Generated"
+            className="max-h-60 rounded-md border border-gray-300 shadow-sm"
+            onLoad={() => {
+              // Clean up memory if we created an object URL
+              if (content instanceof File) URL.revokeObjectURL(imageUrl);
+            }}
+          />
+        </div>
+      );
+    }
+
+    // 2. Handle Text Content 📝
+    const lines =
+      typeof content === "string"
+        ? content
+            .split("\n")
+            .map((line) => line.trim())
+            .filter(Boolean)
+        : [];
+
+    if (lines.length === 0) return null;
 
     const isBulletList = lines.every(
       (line) =>
@@ -69,8 +101,6 @@ export default function AiContentModal({
     );
   };
 
-  /* ---------------------------------- */
-
   const handleGenerate = async () => {
     if (!prompt.trim()) return;
 
@@ -85,9 +115,17 @@ export default function AiContentModal({
       if (usedfor === "thumbnail") {
         const response = await axiosInstance.post("aichat/generateImage", {
           prompt,
+          aspectRatio: "3:2",
         });
 
-        console.log(response, "response for image");
+        const file = base64ToFile(
+          response.data.imageBase64,
+          response.data.mimeType,
+          "ai-generated-image.png"
+        );
+
+        setGeneratedImage(file);
+        setShowResult(true);
       } else {
         const response = await axiosInstance.post(
           "aichat/generateContentForTeacher",
@@ -103,6 +141,9 @@ export default function AiContentModal({
       }
     } catch (error) {
       console.error("AI generation failed", error);
+      toast.error(
+        error?.response?.data?.message || "Generation failed. Please try again."
+      );
     } finally {
       setIsGenerating(false);
     }
@@ -203,15 +244,19 @@ export default function AiContentModal({
   const handleAccept = () => {
     const splitedUsedfor = usedfor.split(".");
 
-    if (usedfor === "teachingPoints") {
-      insertPointsFromAI(generatedContent);
-    } else if (usedfor === "requirements") {
+    if (usedfor === "teachingPoints" || usedfor === "requirements") {
       insertPointsFromAI(generatedContent);
     } else if (usedfor === "lessonDescription") {
       handleEditorChange(generatedContent);
+    } else if (usedfor === "thumbnail") {
+      const mockEvent = {
+        target: {
+          files: [generatedImage],
+        },
+      };
+      handleThumbnailChange(mockEvent);
     } else if (questionType === "mcq") {
       const parsedMCQ = parseMCQFromAI(generatedContent);
-      console.log(parsedMCQ, "parsedMCQ");
       setValue(usedfor, parsedMCQ.question);
       setValue(`questions.${splitedUsedfor[1]}.options`, parsedMCQ.options);
       setValue(
@@ -228,6 +273,7 @@ export default function AiContentModal({
     } else {
       setValue(usedfor, generatedContent);
     }
+
     setIsOpen(false);
     resetState();
   };
@@ -351,7 +397,9 @@ export default function AiContentModal({
               <div className="space-y-4">
                 {/* Generated Content */}
                 <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 max-h-[250px] overflow-y-auto">
-                  {renderGeneratedContent(generatedContent)}
+                  {usedfor === "thumbnail" && generatedImage
+                    ? renderGeneratedContent(generatedImage)
+                    : renderGeneratedContent(generatedContent)}
                 </div>
 
                 {/* Actions */}

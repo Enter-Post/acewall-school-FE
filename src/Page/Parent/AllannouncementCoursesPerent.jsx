@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, Loader2, Bell, Megaphone, Filter, Users } from "lucide-react";
+import { Search, Loader2, Bell, Megaphone, Filter, Users, Loader } from "lucide-react";
 
 const AllAnnouncementCoursesParent = () => {
   const { studentId } = useParams(); // URL: /parent/:studentId/announcements
@@ -28,13 +28,10 @@ const AllAnnouncementCoursesParent = () => {
     if (!studentId) return;
     try {
       setLoading(true);
-      // Fetch child's courses using the parent-scoped API
       const res = await axiosInstance.get(`/parent/child-courses/${studentId}`);
-
       if (res.data.success) {
         setStudentName(res.data.studentName);
 
-        // Map enrolledCourses to the format needed for the grid
         const courseList = res.data.enrolledCourses.map((enroll) => ({
           _id: enroll.course?._id,
           courseTitle: enroll.course?.courseTitle || "Untitled Course",
@@ -42,7 +39,6 @@ const AllAnnouncementCoursesParent = () => {
             enroll.course?.thumbnail?.url ||
             "https://via.placeholder.com/300x170",
         }));
-
         setCourses(courseList);
       }
     } catch (err) {
@@ -70,7 +66,7 @@ const AllAnnouncementCoursesParent = () => {
   if (loading)
     return (
       <div className="flex flex-col justify-center items-center h-96 gap-4">
-        <Loader2 className="animate-spin text-green-600" size={40} />
+        <Loader className="animate-spin text-green-600" size={40} />
         <p className="text-gray-500 font-medium italic">Syncing curriculum updates...</p>
       </div>
     );
