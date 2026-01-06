@@ -1,11 +1,13 @@
+import { GlobalContext } from "@/Context/GlobalProvider";
 import { axiosInstance } from "@/lib/AxiosInstance";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const PasswordlessLogin = () => {
   const [status, setStatus] = useState("verifying"); // 'verifying', 'error', 'success'
   const navigate = useNavigate();
   const token = new URLSearchParams(window.location.search).get("token");
+  const { checkAuth } = useContext(GlobalContext);
 
   const fetchPasswordlessLogin = async () => {
     if (!token) {
@@ -23,6 +25,7 @@ const PasswordlessLogin = () => {
           })
         )
       );
+      checkAuth();
       setStatus("success");
       // Small delay so the user sees the "Success" state before redirecting
       setTimeout(() => navigate("/parent"), 1500);
