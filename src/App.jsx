@@ -117,6 +117,11 @@ import ParentCourseAnnouncements from "./Page/Parent/ParentCourseAnnouncements";
 import ParentCourseByCard from "./Page/Parent/Assessment/ParentCourseByCard";
 import ParentAssessment from "./Page/Parent/Assessment/ParentAssessment";
 import ParentAssessmentResultPage from "./CustomComponent/parent/ParentAssessmentResultPage";
+import AStdCAtt from "./Page/teacher/Attendance/AStdCAtt";
+import CstdAttendance from "./Page/teacher/Attendance/CstdAttendance";
+import StudentAttendanceView from "./Page/StudentPortal/Attendance/StudentAttendanceView";
+import StudentMonthlyAttendance from "./Page/StudentPortal/Attendance/StudentMonthlyAttendance";
+import Passwordlesslogin from "./Page/Parent/Passwordless-login";
 
 function App() {
   const {
@@ -192,6 +197,8 @@ function App() {
           <Route path="Contact" element={<FeaturedContantCard />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
+
+        <Route path="passwordless-login" element={<Passwordlesslogin />} />
 
         {/* Unauthenticated-only (login/signup) */}
         <Route
@@ -291,7 +298,15 @@ function App() {
               path="announcements/:courseId"
               element={<StudentCourseAnnouncements />}
             />
-
+            {/* Student Protected Routes */}
+            <Route path="attendance">
+              <Route path="att" element={<StudentAttendanceView />} />
+              {/* You can also have a course-specific attendance view if needed */}
+              <Route
+                path="monthly/:courseId"
+                element={<StudentMonthlyAttendance />}
+              />
+            </Route>
             <Route path="graphs" element={<GradingScales />} />
             <Route path="ai" element={<AiChatbot />} />
 
@@ -388,6 +403,10 @@ function App() {
               path="courseGrades/:studentId/:courseId"
               element={<StudentCourseGrades />}
             />
+            <Route path="attendance">
+              <Route path="AStdCAtt" element={<AStdCAtt />} />
+              <Route path="course/:courseId" element={<CstdAttendance />} />
+            </Route>
             <Route path="conversation">
               <Route
                 path="courses"
@@ -469,56 +488,35 @@ function App() {
           }
         >
           <Route path="/parent">
-            {/* Matches: /parent (The list of all children) */}
             <Route index element={<MyChildren />} />
-
-            {/* Matches: /parent/:studentId (The wrapper for a specific child) */}
             <Route path=":studentId" element={<ParentLayout />}>
-              {/* Matches: /parent/:studentId (The dashboard) */}
               <Route index element={<ParentDashboard />} />
-              {/* Matches: /parent/:studentId/child-gradebook */}
-              {/* Note: Removed :studentId from the end because it's already in the parent path */}
               <Route path="child-gradebook" element={<ChildGradebook />} />
               <Route path="courses" element={<ChildCourseCards />} />
               <Route
                 path="/parent/:studentId/course-detail/:enrollmentId"
                 element={<ParentCourseOverview />}
               />
-              {/* Assuming these are inside <Route path="/parent/:studentId" element={<ParentLayout />}> */}
-
               <Route path="announcements">
-                {/* Matches: /parent/:studentId/announcements */}
-                {/* Shows the grid of courses that have announcements */}
                 <Route index element={<AllannouncementCoursesPerent />} />
-
-                {/* Matches: /parent/:studentId/announcements/:courseId */}
-                {/* Shows the actual list of announcements for that specific course */}
                 <Route
                   path="/parent/:studentId/announcements/:courseId"
                   element={<ParentCourseAnnouncements />}
                 />
               </Route>
-
-              {/* List of courses with assessments */}
               <Route
                 path="/parent/:studentId/assessments"
                 element={<ParentCourseByCard />}
               />
-
-              {/* Table of assessments for a specific course */}
               <Route
                 path="/parent/:studentId/assessments/:id"
                 element={<ParentAssessment />}
               />
-
-              {/* The specific submission result/feedback page */}
               <Route
                 path="/parent/:studentId/assessment-result/:assessmentId"
                 element={<ParentAssessmentResultPage />}
               />
               <Route path="support" element={<Support />} />
-
-              {/* The page above */}
             </Route>
           </Route>
         </Route>

@@ -175,7 +175,9 @@ export function AssessmentPage() {
   const fetchAssessment = async () => {
     try {
       setLoading(true);
-      const res = await axiosInstance.get(`assessment/${assessmentid}`);
+      const res = await axiosInstance.get(
+        `assessment/assessmentforTeacher/${assessmentid}`
+      );
       setAssessment(res.data.assessment ?? null);
     } catch (err) {
       console.error(err);
@@ -225,7 +227,7 @@ export function AssessmentPage() {
         aria-live="polite"
       >
         <section className="flex justify-center items-center h-full w-full">
-          <p className="text-center text-gray-500">Assessment not found</p>
+          <p className="text-center text-gray-500">Assessments not found</p>
         </section>
       </div>
     );

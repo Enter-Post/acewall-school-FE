@@ -208,7 +208,7 @@ const AssessmentSubmissionPage = () => {
   if (!assessment && !result) {
     return (
       <Alert variant="destructive" className="max-w-md mx-auto mt-8">
-        <AlertDescription>Assessment not found</AlertDescription>
+        <AlertDescription>Assessments not found</AlertDescription>
       </Alert>
     );
   }

@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -84,11 +84,16 @@ export default function CourseOverview() {
   const { quarters, setQuarters } = useContext(CourseContext);
   const { user, checkAuth } = useContext(GlobalContext);
 
+  const [searchParams] = useSearchParams();
+  const courseId = searchParams.get("courseId");
+
+  console.log(courseId, "courseId");
+
   useEffect(() => {
     const getCourseDetails = async () => {
       setLoading(true);
       await axiosInstance
-        .get(`/enrollment/studentCourseDetails/${id}`)
+        .get(`/enrollment/studentCourseDetails/${id}/${courseId}`)
         .then((res) => {
           console.log(res);
           setCourse(res.data.enrolledCourse.courseDetails);
@@ -192,7 +197,7 @@ export default function CourseOverview() {
             <ReadMore text={course?.courseDescription} />
           </p>
 
-          <div className="flex items-center gap-10 mt-4">
+          <div className="flex items-center gap-8 mt-4">
             {course.category && (
               <div className="flex items-center gap-2">
                 <h3 className="text-gray-900 text-sm font-semibold mb-1">
@@ -203,7 +208,6 @@ export default function CourseOverview() {
                 </Badge>
               </div>
             )}
-
             {course?.subcategory && (
               <div className="flex items-center gap-2">
                 <h3 className="text-gray-900 text-sm font-semibold mb-1">
@@ -211,6 +215,16 @@ export default function CourseOverview() {
                 </h3>
                 <Badge className="bg-green-100 text-green-800 text-sm border-none">
                   {course?.subcategory?.title}
+                </Badge>
+              </div>
+            )}{" "}
+            {course?.courseCode && (
+              <div className="flex items-center gap-2">
+                <h3 className="text-gray-900 text-sm font-semibold mb-1">
+                  Course Code
+                </h3>
+                <Badge className="bg-green-100 text-green-800 text-sm border-none">
+                  {course?.courseCode}
                 </Badge>
               </div>
             )}

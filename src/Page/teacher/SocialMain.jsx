@@ -123,7 +123,7 @@ const SocialMain = ({ posts: externalPosts, setPosts: setExternalPosts }) => {
   return (
     <div className="min-h-screen bg-blue-50">
       {/* Navbar */}
-      <header className="bg-green-600 text-white rounded-lg shadow-sm sticky top-0 flex items-center justify-between px-6 py-3 border-b z-10">
+      <header className="bg-green-600 text-white rounded-lg shadow-sm sticky top-0 flex items-center justify-between px-6 py-3 border-b ">
         <div className="flex items-center gap-3">
           <Coffee className="w-6 h-6" aria-hidden="true" />
           <h1 className="text-xl font-bold tracking-wide">Spill The Tea</h1>

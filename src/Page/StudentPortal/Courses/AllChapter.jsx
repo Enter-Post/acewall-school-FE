@@ -8,6 +8,9 @@ const AllChapter = () => {
   const [chapters, setChapters] = useState([]);
   const [quarterStartDate, setQuarterStartDate] = useState("");
   const [quarterEndDate, setQuarterEndDate] = useState("");
+  const [error, setError] = useState(null);
+
+  console.log(error, "chapter error");
 
   const fetchQuarterDetail = async () => {
     try {
@@ -17,6 +20,7 @@ const AllChapter = () => {
       setQuarterEndDate(res.data.quarterEndDate);
     } catch (err) {
       console.error(err);
+      setError(err.response.data.message || "Failed to load chapters");
       setChapters([]);
     }
   };
@@ -30,6 +34,8 @@ const AllChapter = () => {
       <BackButton className="mb-10" />
 
       <h2 className="text-lg font-semibold mb-4">Chapters</h2>
+
+      {error && <p className="text-red-600">{error}</p>}
 
       {chapters?.map((chapter, index) => (
         <Link

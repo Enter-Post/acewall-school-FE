@@ -9,11 +9,16 @@ const StudentSemesterDetail = () => {
   const { semesterId, courseId } = useParams();
   const { quarters } = useContext(CourseContext);
   const [allQuarter, setAllQuarter] = useState([]);
+  const [error, setError] = useState(null);
+
+  console.log(error, "error");
 
   useEffect(() => {
     const fetchQuarters = async () => {
       try {
-        const res = await axiosInstance.get(`quarter/get/${semesterId}`);
+        const res = await axiosInstance.get(
+          `quarter/get/${courseId}/${semesterId}`
+        );
         const fetchedQuarters = res.data.quarters;
 
         const selectedQuarterIds = new Set(
@@ -26,7 +31,8 @@ const StudentSemesterDetail = () => {
 
         setAllQuarter(selectedQuarters);
       } catch (err) {
-        console.error(err);
+        console.log(err, "error fetching quarters");
+        setError(err.message || "Failed to load quarters");
       }
     };
 
@@ -47,9 +53,7 @@ const StudentSemesterDetail = () => {
             className="block mb-4 border border-gray-200 p-5 rounded-lg bg-blue-50 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
             aria-label={`Open details for ${quarter.title} quarter`}
           >
-            <h3 className="font-semibold text-md">
-              Quarter: {quarter.title}
-            </h3>
+            <h3 className="font-semibold text-md">Quarter: {quarter.title}</h3>
 
             <p className="text-xs text-muted-foreground">
               {format(new Date(quarter.startDate), "MMMM do, yyyy")} –{" "}

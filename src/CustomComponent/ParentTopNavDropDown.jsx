@@ -20,9 +20,9 @@ export function ParentTopNavbarDropDown() {
     try {
       await logout();
       await checkAuth();
-      // Using navigate instead of reload is usually cleaner in SPA, 
+      // Using navigate instead of reload is usually cleaner in SPA,
       // but keeping logic consistent with your requirement
-      window.location.href = "/"; 
+      window.location.href = "/";
     } catch (error) {
       toast.error("Logout failed. Please try again.");
     }
@@ -51,11 +51,17 @@ export function ParentTopNavbarDropDown() {
         className="w-48 bg-white mt-2 shadow-lg border border-gray-200"
         align="end"
       >
-        <DropdownMenuItem 
+        <DropdownMenuItem
           onClick={handleLogout}
           className="cursor-pointer text-red-600 focus:bg-red-50 focus:text-red-700 px-4 py-2 font-medium"
         >
           Logout
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          onClick={()=> navigate("/parent")}
+          className="cursor-pointer text-blue-600 focus:bg-blue-50 focus:text-blue-700 px-4 py-2 font-medium"
+        >
+          Switch Child
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

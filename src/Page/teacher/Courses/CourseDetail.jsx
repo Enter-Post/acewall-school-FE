@@ -85,10 +85,14 @@ export default function TeacherCourseDetails() {
   const [course, setCourse] = useState(null);
   const [enrollmentsId, setEnrollmentsId] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [fetchingLoading, setFetchingLoading] = useState(true);
   const [Prevthumbnail, setPrevThumbnail] = useState(null);
   const [newthumbnail, setNewThumbnail] = useState(null);
   const [loadingThumbnail, setLoadingThumbnail] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [error, setError] = useState(null);
+
+  console.log(error, "error");
 
   const handleDeleteAssessment = (assessmentID) => {
     setLoading(true);
@@ -111,9 +115,16 @@ export default function TeacherCourseDetails() {
       .then((res) => {
         setCourse(res.data.course);
         setQuarters(res.data.course.quarter);
+        console.log(res);
+        setFetchingLoading(false);
       })
       .catch((err) => {
         console.log(err);
+        setFetchingLoading(false);
+        setError(
+          err.response.data.message ||
+            "Failed to load course. Please try again."
+        );
       });
   };
 
@@ -229,7 +240,7 @@ export default function TeacherCourseDetails() {
   const prevSemesterIds = course?.semester?.map((sem) => sem._id) || [];
   const prevQuarterIds = course?.quarter?.map((quarter) => quarter._id) || [];
 
-  if (!course)
+  if (fetchingLoading)
     return (
       <div role="status" aria-live="polite" aria-label="Loading course details">
         <section className="flex justify-center items-center h-screen w-full">
@@ -239,9 +250,18 @@ export default function TeacherCourseDetails() {
       </div>
     );
 
+    if (error)
+    return (
+      <div role="status" aria-live="polite" aria-label="Loading course details">
+        <section className="flex justify-center h-screen w-full">
+          <p className="text-red-500">{error}</p>
+        </section>
+      </div>
+    );
+
   return (
     <main className="container mx-auto px-4 py-2 max-w-6xl">
-      {course.published === false && (
+      {course?.published === false && (
         <div
           className="flex items-center justify-center rounded-md bg-red-200 p-4 mb-4"
           role="alert"
@@ -265,10 +285,10 @@ export default function TeacherCourseDetails() {
               src={
                 Prevthumbnail
                   ? Prevthumbnail
-                  : course.thumbnail.url ||
+                  : course?.thumbnail.url ||
                     "https://images.unsplash.com/photo-1509062522246-3755977927d7?q=80"
               }
-              alt={`${course.courseTitle} course thumbnail`}
+              alt={`${course?.courseTitle} course thumbnail`}
               className="w-full rounded-md object-cover aspect-video"
             />
             {Prevthumbnail ? (
@@ -336,33 +356,39 @@ export default function TeacherCourseDetails() {
                 <span>
                   <span className="sr-only">Course uploaded on </span>
                   Uploaded:{" "}
-                  <time dateTime={course.createdAt}>
-                    {course.createdAt
-                      ? new Date(course.createdAt).toLocaleDateString("en-US", {
-                          year: "2-digit",
-                          month: "2-digit",
-                          day: "2-digit",
-                        })
+                  <time dateTime={course?.createdAt}>
+                    {course?.createdAt
+                      ? new Date(course?.createdAt).toLocaleDateString(
+                          "en-US",
+                          {
+                            year: "2-digit",
+                            month: "2-digit",
+                            day: "2-digit",
+                          }
+                        )
                       : "N/A"}
                   </time>
                 </span>
                 <span>
                   <span className="sr-only">Last updated on </span>
                   Last Updated:{" "}
-                  <time dateTime={course.updatedAt}>
-                    {course.updatedAt
-                      ? new Date(course.updatedAt).toLocaleDateString("en-US", {
-                          year: "2-digit",
-                          month: "2-digit",
-                          day: "2-digit",
-                        })
+                  <time dateTime={course?.updatedAt}>
+                    {course?.updatedAt
+                      ? new Date(course?.updatedAt).toLocaleDateString(
+                          "en-US",
+                          {
+                            year: "2-digit",
+                            month: "2-digit",
+                            day: "2-digit",
+                          }
+                        )
                       : "N/A"}
                   </time>
                 </span>
               </div>
 
               <h2 className="text-2xl uppercase font-semibold">
-                {course.courseTitle || "Course Title"}
+                {course?.courseTitle || "Course Title"}
               </h2>
               <div className="text-gray-900 font-medium leading-relaxed">
                 <ReadMore text={course?.courseDescription} />
@@ -442,7 +468,7 @@ export default function TeacherCourseDetails() {
                   {/* Syllabus */}
                   <DropdownMenuItem asChild className="cursor-pointer">
                     <a
-                      href={course.syllabus?.url || ""}
+                      href={course?.syllabus?.url || ""}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center gap-3 py-2.5 w-full"
@@ -478,7 +504,7 @@ export default function TeacherCourseDetails() {
                   className="flex items-center gap-3 py-2.5 cursor-pointer text-green-700 font-medium"
                 >
                   <ChartBarStacked size={18} className="text-green-700" />
-                  {course.gradingSystem === "normalGrading"
+                  {course?.gradingSystem === "normalGrading"
                     ? "Switch to Standard Grading"
                     : "Switch to Normal Grading"}
                 </DropdownMenuItem>
@@ -493,22 +519,28 @@ export default function TeacherCourseDetails() {
           <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <StatCard
               icon={<ChartBarStacked className="h-5 w-5 text-orange-500" />}
-              value={course.category?.title?.toUpperCase()}
+              value={course?.category?.title?.toUpperCase()}
               label="Topic"
               bgColor="bg-slate-100 hover:bg-slate-200"
             />
 
             <StatCard
               icon={<LibraryBig className="h-5 w-5 text-orange-500" />}
-              value={course.semester?.length || 0}
+              value={course?.semester?.length || 0}
               label="Semesters"
               bgColor="bg-slate-100 hover:bg-slate-200"
             />
 
             <StatCard
               icon={<LibraryBig className="h-5 w-5 text-orange-500" />}
-              value={course.enrollments?.length}
+              value={course?.enrollmentsCount[0].count}
               label="Students Enrolled"
+              bgColor="bg-slate-100 hover:bg-slate-200"
+            />
+            <StatCard
+              icon={<LibraryBig className="h-5 w-5 text-orange-500" />}
+              value={course?.courseCode}
+              label="Course Code"
               bgColor="bg-slate-100 hover:bg-slate-200"
             />
           </div>
@@ -548,8 +580,8 @@ export default function TeacherCourseDetails() {
         </section>
 
         {/* Final Assessment Cards */}
-        {Array.isArray(course.Assessments) &&
-          course.CourseAssessments.map((assessment) => (
+        {Array.isArray(course?.Assessments) &&
+          course?.CourseAssessments.map((assessment) => (
             <FinalCourseAssessmentCard
               key={assessment._id}
               assessment={assessment}
@@ -558,8 +590,8 @@ export default function TeacherCourseDetails() {
           ))}
 
         {/* Comments & Ratings Sections */}
-        {typeof course.commentsEnabled === "boolean" ? (
-          course.commentsEnabled ? (
+        {typeof course?.commentsEnabled === "boolean" ? (
+          course?.commentsEnabled ? (
             <section aria-label="Ratings and comments">
               <RatingSection courseId={id} />
               <CommentSection id={id} />
@@ -583,12 +615,14 @@ export default function TeacherCourseDetails() {
           </div>
         )}
 
-        <footer className="flex justify-end">
-          <ArchiveDialog
-            course={course}
-            fetchCourseDetail={fetchCourseDetail}
-          />
-        </footer>
+        {course && (
+          <footer className="flex justify-end">
+            <ArchiveDialog
+              course={course}
+              fetchCourseDetail={fetchCourseDetail}
+            />
+          </footer>
+        )}
       </div>
     </main>
   );

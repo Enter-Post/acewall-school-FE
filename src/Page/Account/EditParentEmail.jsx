@@ -1,14 +1,22 @@
 import { Button } from "@/components/ui/button";
 import { axiosInstance } from "@/lib/AxiosInstance";
 import { Loader, Plus, Trash2 } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { toast } from "sonner";
 
+const MAX_EMAILS = 4;
+
 const EditParentEmail = ({ studentId, initialEmails = [], onUpdate }) => {
-  const [emails, setEmails] = useState(
-    initialEmails.length > 0 ? initialEmails : [""]
-  );
+  const [emails, setEmails] = useState([]);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (initialEmails.length > 0) {
+      setEmails(initialEmails);
+    } else {
+      setEmails([""]);
+    }
+  }, [initialEmails]);
 
   const handleEmailChange = (index, value) => {
     const updated = [...emails];
@@ -17,8 +25,8 @@ const EditParentEmail = ({ studentId, initialEmails = [], onUpdate }) => {
   };
 
   const handleAddEmail = () => {
-    if (emails.length >= 4) {
-      toast.error("You can only add up to 4 emails");
+    if (emails.length >= MAX_EMAILS) {
+      toast.error("You can only add up to 4 guardian emails");
       return;
     }
     setEmails([...emails, ""]);
@@ -26,127 +34,126 @@ const EditParentEmail = ({ studentId, initialEmails = [], onUpdate }) => {
 
   const handleRemoveEmail = (index) => {
     const updated = emails.filter((_, i) => i !== index);
-    setEmails(updated.length > 0 ? updated : [""]);
+    setEmails(updated.length ? updated : [""]);
   };
 
+  /* ---------------------------------------------
+   Submit
+  --------------------------------------------- */
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const validEmails = emails.map((e) => e.trim()).filter((e) => e.length > 0);
 
-    if (validEmails.length === 0) {
+    const trimmedEmails = emails
+      .map((e) => e.trim().toLowerCase())
+      .filter(Boolean);
+
+    if (trimmedEmails.length === 0) {
       toast.error("Please enter at least one valid email");
+      return;
+    }
+
+    // Only NEW emails
+    const newEmails = trimmedEmails.filter(
+      (email) => !initialEmails.includes(email)
+    );
+
+    if (newEmails.length === 0) {
+      toast.info("No new guardian emails to add");
       return;
     }
 
     try {
       setLoading(true);
-      const res = await axiosInstance.put(
-        `/auth/updateParentEmail/${studentId}`,
-        {
-          guardianEmails: validEmails,
-        }
-      );
 
-      toast.success(res?.data?.message || "Emails updated successfully");
+      for (const email of newEmails) {
+        await axiosInstance.post(`/auth/createGuardianAcc/${studentId}`, {
+          guardianEmail: email,
+        });
+      }
 
-      if (onUpdate) onUpdate(validEmails);
+      toast.success("Guardian email(s) added & login link sent");
+
+      if (onUpdate) onUpdate(trimmedEmails);
     } catch (err) {
-      console.error("❌ API Error:", err);
-      toast.error(err?.response?.data?.message || "Something went wrong");
+      console.error("❌ Error:", err);
+      toast.error(
+        err?.response?.data?.message || "Failed to add guardian email"
+      );
     } finally {
       setLoading(false);
     }
   };
 
+  /* ---------------------------------------------
+   Render
+  --------------------------------------------- */
   return (
-    <div
-      className="mt-4 p-6 max-w-lg mx-auto bg-gray-50 rounded-lg shadow-md"
-      role="region"
-      aria-labelledby="edit-parent-email-heading"
-    >
-      <h2
-        id="edit-parent-email-heading"
-        className="text-lg font-semibold"
-      >
-        Edit Parent/Guardian Emails
-      </h2>
+    <div className="mt-6 max-w-lg mx-auto bg-white rounded-xl shadow p-6">
+      <h2 className="text-lg font-semibold">Parent / Guardian Emails</h2>
 
-      <p className="text-sm text-gray-600 mb-4">
-        Add or update up to 4 parent/guardian email addresses.
+      <p className="text-sm text-gray-500 mb-4">
+        Add up to {MAX_EMAILS} guardian email addresses. Each new email receives
+        a password-less login link.
       </p>
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
-        <fieldset className="space-y-4" aria-describedby="email-limit-note">
-          <legend className="sr-only">Parent or guardian email addresses</legend>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        {emails.map((email, index) => (
+          <div key={index} className="flex items-start gap-2">
+            <div className="w-full">
+              <label
+                htmlFor={`guardian-email-${index}`}
+                className="text-sm font-medium text-gray-700"
+              >
+                Guardian Email {index + 1}
+              </label>
 
-          {emails.map((email, index) => (
-            <div key={index} className="flex gap-2 items-start">
-              <div className="w-full">
-                <label
-                  htmlFor={`email-${index}`}
-                  className="text-sm font-medium text-gray-700"
-                >
-                  Parent/Guardian Email {index + 1}
-                </label>
-
-                <input
-                  id={`email-${index}`}
-                  type="email"
-                  value={email}
-                  onChange={(e) => handleEmailChange(index, e.target.value)}
-                  className="border p-2 rounded-md w-full mt-1"
-                  placeholder="example@email.com"
-                  aria-required="true"
-                  aria-invalid={email.trim() === ""}
-                />
-              </div>
-
-              {emails.length > 1 && (
-                <Button
-                  type="button"
-                  variant="destructive"
-                  size="icon"
-                  onClick={() => handleRemoveEmail(index)}
-                  aria-label={`Remove email field number ${index + 1}`}
-                >
-                  <Trash2 className="w-4 h-4" aria-hidden="true" />
-                </Button>
-              )}
+              <input
+                id={`guardian-email-${index}`}
+                type="email"
+                value={email}
+                placeholder="parent@email.com"
+                onChange={(e) => handleEmailChange(index, e.target.value)}
+                className="mt-1 w-full rounded-md border px-3 py-2 text-sm focus:ring-2 focus:ring-green-500"
+                required
+              />
             </div>
-          ))}
-        </fieldset>
+
+            {emails.length > 1 && (
+              <Button
+                type="button"
+                variant="destructive"
+                size="icon"
+                className="mt-6"
+                onClick={() => handleRemoveEmail(index)}
+                aria-label="Remove email"
+              >
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            )}
+          </div>
+        ))}
 
         <Button
           type="button"
           variant="outline"
           onClick={handleAddEmail}
+          disabled={emails.length >= MAX_EMAILS}
           className="flex items-center gap-2"
-          disabled={emails.length >= 4}
-          aria-disabled={emails.length >= 4}
-          aria-describedby="email-limit-note"
         >
-          <Plus className="w-4 h-4" aria-hidden="true" />
-          Add Another Email
+          <Plus className="w-4 h-4" />
+          Add another email
         </Button>
 
-        {emails.length >= 4 && (
-          <p
-            id="email-limit-note"
-            className="text-xs text-red-500"
-            role="alert"
-          >
-            You can only add up to 4 parent/guardian emails.
+        {emails.length >= MAX_EMAILS && (
+          <p className="text-xs text-red-500">
+            Maximum {MAX_EMAILS} guardian emails allowed.
           </p>
         )}
 
-        <Button
-          type="submit"
-          disabled={loading || emails.every((e) => e.trim().length === 0)}
-          aria-busy={loading}
-        >
+        <Button type="submit" disabled={loading} className="w-full">
           {loading ? (
             <span className="flex items-center gap-2">
-              <Loader className="animate-spin w-4 h-4" aria-hidden="true" />
+              <Loader className="w-4 h-4 animate-spin" />
               Saving...
             </span>
           ) : (

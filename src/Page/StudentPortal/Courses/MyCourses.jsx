@@ -114,8 +114,12 @@ const CourseCards = () => {
           {enrollment.map((course) => (
             <li key={course._id} className="list-none">
               <Link
-                to={`/student/mycourses/${course._id}`}
-                aria-label={`Open course ${course.course?.courseTitle || course.course}`}
+                to={`/student/mycourses/${course._id}?courseId=${
+                  course.course?._id || course.course
+                }`}
+                aria-label={`Open course ${
+                  course.course?.courseTitle || course.course
+                }`}
                 className="focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-green-500 rounded block"
               >
                 <MyCoursesCard course={course} />

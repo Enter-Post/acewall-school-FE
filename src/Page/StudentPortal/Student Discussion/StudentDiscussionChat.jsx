@@ -1,7 +1,7 @@
 import { GlobalContext } from "@/Context/GlobalProvider";
 import ChatBox from "@/CustomComponent/Discussion/ChatBox";
 import { axiosInstance } from "@/lib/AxiosInstance";
-import { Files } from "lucide-react";
+import { Files, Loader } from "lucide-react";
 import React, { useContext, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
@@ -11,6 +11,7 @@ const StudentDiscussionChat = () => {
   const [discussion, setDiscussion] = useState(null);
   const [loading, setLoading] = useState(true);
   const { user } = useContext(GlobalContext);
+  const [error, setError] = useState(null);
 
   const [modalOpen, setModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState(null);
@@ -23,6 +24,7 @@ const StudentDiscussionChat = () => {
         setDiscussion(res.data.discussion);
       } catch (err) {
         console.error(err);
+        setError(err.response?.data?.message || "Failed to load discussion.");
       } finally {
         setLoading(false);
       }
@@ -42,9 +44,12 @@ const StudentDiscussionChat = () => {
 
   if (loading) {
     return (
-      <main className="p-6" aria-busy="true" aria-live="polite">
-        {" "}
-        <p>Loading discussion...</p>{" "}
+      <main
+        className="p-6 flex items-center justify-center"
+        aria-busy="true"
+        aria-live="polite"
+      >
+        <Loader className="animate-spin" />
       </main>
     );
   }
@@ -52,14 +57,13 @@ const StudentDiscussionChat = () => {
   if (!discussion) {
     return (
       <main className="p-6">
-        {" "}
-        <p>Discussion not found.</p>
         <button
           onClick={() => navigate(-1)}
           className="mt-4 px-4 py-2 bg-gray-200 rounded"
         >
-          ← Back{" "}
-        </button>{" "}
+          ← Back
+        </button>
+        <p className="mt-2 text-red-600">{error}</p>
       </main>
     );
   }
