@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Sparkles, X, Loader2, Check, RotateCcw, Pencil } from "lucide-react";
 import { axiosInstance } from "@/lib/AxiosInstance";
-import { base64ToFile } from "@/utils/base64toFile";
+import { base64ToFile } from "@/utils/base64ToFile";
 import { toast } from "sonner";
 
 export default function AiContentModal({

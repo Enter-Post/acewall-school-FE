@@ -19,7 +19,7 @@ const CstdAttendance = () => {
   const [selectedDate, setSelectedDate] = useState(
     new Date().toISOString().split("T")[0]
   );
-  
+
   // Records state holds: { [studentId]: { status: "present", note: "i was present..." } }
   const [attendanceRecords, setAttendanceRecords] = useState({});
 
@@ -35,11 +35,21 @@ const CstdAttendance = () => {
       const res = await axiosInstance.get("/course/getallCoursesforTeacher", {
         params: { courseId, limit: 100 },
       });
-      const studentsData = res.data.students || [];
-      setStudents(studentsData);
 
-      if (!courseTitle && studentsData.length > 0) {
-        const course = studentsData[0].courses?.find((c) => c._id === courseId);
+      const allStudents = res.data.students || [];
+
+      // FILTER LOGIC: Only keep students enrolled in this specific courseId
+      const filteredByCourse = allStudents.filter((student) =>
+        student.courses?.some((course) => course._id === courseId)
+      );
+
+      setStudents(filteredByCourse);
+
+      // Set course title from the first matching student's course list
+      if (!courseTitle && filteredByCourse.length > 0) {
+        const course = filteredByCourse[0].courses?.find(
+          (c) => c._id === courseId
+        );
         if (course) setCourseTitle(course.courseTitle);
       }
     } catch (err) {
@@ -56,7 +66,7 @@ const CstdAttendance = () => {
       const res = await axiosInstance.get(
         `/attendance/get-attendance/${courseId}/${selectedDate}`
       );
-      
+
       const updatedRecords = {};
       // Initialize state for all students
       students.forEach((s) => {
@@ -64,8 +74,8 @@ const CstdAttendance = () => {
       });
 
       if (res.data.success && res.data.attendance) {
-        const existingData = res.data.attendance; 
-        
+        const existingData = res.data.attendance;
+
         Object.keys(existingData).forEach((sId) => {
           if (updatedRecords[sId]) {
             // Mapping the note and status from your object structure
@@ -81,7 +91,9 @@ const CstdAttendance = () => {
       console.error("Fetch attendance error:", err);
       // Reset records on error
       const resetRecords = {};
-      students.forEach((s) => (resetRecords[s._id] = { status: null, note: "" }));
+      students.forEach(
+        (s) => (resetRecords[s._id] = { status: null, note: "" })
+      );
       setAttendanceRecords(resetRecords);
     }
   };
@@ -146,12 +158,16 @@ const CstdAttendance = () => {
             {courseTitle || "Course"} Attendance
           </h1>
           <p className="text-sm text-gray-500">
-            {isToday ? "Marking today's records" : `Viewing/Editing records for ${selectedDate}`}
+            {isToday
+              ? "Marking today's records"
+              : `Viewing/Editing records for ${selectedDate}`}
           </p>
         </div>
 
         <div className="flex items-center gap-3 bg-white p-2 rounded-lg border shadow-sm">
-          <label className="text-sm font-semibold text-gray-600 ml-2">History:</label>
+          <label className="text-sm font-semibold text-gray-600 ml-2">
+            History:
+          </label>
           <input
             type="date"
             value={selectedDate}
@@ -188,23 +204,42 @@ const CstdAttendance = () => {
             <tbody className="divide-y divide-gray-100">
               {loading ? (
                 <tr>
-                  <td colSpan="5" className="text-center py-10 text-gray-400 italic">Loading...</td>
+                  <td
+                    colSpan="5"
+                    className="text-center py-10 text-gray-400 italic"
+                  >
+                    Loading...
+                  </td>
                 </tr>
               ) : (
                 filteredStudents.map((student) => {
-                  const record = attendanceRecords[student._id] || { status: null, note: "" };
-                  
+                  const record = attendanceRecords[student._id] || {
+                    status: null,
+                    note: "",
+                  };
+
                   return (
-                    <tr key={student._id} className="hover:bg-gray-50/80 transition-colors">
+                    <tr
+                      key={student._id}
+                      className="hover:bg-gray-50/80 transition-colors"
+                    >
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           <Avatar className="h-8 w-8 border">
-                            <AvatarImage src={student.profileImg?.url || avatarDefault} />
-                            <AvatarFallback>{student.firstName[0]}</AvatarFallback>
+                            <AvatarImage
+                              src={student.profileImg?.url || avatarDefault}
+                            />
+                            <AvatarFallback>
+                              {student.firstName[0]}
+                            </AvatarFallback>
                           </Avatar>
                           <div className="flex flex-col">
-                            <span className="font-medium text-sm text-gray-700">{student.firstName} {student.lastName}</span>
-                            <span className="text-[10px] text-gray-400">{student.email}</span>
+                            <span className="font-medium text-sm text-gray-700">
+                              {student.firstName} {student.lastName}
+                            </span>
+                            <span className="text-[10px] text-gray-400">
+                              {student.email}
+                            </span>
                           </div>
                         </div>
                       </td>
@@ -214,7 +249,9 @@ const CstdAttendance = () => {
                           type="checkbox"
                           className="w-5 h-5 accent-green-600 cursor-pointer"
                           checked={record.status === "present"}
-                          onChange={() => handleStatusChange(student._id, "present")}
+                          onChange={() =>
+                            handleStatusChange(student._id, "present")
+                          }
                         />
                       </td>
 
@@ -223,21 +260,34 @@ const CstdAttendance = () => {
                           type="checkbox"
                           className="w-5 h-5 accent-red-600 cursor-pointer"
                           checked={record.status === "absent"}
-                          onChange={() => handleStatusChange(student._id, "absent")}
+                          onChange={() =>
+                            handleStatusChange(student._id, "absent")
+                          }
                         />
                       </td>
 
                       <td className="px-6 py-4 text-center">
-                        <span className={`text-[10px] py-1 px-2 rounded-full uppercase font-bold ${
-                          record.status === "present" ? "bg-green-100 text-green-700" : 
-                          record.status === "absent" ? "bg-red-100 text-red-700" : "bg-gray-100 text-gray-400"
-                        }`}>
+                        <span
+                          className={`text-[10px] py-1 px-2 rounded-full uppercase font-bold ${
+                            record.status === "present"
+                              ? "bg-green-100 text-green-700"
+                              : record.status === "absent"
+                              ? "bg-red-100 text-red-700"
+                              : "bg-gray-100 text-gray-400"
+                          }`}
+                        >
                           {record.status || "Not Marked"}
                         </span>
                       </td>
 
                       <td className="px-6 py-4">
-                        <div className={`p-2 rounded border text-xs min-h-[40px] max-w-[300px] ${record.note ? 'bg-amber-50 border-amber-200 text-amber-900' : 'bg-gray-50 text-gray-400 italic'}`}>
+                        <div
+                          className={`p-2 rounded border text-xs min-h-[40px] max-w-[300px] ${
+                            record.note
+                              ? "bg-amber-50 border-amber-200 text-amber-900"
+                              : "bg-gray-50 text-gray-400 italic"
+                          }`}
+                        >
                           {record.note || "No note provided by student"}
                         </div>
                       </td>

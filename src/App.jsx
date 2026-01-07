@@ -123,7 +123,6 @@ import StudentAttendanceView from "./Page/StudentPortal/Attendance/StudentAttend
 import StudentMonthlyAttendance from "./Page/StudentPortal/Attendance/StudentMonthlyAttendance";
 import Passwordlesslogin from "./Page/Parent/Passwordless-login";
 
-
 function App() {
   const {
     checkAuth,
@@ -303,7 +302,10 @@ function App() {
             <Route path="attendance">
               <Route path="att" element={<StudentAttendanceView />} />
               {/* You can also have a course-specific attendance view if needed */}
-              <Route path="monthly/:courseId" element={<StudentMonthlyAttendance />} />
+              <Route
+                path="monthly/:courseId"
+                element={<StudentMonthlyAttendance />}
+              />
             </Route>
             <Route path="graphs" element={<GradingScales />} />
             <Route path="ai" element={<AiChatbot />} />

@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { useParams } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -84,11 +84,16 @@ export default function CourseOverview() {
   const { quarters, setQuarters } = useContext(CourseContext);
   const { user, checkAuth } = useContext(GlobalContext);
 
+  const [searchParams] = useSearchParams();
+  const courseId = searchParams.get("courseId");
+
+  console.log(courseId, "courseId");
+
   useEffect(() => {
     const getCourseDetails = async () => {
       setLoading(true);
       await axiosInstance
-        .get(`/enrollment/studentCourseDetails/${id}`)
+        .get(`/enrollment/studentCourseDetails/${id}/${courseId}`)
         .then((res) => {
           console.log(res);
           setCourse(res.data.enrolledCourse.courseDetails);
@@ -203,7 +208,6 @@ export default function CourseOverview() {
                 </Badge>
               </div>
             )}
-
             {course?.subcategory && (
               <div className="flex items-center gap-2">
                 <h3 className="text-gray-900 text-sm font-semibold mb-1">
@@ -213,7 +217,8 @@ export default function CourseOverview() {
                   {course?.subcategory?.title}
                 </Badge>
               </div>
-            )} {course?.courseCode && (
+            )}{" "}
+            {course?.courseCode && (
               <div className="flex items-center gap-2">
                 <h3 className="text-gray-900 text-sm font-semibold mb-1">
                   Course Code

@@ -30,8 +30,8 @@ export default function ChapterDetail() {
   const [expandedSections, setExpandedSections] = useState({});
   const [activeLesson, setActiveLesson] = useState(null);
   const [loading, setLoading] = useState(true);
-
   const [chapter, setChapter] = useState(null);
+  const [error, setError] = useState(null);
 
   // Toggle the visibility of the lesson content
   const toggleLessonVisibility = () => {
@@ -47,7 +47,9 @@ export default function ChapterDetail() {
           setLoading(false);
         })
         .catch((err) => {
-          console.log(err);
+          console.log(err, "error in getCourseDetails");
+          setLoading(false);
+          setError(err.response?.data?.message || "Failed to load course.");
         });
     };
     getCourseDetails();
@@ -76,7 +78,7 @@ export default function ChapterDetail() {
   }
 
   if (!chapter) {
-    return <div className="p-6 text-center">Chapter not found.</div>;
+    return <div className="p-6 text-red-500 text-center">{error}</div>;
   }
 
   return (
